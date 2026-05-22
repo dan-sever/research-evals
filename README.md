@@ -56,10 +56,13 @@ After a run, the dashboard's "Single run inspector" tab shows every question, th
 
 ## Setup in detail
 
-1. Install:
+1. Activate the venv, then install:
    ```bash
-   .venv/bin/pip install -r requirements.txt
+   source .venv/bin/activate          # macOS / Linux
+   # .venv\Scripts\activate           # Windows PowerShell
+   pip install -r requirements.txt
    ```
+   When you're done working in the project, `deactivate` returns the shell to your system Python. The Quick start commands above use `.venv/bin/pip` / `.venv/bin/python` directly so they work without activation; once activated, you can drop the `.venv/bin/` prefix and just type `pip`, `python`, `streamlit`.
 
 2. Add the keys you have to `.env`. The minimum is `TAVILY_API_KEY` + `ANTHROPIC_API_KEY` for a Tavily-only setup. Add others as you bring providers online.
    ```
