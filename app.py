@@ -30,6 +30,15 @@ def _fmt_duration(seconds) -> str:
     return f"{seconds:.1f}s ({seconds / 60:.1f} min)"
 
 
+def _fmt_duration_short(seconds) -> str:
+    """Compact form for dense table cells: `12.3s` or `2.1m`."""
+    if seconds is None or pd.isna(seconds) or seconds == 0:
+        return ""
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    return f"{seconds / 60:.1f}m"
+
+
 def _ranges(sorted_ints: list[int]) -> str:
     """`[0,1,2,4,7,8,9]` -> `0-2, 4, 7-9`."""
     if not sorted_ints:
@@ -155,9 +164,11 @@ with tab_launch:
     st.markdown("---")
     st.markdown("**Pick the starting question**")
     st.caption(
-        "Click any row to start the batch there. The right-hand columns show "
-        "every provider:model that has ever run this benchmark for the "
-        "selected seed: ✅ correct, ❌ incorrect, ⚠ error, blank = not run."
+        "Click row checkboxes to pick which questions to run. The right-hand "
+        "columns show every provider:model that has ever run this benchmark "
+        "for the selected seed, with the answer it gave and how long it "
+        "took (✅ correct, ❌ incorrect, ⚠ error, blank = not run). Hover a "
+        "cell to read it in full if truncated."
     )
 
     ds_df = _load_dataset_df(bench, seed_int).copy()
@@ -166,20 +177,28 @@ with tab_launch:
     ds_df["expected_answer"] = ds_df["expected_answer"].str.slice(0, 80)
 
     # Build per-(provider, model) status maps from DB. Iterate ascending by
-    # run_id so latest assignment wins for any question re-run.
+    # run_id so latest assignment wins for any question re-run. Each cell is
+    # "<symbol> <extracted_answer> · <duration>" so the table doubles as a
+    # quick comparison view: you can scan correct/incorrect AND what each
+    # provider actually answered, without opening the inspector tab.
     status_rows = storage.get_question_status(bench)
     combo_status: dict[tuple[str, str], dict[int, str]] = {}
     for s in status_rows:
         if s["seed"] != seed_int:
             continue
+        ans = (s.get("extracted_answer") or "").strip()
+        if len(ans) > 40:
+            ans = ans[:40] + "…"
         if s["error"]:
-            cell = "⚠"
+            head = "⚠ error"
         elif s["is_correct"] == 1:
-            cell = "✅"
+            head = f"✅ {ans}" if ans else "✅"
         elif s["is_correct"] == 0:
-            cell = "❌"
+            head = f"❌ {ans}" if ans else "❌"
         else:
-            cell = "·"
+            head = f"· {ans}" if ans else "·"
+        dur = _fmt_duration_short(s.get("research_duration_seconds"))
+        cell = f"{head} · {dur}" if dur else head
         combo_status.setdefault((s["provider"], s["model"]), {})[
             int(s["q_index"])
         ] = cell
@@ -207,7 +226,7 @@ with tab_launch:
         "expected_answer": st.column_config.TextColumn("Expected", width=140),
     }
     for col in coverage_cols:
-        column_config[col] = st.column_config.TextColumn(col, width=80)
+        column_config[col] = st.column_config.TextColumn(col, width=200)
 
     sel = st.dataframe(
         ds_df[table_cols],

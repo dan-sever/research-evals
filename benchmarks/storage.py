@@ -275,14 +275,18 @@ def get_question_status(benchmark: str, db_path: Path = DB_PATH) -> list[dict]:
     """Per-question outcome for every (provider, model, seed) combination
     that has touched this benchmark.
 
-    Each row: {run_id, provider, model, seed, q_index, is_correct, error}.
+    Each row: {run_id, provider, model, seed, q_index, is_correct,
+               extracted_answer, research_duration_seconds, error}.
     Sorted by run_id ascending so callers can dedup by overwriting (latest
     run wins) when the same question was answered more than once.
     """
     with connect(db_path) as conn:
         rows = conn.execute(
             """SELECT r.id AS run_id, r.provider, r.model, r.seed,
-                      res.q_index, res.is_correct, res.error
+                      res.q_index, res.is_correct,
+                      res.extracted_answer,
+                      res.research_duration_seconds,
+                      res.error
                FROM runs r
                JOIN results res ON res.run_id = r.id
                WHERE r.benchmark = ?
