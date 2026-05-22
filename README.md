@@ -57,16 +57,19 @@ python compare.py --benchmark sealqa_seal0 --limit 20 --seed 42 \
 
 This launches one run per provider sequentially, all sharing the same seed + limit + `comparison_set` id, so every provider answers the identical N questions. The dashboard groups them automatically.
 
-## Inspecting results
+## Dashboard (launching + inspecting)
 
 ```bash
 streamlit run app.py
 ```
 
-Two tabs:
+Three tabs:
 
-1. **Single run inspector.** Pick any run, see headline accuracy, filter rows by correct/incorrect/errors, search question text, drill into one question for the full research report and sources.
-2. **Provider comparison.** Pick a comparison set, see the per-provider accuracy matrix at the top, then a per-question grid with one column per provider (✅/❌ plus extracted answer). Filters include "Tavily wins (unique)", "Tavily loses (unique)", "any disagreement", "all correct", "all wrong". Click into one question to see every provider's full report side by side.
+1. **Launch run.** Pick a benchmark, see which `q_index` ranges have already been covered (by which provider/model/seed), pick the next offset+limit, choose one or more providers + models, click Launch. Runs spawn as detached subprocesses and survive Streamlit reloads. The in-flight panel shows live progress (rows landing in the DB).
+2. **Single run inspector.** Pick any run, see headline accuracy, filter rows by correct/incorrect/errors, search question text, drill into one question for the full research report and sources.
+3. **Provider comparison.** Pick a comparison set, see the per-provider accuracy matrix at the top, then a per-question grid with one column per provider (✅/❌ plus extracted answer). Filters include "Tavily wins (unique)", "Tavily loses (unique)", "any disagreement", "all correct", "all wrong". Click into one question to see every provider's full report side by side.
+
+The CLIs (`run.py`, `compare.py`) still work; they're equivalent to launching from the UI. Logs from UI-launched runs land in `logs/`.
 
 If you prefer raw SQL, `results.db` is plain SQLite. Tables: `runs`, `results`.
 

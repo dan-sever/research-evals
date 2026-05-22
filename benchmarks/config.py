@@ -13,6 +13,8 @@ class RunConfig:
     provider: str = "tavily"
     model: str = "mini"
     limit: Optional[int] = None
+    offset: int = 0
+    q_indices: Optional[tuple[int, ...]] = None
     workers: int = 4
     sample_seed: Optional[int] = None
     citation_format: str = "numbered"

@@ -75,9 +75,26 @@ def load(
     name: str,
     limit: Optional[int] = None,
     seed: Optional[int] = None,
+    offset: int = 0,
+    q_indices: Optional[list[int]] = None,
 ) -> Iterator[Question]:
+    """Stream questions from a benchmark.
+
+    Two selection modes:
+
+    * Range mode (`offset` + `limit`): skip the first `offset` rows of the
+      (possibly shuffled) dataset, then return at most `limit`.
+    * Cherry-pick mode (`q_indices`): return exactly those q_indices in
+      the given order. Invalid indices are silently skipped. When set,
+      this overrides `offset` and `limit`.
+
+    With the same `seed`, calls with disjoint ranges or disjoint
+    `q_indices` produce non-overlapping question sets.
+    """
     if name not in REGISTRY:
         raise KeyError(f"Unknown benchmark {name!r}. Known: {list_benchmarks()}")
+    if offset < 0:
+        raise ValueError("offset must be >= 0")
     spec = REGISTRY[name]
     path = DATA_DIR / spec.parquet
     if not path.exists():
@@ -88,8 +105,15 @@ def load(
     df = pd.read_parquet(path)
     if seed is not None:
         df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    if limit is not None:
-        df = df.head(limit)
+
+    if q_indices is not None:
+        valid = [qi for qi in q_indices if qi in df.index]
+        df = df.loc[valid]
+    else:
+        if offset:
+            df = df.iloc[offset:]
+        if limit is not None:
+            df = df.head(limit)
 
     for i, row in df.iterrows():
         extras = {c: row[c] for c in spec.extra_cols if c in df.columns}

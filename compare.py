@@ -51,6 +51,14 @@ def main(argv: list[str] | None = None) -> int:
              "tavily:mini,perplexity:sonar-pro,exa:exa,parallel:core",
     )
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Skip the first N questions before applying --limit. "
+             "All providers in the batch share the same offset+limit, so the "
+             "next batch lines up exactly with the previous one.",
+    )
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument(
         "--seed",
@@ -107,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
             provider=name,
             model=model or providers.default_model(name),
             limit=args.limit,
+            offset=args.offset,
             workers=args.workers,
             sample_seed=args.seed,
             judge_model=args.judge_model,

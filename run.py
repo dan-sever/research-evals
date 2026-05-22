@@ -43,6 +43,21 @@ def main(argv: list[str] | None = None) -> int:
         help="Number of questions to run. Omit for the full set.",
     )
     parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Skip the first N questions before applying --limit. "
+             "Use --offset 2 --limit 5 to run questions 3..7 after a "
+             "previous --limit 2 batch. With --seed, offset applies to the "
+             "shuffled order.",
+    )
+    parser.add_argument(
+        "--q-indices",
+        default=None,
+        help="Comma-separated list of q_index to run, e.g. '7,20,15,2,9'. "
+             "When set, overrides --offset and --limit.",
+    )
+    parser.add_argument(
         "--workers",
         type=int,
         default=4,
@@ -65,19 +80,33 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="Free-form note saved with the run.",
     )
+    parser.add_argument(
+        "--comparison-set",
+        default=None,
+        help="UUID grouping this run with others (used by compare.py and the UI launcher).",
+    )
 
     args = parser.parse_args(argv)
     model = args.model or providers.default_model(args.provider)
+
+    q_indices: tuple[int, ...] | None = None
+    if args.q_indices:
+        q_indices = tuple(
+            int(x.strip()) for x in args.q_indices.split(",") if x.strip()
+        )
 
     config = RunConfig(
         benchmark=args.benchmark,
         provider=args.provider,
         model=model,
         limit=args.limit,
+        offset=args.offset,
+        q_indices=q_indices,
         workers=args.workers,
         sample_seed=args.seed,
         judge_model=args.judge_model,
         note=args.note,
+        comparison_set=args.comparison_set,
     )
     run(config)
     return 0

@@ -6,11 +6,14 @@
 from __future__ import annotations
 
 import json
+import uuid
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
-from benchmarks import storage
+from benchmarks import datasets, launcher, providers, storage
+from benchmarks.config import load_env
 
 st.set_page_config(page_title="Research Benchmarks", layout="wide")
 st.title("Research benchmark runs")
@@ -27,7 +30,343 @@ def _fmt_duration(seconds) -> str:
     return f"{seconds:.1f}s ({seconds / 60:.1f} min)"
 
 
-tab_inspect, tab_compare = st.tabs(["Single run inspector", "Provider comparison"])
+def _ranges(sorted_ints: list[int]) -> str:
+    """`[0,1,2,4,7,8,9]` -> `0-2, 4, 7-9`."""
+    if not sorted_ints:
+        return "—"
+    parts: list[str] = []
+    start = prev = sorted_ints[0]
+    for n in sorted_ints[1:]:
+        if n == prev + 1:
+            prev = n
+            continue
+        parts.append(f"{start}" if start == prev else f"{start}-{prev}")
+        start = prev = n
+    parts.append(f"{start}" if start == prev else f"{start}-{prev}")
+    return ", ".join(parts)
+
+
+@st.cache_data
+def _dataset_size(name: str) -> int:
+    """Total questions in the parquet, ignoring limit/offset."""
+    spec = datasets.REGISTRY[name]
+    import pyarrow.parquet as pq
+    return pq.ParquetFile(datasets.DATA_DIR / spec.parquet).metadata.num_rows
+
+
+@st.cache_data
+def _load_dataset_df(name: str, seed) -> pd.DataFrame:
+    """Return the dataset as `(q_index, question, expected_answer)` in
+    whatever order matches `seed`. q_index is the row's position after
+    shuffling, so it lines up exactly with what `datasets.load(... seed=...)`
+    produces."""
+    spec = datasets.REGISTRY[name]
+    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
+    if seed is not None:
+        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
+    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
+    df["question"] = df[spec.question_col].astype(str)
+    df["expected_answer"] = df[spec.answer_col].astype(str)
+    return df[["q_index", "question", "expected_answer"]].copy()
+
+
+tab_launch, tab_inspect, tab_compare = st.tabs(
+    ["Launch run", "Single run inspector", "Provider comparison"]
+)
+
+
+# ============================================================================
+# Tab 0 — Launch run
+# ============================================================================
+with tab_launch:
+    st.subheader("Configure a new run")
+
+    _benchmarks = datasets.list_benchmarks()
+    bench = st.segmented_control(
+        "Benchmark",
+        _benchmarks,
+        default=_benchmarks[0],
+        key="launch_bench",
+    )
+    if not bench:
+        bench = _benchmarks[0]
+    total_q = _dataset_size(bench)
+    st.caption(f"{bench}: {total_q} questions total")
+
+    coverage = storage.get_coverage(bench)
+
+    st.markdown("---")
+    st.markdown("**Providers and models**")
+
+    selected_providers: list[str] = st.multiselect(
+        "Providers",
+        list(providers.PROVIDERS),
+        default=["tavily"],
+        key="launch_providers",
+    )
+
+    provider_models: dict[str, list[str]] = {}
+    if selected_providers:
+        prov_cols = st.columns(len(selected_providers))
+        for col, p in zip(prov_cols, selected_providers):
+            with col:
+                provider_models[p] = st.multiselect(
+                    f"{p} models",
+                    list(providers.PROVIDERS[p].available_models),
+                    default=[providers.PROVIDERS[p].default_model],
+                    key=f"launch_models_{p}",
+                )
+
+    st.markdown("---")
+    st.markdown("**Options**")
+
+    oc1, oc2, oc3 = st.columns(3)
+    with oc1:
+        seed_str = st.text_input(
+            "Seed (blank = original order)",
+            value="",
+            key="launch_seed",
+        )
+    with oc2:
+        count = st.number_input(
+            "Max per batch (cap)",
+            min_value=1, max_value=50,
+            value=5, step=1,
+            help="Hard cap on how many rows you can select at once.",
+            key="launch_count",
+        )
+    with oc3:
+        workers = st.number_input(
+            "Workers",
+            min_value=1, max_value=16,
+            value=4, step=1,
+            key="launch_workers",
+        )
+
+    note = st.text_input("Note (saved with every run)", value="", key="launch_note")
+
+    try:
+        seed_int = int(seed_str) if seed_str.strip() else None
+    except ValueError:
+        st.error("Seed must be an integer or empty.")
+        seed_int = None
+
+    # ----- Dataset table with coverage marks -----
+    st.markdown("---")
+    st.markdown("**Pick the starting question**")
+    st.caption(
+        "Click any row to start the batch there. The right-hand columns show "
+        "every provider:model that has ever run this benchmark for the "
+        "selected seed: ✅ correct, ❌ incorrect, ⚠ error, blank = not run."
+    )
+
+    ds_df = _load_dataset_df(bench, seed_int).copy()
+    # Truncate long strings for display
+    ds_df["question"] = ds_df["question"].str.slice(0, 140)
+    ds_df["expected_answer"] = ds_df["expected_answer"].str.slice(0, 80)
+
+    # Build per-(provider, model) status maps from DB. Iterate ascending by
+    # run_id so latest assignment wins for any question re-run.
+    status_rows = storage.get_question_status(bench)
+    combo_status: dict[tuple[str, str], dict[int, str]] = {}
+    for s in status_rows:
+        if s["seed"] != seed_int:
+            continue
+        if s["error"]:
+            cell = "⚠"
+        elif s["is_correct"] == 1:
+            cell = "✅"
+        elif s["is_correct"] == 0:
+            cell = "❌"
+        else:
+            cell = "·"
+        combo_status.setdefault((s["provider"], s["model"]), {})[
+            int(s["q_index"])
+        ] = cell
+
+    def _combo_key(combo):
+        # Tavily first since this is your home turf, then alphabetical.
+        p, m = combo
+        return (0 if p == "tavily" else 1, p, m)
+
+    all_combos = sorted(combo_status.keys(), key=_combo_key)
+
+    coverage_cols: list[str] = []
+    for p, m in all_combos:
+        col = f"{p}:{m}"
+        coverage_cols.append(col)
+        status_map = combo_status[(p, m)]
+        ds_df[col] = ds_df["q_index"].map(
+            lambda qi, _s=status_map: _s.get(int(qi), "")
+        )
+
+    table_cols = ["q_index", "question", "expected_answer"] + coverage_cols
+    column_config = {
+        "q_index": st.column_config.NumberColumn("#", width=60, pinned=True),
+        "question": st.column_config.TextColumn("Question", width="large"),
+        "expected_answer": st.column_config.TextColumn("Expected", width=140),
+    }
+    for col in coverage_cols:
+        column_config[col] = st.column_config.TextColumn(col, width=80)
+
+    sel = st.dataframe(
+        ds_df[table_cols],
+        on_select="rerun",
+        selection_mode="multi-row",
+        column_config=column_config,
+        width="stretch",
+        hide_index=True,
+        height=420,
+        key=f"launch_table_{bench}_{seed_int}",
+    )
+
+    selected_positions: list[int] = list(sel.selection.rows or [])
+    over_cap = len(selected_positions) > int(count)
+    if over_cap:
+        st.error(
+            f"You picked {len(selected_positions)} rows but the cap is "
+            f"{int(count)}. Reduce the selection or raise the cap above."
+        )
+
+    selected_q_indices: list[int] = [
+        int(ds_df.iloc[pos]["q_index"]) for pos in selected_positions
+    ]
+
+    if not selected_q_indices:
+        st.info(
+            "Pick rows in the table above to choose which questions to run. "
+            "Click row checkboxes to multi-select."
+        )
+    else:
+        st.markdown(
+            f"**Selected:** {len(selected_q_indices)} question(s)  ·  "
+            f"q_index `{_ranges(sorted(selected_q_indices))}`"
+        )
+        with st.expander("Preview selected questions", expanded=False):
+            preview = ds_df[ds_df["q_index"].isin(selected_q_indices)][
+                ["q_index", "question"]
+            ].set_index("q_index").loc[selected_q_indices].reset_index()
+            st.dataframe(preview, width="stretch", hide_index=True)
+
+    # ----- Overlap warning for the selected rows -----
+    if selected_q_indices and selected_providers and any(provider_models.values()):
+        picked_set = set(selected_q_indices)
+        already_covered: list[tuple[str, str, str]] = []
+        for p, models in provider_models.items():
+            for m in models:
+                match = next(
+                    (
+                        c for c in coverage
+                        if c["provider"] == p and c["model"] == m
+                        and c["seed"] == seed_int
+                    ),
+                    None,
+                )
+                if not match:
+                    continue
+                overlap = sorted(picked_set & set(match["q_indices"]))
+                if overlap:
+                    already_covered.append((p, m, _ranges(overlap)))
+        if already_covered:
+            lines = "\n".join(
+                f"- `{p}:{m}` already covers q_index {r}"
+                for p, m, r in already_covered
+            )
+            st.warning(
+                "Some of these questions have already been run (same seed). "
+                "Launching again will re-bill them:\n\n" + lines
+            )
+
+    # ----- Cost preview -----
+    runs_planned = sum(len(ms) for ms in provider_models.values())
+    calls_planned = runs_planned * len(selected_q_indices)
+    st.info(
+        f"This will launch **{runs_planned} run(s)** × "
+        f"**{len(selected_q_indices)} question(s)** = "
+        f"**{calls_planned} research call(s)** + {calls_planned} judge call(s)."
+    )
+
+    # ----- Env key check -----
+    env = load_env()
+    missing: list[str] = []
+    for p in selected_providers:
+        if not provider_models.get(p):
+            continue
+        var = providers.PROVIDERS[p].env_var
+        if not env.get(var):
+            missing.append(f"{p} ({var})")
+    if not env.get("ANTHROPIC_API_KEY"):
+        missing.append("judge (ANTHROPIC_API_KEY)")
+
+    if missing:
+        st.error("Missing API keys in `.env`: " + ", ".join(missing))
+
+    confirm = st.checkbox(
+        "I'm ready to launch — this will spend API credits.",
+        value=False,
+        key="launch_confirm",
+    )
+
+    launch_disabled = (
+        runs_planned == 0
+        or bool(missing)
+        or not confirm
+        or not selected_q_indices
+        or over_cap
+    )
+    if st.button("Launch", type="primary", disabled=launch_disabled):
+        comparison_set = str(uuid.uuid4()) if runs_planned > 1 else None
+        launched: list[tuple[str, str, int, Path]] = []
+        for p, models in provider_models.items():
+            for m in models:
+                pid, log_path = launcher.launch_run(
+                    benchmark=bench,
+                    provider=p,
+                    model=m,
+                    q_indices=selected_q_indices,
+                    seed=seed_int,
+                    workers=int(workers),
+                    note=note,
+                    comparison_set=comparison_set,
+                )
+                launched.append((p, m, pid, log_path))
+        st.success(
+            f"Launched {len(launched)} run(s). They run in the background. "
+            "Refresh below to see status."
+        )
+        for p, m, pid, log_path in launched:
+            st.caption(f"  `{p}:{m}`  pid `{pid}`  log `{log_path.name}`")
+        if comparison_set:
+            st.caption(f"comparison_set `{comparison_set[:8]}…`")
+
+    # ----- In-flight runs -----
+    st.markdown("---")
+    st.subheader("In-flight runs")
+    in_flight = storage.list_in_progress_runs()
+    if not in_flight:
+        st.caption("Nothing running.")
+    else:
+        flight_df = pd.DataFrame([
+            {
+                "run_id": r["id"],
+                "provider": r["provider"],
+                "model": r["model"],
+                "benchmark": r["benchmark"],
+                "progress": (
+                    f"{r['rows_so_far']} / {r['limit_n']}"
+                    if r["limit_n"] is not None
+                    else f"{r['rows_so_far']}"
+                ),
+                "correct": r["correct_so_far"] or 0,
+                "errors": r["errors_so_far"] or 0,
+                "started": (r["started_at"] or "")[:16].replace("T", " "),
+                "note": r["note"] or "",
+            }
+            for r in in_flight
+        ])
+        st.dataframe(flight_df, width="stretch", hide_index=True)
+    if st.button("Refresh status", key="refresh_inflight"):
+        st.rerun()
 
 
 # ============================================================================

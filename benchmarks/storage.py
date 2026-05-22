@@ -237,6 +237,78 @@ def list_comparison_sets(db_path: Path = DB_PATH) -> list[dict]:
         return [dict(r) for r in rows]
 
 
+def get_coverage(benchmark: str, db_path: Path = DB_PATH) -> list[dict]:
+    """For a benchmark, summarize which q_index has been run by which
+    (provider, model, seed) combination.
+
+    Returned rows look like:
+      {provider, model, seed, run_ids: list[int], q_indices: list[int]}
+    """
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            """SELECT r.provider, r.model, r.seed,
+                      GROUP_CONCAT(DISTINCT r.id) AS run_ids,
+                      GROUP_CONCAT(res.q_index)   AS q_indices
+               FROM runs r
+               JOIN results res ON res.run_id = r.id
+               WHERE r.benchmark = ?
+               GROUP BY r.provider, r.model, r.seed
+               ORDER BY r.provider, r.model, r.seed""",
+            (benchmark,),
+        ).fetchall()
+
+    out = []
+    for row in rows:
+        run_ids = sorted({int(x) for x in (row["run_ids"] or "").split(",") if x})
+        q_indices = sorted({int(x) for x in (row["q_indices"] or "").split(",") if x})
+        out.append({
+            "provider": row["provider"],
+            "model": row["model"],
+            "seed": row["seed"],
+            "run_ids": run_ids,
+            "q_indices": q_indices,
+        })
+    return out
+
+
+def get_question_status(benchmark: str, db_path: Path = DB_PATH) -> list[dict]:
+    """Per-question outcome for every (provider, model, seed) combination
+    that has touched this benchmark.
+
+    Each row: {run_id, provider, model, seed, q_index, is_correct, error}.
+    Sorted by run_id ascending so callers can dedup by overwriting (latest
+    run wins) when the same question was answered more than once.
+    """
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            """SELECT r.id AS run_id, r.provider, r.model, r.seed,
+                      res.q_index, res.is_correct, res.error
+               FROM runs r
+               JOIN results res ON res.run_id = r.id
+               WHERE r.benchmark = ?
+               ORDER BY r.id ASC""",
+            (benchmark,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def list_in_progress_runs(db_path: Path = DB_PATH) -> list[dict]:
+    """Runs that started but never marked finished. Includes current row count."""
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            """SELECT r.*,
+                      COUNT(res.id) AS rows_so_far,
+                      SUM(CASE WHEN res.is_correct = 1 THEN 1 ELSE 0 END) AS correct_so_far,
+                      SUM(CASE WHEN res.error IS NOT NULL THEN 1 ELSE 0 END) AS errors_so_far
+               FROM runs r
+               LEFT JOIN results res ON res.run_id = r.id
+               WHERE r.finished_at IS NULL
+               GROUP BY r.id
+               ORDER BY r.started_at DESC"""
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
 def get_runs_in_set(comparison_set: str, db_path: Path = DB_PATH) -> list[dict]:
     """All runs in a comparison set, with totals + accuracy + avg duration."""
     with connect(db_path) as conn:

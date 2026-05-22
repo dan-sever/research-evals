@@ -36,6 +36,8 @@ def run(config: RunConfig) -> int:
             config.benchmark,
             limit=config.limit,
             seed=config.sample_seed,
+            offset=config.offset,
+            q_indices=list(config.q_indices) if config.q_indices else None,
         )
     )
     if not questions:
@@ -43,9 +45,11 @@ def run(config: RunConfig) -> int:
         print(f"Run {run_id}: no questions to process.")
         return run_id
 
+    offset_part = f" | offset={config.offset}" if config.offset else ""
     print(
         f"Run {run_id}: provider={config.provider} model={config.model} "
-        f"| {config.benchmark} | n={len(questions)} | workers={config.workers}"
+        f"| {config.benchmark} | n={len(questions)}{offset_part} "
+        f"| workers={config.workers}"
     )
 
     def process(q):
