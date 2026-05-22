@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider parallel --benchmark sealqa_seal0 --model ultra --workers 4 --judge-model claude-haiku-4-5 --q-indices 32,33,35,36,46 --comparison-set 41d4fab4-3928-44b5-b834-6686b4a0ae56
+Run 33: provider=parallel model=ultra | sealqa_seal0 | n=5 | workers=4
+parallel:ultra:   0%|          | 0/5 [00:00<?, ?it/s]parallel:ultra:  20%|██        | 1/5 [09:08<36:34, 548.51s/it]parallel:ultra:  40%|████      | 2/5 [09:14<11:27, 229.22s/it]parallel:ultra:  60%|██████    | 3/5 [11:50<06:31, 195.70s/it]parallel:ultra:  80%|████████  | 4/5 [19:25<04:58, 298.08s/it]parallel:ultra: 100%|██████████| 5/5 [21:15<00:00, 230.54s/it]parallel:ultra: 100%|██████████| 5/5 [21:15<00:00, 255.17s/it]
+
+Run 33 done (parallel/ultra). Correct 4/5 (80.0%).

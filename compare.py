@@ -6,10 +6,10 @@ limit, so every provider sees the identical N questions. The dashboard's
 
 Examples:
     python compare.py --benchmark sealqa_seal0 --limit 20 --seed 42 \\
-        --providers tavily:mini,perplexity:sonar-pro,exa:exa,parallel:core
+        --providers tavily:mini,perplexity:sonar-reasoning-pro,exa:deep-lite,parallel:core
 
     python compare.py --benchmark finsearchcomp --limit 10 \\
-        --providers tavily:pro,perplexity:sonar-reasoning-pro
+        --providers tavily:pro,perplexity:sonar-deep-research
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from benchmarks.runner import run as runner_run
 
 
 def _parse_providers(spec: str) -> list[tuple[str, str | None]]:
-    """`tavily:mini,exa:exa` -> [('tavily','mini'), ('exa','exa')]."""
+    """`tavily:mini,exa:deep-lite` -> [('tavily','mini'), ('exa','deep-lite')]."""
     out: list[tuple[str, str | None]] = []
     for item in spec.split(","):
         item = item.strip()
@@ -48,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
         "--providers",
         required=True,
         help="Comma-separated provider[:model] list, e.g. "
-             "tavily:mini,perplexity:sonar-pro,exa:exa,parallel:core",
+             "tavily:mini,perplexity:sonar-reasoning-pro,exa:deep-lite,parallel:core",
     )
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument(

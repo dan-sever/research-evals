@@ -2,7 +2,7 @@
 
 Examples:
     python run.py --provider tavily --benchmark sealqa_seal0 --model mini --limit 10
-    python run.py --provider perplexity --benchmark sealqa_seal_hard --model sonar-pro --limit 25
+    python run.py --provider perplexity --benchmark sealqa_seal_hard --model sonar-reasoning-pro --limit 25
     python run.py --provider exa --benchmark finsearchcomp --limit 5 --seed 42
 """
 
@@ -34,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
         "--model",
         default=None,
         help="Provider-specific model id (e.g. mini/pro/auto for Tavily, "
-             "sonar-pro for Perplexity). Defaults to the provider's default.",
+             "sonar-reasoning-pro for Perplexity). Defaults to the provider's default.",
     )
     parser.add_argument(
         "--limit",

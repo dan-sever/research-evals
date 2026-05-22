@@ -42,7 +42,7 @@ After a run, the dashboard's "Single run inspector" tab shows every question, th
 
 **Provider** — A research API. Four are wired in: `tavily`, `perplexity`, `exa`, `parallel`. Each declares its own default model and the list of models it accepts.
 
-**Model** — Provider-specific string. `mini`/`pro`/`auto` for Tavily, `sonar`/`sonar-pro`/`sonar-reasoning`/`sonar-reasoning-pro` for Perplexity, `exa` for EXA, `base`/`core`/`pro`/`ultra` for Parallel.
+**Model** — Provider-specific string. `mini`/`pro`/`auto` for Tavily, `sonar-reasoning-pro`/`sonar-deep-research` for Perplexity, `deep-lite`/`deep`/`deep-reasoning` for EXA, `lite`/`base`/`core`/`core-fast`/`pro`/`ultra` for Parallel.
 
 **Run** — One execution of one `(provider, model)` over one batch of questions. Every run gets a numeric `id` and a row in the `runs` table.
 
@@ -151,7 +151,7 @@ One run, one provider, one model.
 Examples:
 ```bash
 python run.py --provider tavily --benchmark sealqa_seal0 --model mini --limit 10
-python run.py --provider perplexity --benchmark sealqa_seal_hard --model sonar-pro --limit 25
+python run.py --provider perplexity --benchmark sealqa_seal_hard --model sonar-reasoning-pro --limit 25
 python run.py --provider tavily --benchmark sealqa_seal0 --q-indices "7,20,15,2,9"
 ```
 
@@ -161,7 +161,7 @@ Fan the same questions across multiple providers in one batch. All runs share a 
 
 ```bash
 python compare.py --benchmark sealqa_seal0 --limit 20 --seed 42 \
-    --providers tavily:mini,perplexity:sonar-pro,exa:exa,parallel:core
+    --providers tavily:mini,perplexity:sonar-reasoning-pro,exa:deep-lite,parallel:core
 ```
 
 Pre-flight checks every required env var before running anything.

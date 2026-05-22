@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from pathlib import Path
 
@@ -19,6 +20,23 @@ st.set_page_config(page_title="Research Benchmarks", layout="wide")
 st.title("Research benchmark runs")
 
 storage.init_db()
+
+
+# CJK ideographs, Hiragana/Katakana, Hangul, fullwidth forms. Any hit
+# means the string is almost certainly not English. Benchmarks here are
+# either entirely English or entirely a CJK language per row, so even
+# a stray glyph is a strong signal.
+_NON_ENGLISH_RE = re.compile(
+    "["
+    "　-鿿"   # CJK Symbols, Hiragana, Katakana, CJK Unified Ideographs
+    "가-힯"   # Hangul Syllables
+    "＀-￯"   # Halfwidth/fullwidth forms
+    "]"
+)
+
+
+def _looks_non_english(text: str) -> bool:
+    return bool(_NON_ENGLISH_RE.search(text or ""))
 
 
 def _fmt_duration(seconds) -> str:
@@ -163,45 +181,84 @@ with tab_launch:
     # ----- Dataset table with coverage marks -----
     st.markdown("---")
     st.markdown("**Pick the starting question**")
+    tcol1, tcol2 = st.columns(2)
+    with tcol1:
+        show_details = st.toggle(
+            "Show answer and duration in coverage cells",
+            value=True,
+            key="launch_show_details",
+            help="Off = just ✅/❌/⚠ symbols (fits more providers on screen). "
+                 "On = symbol plus extracted answer and run duration.",
+        )
+    with tcol2:
+        english_only = st.toggle(
+            "English only (hide CJK questions)",
+            value=False,
+            key="launch_english_only",
+            help="Hides questions containing Chinese/Japanese/Korean "
+                 "characters. Useful for finsearchcomp which mixes English "
+                 "and Chinese prompts. q_index numbering is preserved.",
+        )
     st.caption(
         "Click row checkboxes to pick which questions to run. The right-hand "
         "columns show every provider:model that has ever run this benchmark "
-        "for the selected seed, with the answer it gave and how long it "
-        "took (✅ correct, ❌ incorrect, ⚠ error, blank = not run). Hover a "
-        "cell to read it in full if truncated."
+        "for the selected seed (✅ correct, ❌ incorrect, ⚠ error, blank = "
+        "not run). Toggle above adds the answer and duration. Hover a cell "
+        "to read it in full if truncated."
     )
 
     ds_df = _load_dataset_df(bench, seed_int).copy()
+    if english_only:
+        before = len(ds_df)
+        ds_df = ds_df[~ds_df["question"].map(_looks_non_english)].reset_index(drop=True)
+        hidden = before - len(ds_df)
+        if hidden:
+            st.caption(f"Hiding {hidden} non-English question(s).")
     # Truncate long strings for display
     ds_df["question"] = ds_df["question"].str.slice(0, 140)
     ds_df["expected_answer"] = ds_df["expected_answer"].str.slice(0, 80)
 
     # Build per-(provider, model) status maps from DB. Iterate ascending by
-    # run_id so latest assignment wins for any question re-run. Each cell is
-    # "<symbol> <extracted_answer> · <duration>" so the table doubles as a
-    # quick comparison view: you can scan correct/incorrect AND what each
-    # provider actually answered, without opening the inspector tab.
+    # run_id so latest assignment wins for any question re-run. With the
+    # toggle on, each cell is "<symbol> <extracted_answer> · <duration>" so
+    # the table doubles as a quick comparison view. With it off, cells are
+    # just the symbol so more provider columns fit on screen at once.
+    # Only count and display status for q_indices that survived the filter
+    # so the per-column score matches what the user actually sees.
+    visible_q_indices = set(ds_df["q_index"].astype(int).tolist())
     status_rows = storage.get_question_status(bench)
     combo_status: dict[tuple[str, str], dict[int, str]] = {}
+    combo_score: dict[tuple[str, str], dict[str, int]] = {}
     for s in status_rows:
         if s["seed"] != seed_int:
             continue
-        ans = (s.get("extracted_answer") or "").strip()
-        if len(ans) > 40:
-            ans = ans[:40] + "…"
+        if int(s["q_index"]) not in visible_q_indices:
+            continue
         if s["error"]:
-            head = "⚠ error"
+            symbol = "⚠"
         elif s["is_correct"] == 1:
-            head = f"✅ {ans}" if ans else "✅"
+            symbol = "✅"
         elif s["is_correct"] == 0:
-            head = f"❌ {ans}" if ans else "❌"
+            symbol = "❌"
         else:
-            head = f"· {ans}" if ans else "·"
-        dur = _fmt_duration_short(s.get("research_duration_seconds"))
-        cell = f"{head} · {dur}" if dur else head
-        combo_status.setdefault((s["provider"], s["model"]), {})[
-            int(s["q_index"])
-        ] = cell
+            symbol = "·"
+        if show_details:
+            ans = (s.get("extracted_answer") or "").strip()
+            if len(ans) > 40:
+                ans = ans[:40] + "…"
+            head = "⚠ error" if s["error"] else (
+                f"{symbol} {ans}" if ans else symbol
+            )
+            dur = _fmt_duration_short(s.get("research_duration_seconds"))
+            cell = f"{head} · {dur}" if dur else head
+        else:
+            cell = symbol
+        key = (s["provider"], s["model"])
+        combo_status.setdefault(key, {})[int(s["q_index"])] = cell
+        score = combo_score.setdefault(key, {"correct": 0, "total": 0})
+        score["total"] += 1
+        if s["is_correct"] == 1:
+            score["correct"] += 1
 
     def _combo_key(combo):
         # Tavily first since this is your home turf, then alphabetical.
@@ -225,8 +282,13 @@ with tab_launch:
         "question": st.column_config.TextColumn("Question", width="large"),
         "expected_answer": st.column_config.TextColumn("Expected", width=140),
     }
-    for col in coverage_cols:
-        column_config[col] = st.column_config.TextColumn(col, width=200)
+    coverage_col_width = 220 if show_details else 130
+    for p, m in all_combos:
+        col = f"{p}:{m}"
+        sc = combo_score.get((p, m), {"correct": 0, "total": 0})
+        pct = (sc["correct"] / sc["total"] * 100) if sc["total"] else 0
+        label = f"{col} ({sc['correct']}/{sc['total']}, {pct:.0f}%)"
+        column_config[col] = st.column_config.TextColumn(label, width=coverage_col_width)
 
     sel = st.dataframe(
         ds_df[table_cols],
@@ -539,8 +601,9 @@ with tab_inspect:
             with st.expander("Research report"):
                 st.markdown(row["research_content"] or "_(empty)_")
 
-            if row["research_sources_json"]:
-                sources = json.loads(row["research_sources_json"])
+            raw_sources = row["research_sources_json"]
+            if isinstance(raw_sources, str) and raw_sources:
+                sources = json.loads(raw_sources)
                 with st.expander(f"Sources ({len(sources)})"):
                     for i, s in enumerate(sources, 1):
                         if isinstance(s, dict):
@@ -569,7 +632,7 @@ with tab_compare:
         st.info(
             "No comparison sets yet. Launch one with "
             "`python compare.py --benchmark sealqa_seal0 --limit 10 "
-            "--providers tavily:mini,perplexity:sonar-pro`."
+            "--providers tavily:mini,perplexity:sonar-reasoning-pro`."
         )
     else:
         def _fmt_set(cs: str) -> str:
@@ -799,8 +862,9 @@ with tab_compare:
                         st.error(r["error"])
                     with st.expander("Report"):
                         st.markdown(r["research_content"] or "_(empty)_")
-                    if r["research_sources_json"]:
-                        srcs = json.loads(r["research_sources_json"])
+                    raw_sources = r["research_sources_json"]
+                    if isinstance(raw_sources, str) and raw_sources:
+                        srcs = json.loads(raw_sources)
                         with st.expander(f"Sources ({len(srcs)})"):
                             for i, s in enumerate(srcs, 1):
                                 if isinstance(s, dict):

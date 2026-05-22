@@ -64,3 +64,5 @@ UI-launched runs use `subprocess.Popen(..., start_new_session=True, close_fds=Tr
 | CLI: single run | `run.py` |
 | CLI: multi-provider fan-out | `compare.py` |
 | CLI: dataset bootstrap (run once) | `load-datasets.py` |
+| Question taxonomy doc (3 schemes) | `docs/question_taxonomy.md` |
+| Per-benchmark question tags | `docs/tags/{benchmark}.csv` |

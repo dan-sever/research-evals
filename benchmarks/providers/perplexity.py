@@ -16,8 +16,8 @@ from .base import ProviderResult, ResearchProvider, normalize_sources
 
 class PerplexityProvider(ResearchProvider):
     name = "perplexity"
-    default_model = "sonar-pro"
-    available_models = ("sonar", "sonar-pro", "sonar-reasoning", "sonar-reasoning-pro")
+    default_model = "sonar-reasoning-pro"
+    available_models = ("sonar-reasoning-pro", "sonar-deep-research")
     env_var = "PERPLEXITY_API_KEY"
 
     BASE_URL = "https://api.perplexity.ai/chat/completions"

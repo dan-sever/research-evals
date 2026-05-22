@@ -1,0 +1,112 @@
+q_index,reasoning,knowledge,traps,notes,question
+0,lookup,mainstream,clean,"Grammys most album-of-year wins, person",Who holds the all-time record at the Grammys for the most wins in the album of the year category?
+1,aggregate,mainstream,time-bound,NBA 60+ point games since 2023,How many NBA players have scored 60 or more points in a regular season game since 2023?
+2,aggregate,live-state,clean,pick most recent from current top-10 grossing,What is the most recent film to join the top 10 highest-grossing films of all time?
+3,multi-set,mainstream,qualifier-trap,"last American experimental Nobel physicist, then compute age",What is the current age of the last American experimental physicist to win the Nobel Prize in Physics?
+4,lookup,mainstream,clean,IATA member airline count,"How many airlines are members of IATA, the organization that supports airline activity and helps formulate industry policy and standards?"
+5,aggregate,mainstream,time-bound,Jamie Oliver books since 2020,How many books has Jamie Oliver published since 2020?
+6,aggregate,authoritative,clean,"EMNLP latest acceptance rate, combine main+findings","What was the acceptance rate for the most recent Conference on Empirical Methods in Natural Language Processing (EMNLP), including both the main conference and Findings?"
+7,aggregate,authoritative,qualifier-trap,Forbes top-10 athletes filtered by golfer + US-resident,How many of the top 10 highest-paid athletes in the latest Forbes list are professional golfers living in the U.S.?
+8,aggregate,mainstream,qualifier-trap,.NET versions with >12mo support lifetime,How many versions of the .NET platform have been released that have a support lifetime of more than 12 months?
+9,aggregate,live-state,clean,YouTube music videos >7B views,How many YouTube music videos have surpassed 7 billion views?
+10,aggregate,mainstream,qualifier-trap,Rings of Power episodes NOT directed solely by one director,"Across all released seasons, how many episodes of The Lord of the Rings: The Rings of Power were not directed solely by Charlotte Brändström?"
+11,aggregate,live-state,qualifier-trap,Ronaldo posts in top-50 AND >32M likes,"Among the 50 most-liked Instagram posts, how many were made by Cristiano Ronaldo’s account and received over 32 million likes?"
+12,multi-set,live-state,qualifier-trap,intersect non-football top-20 with overall top-20,How many of the top 20 most-liked Instagram posts by non-football-related accounts—excluding footballers like Lionel Messi and Cristiano Ronaldo and football organizations—also appear in the overall top 20 most-liked posts? Note that Selena Gomez does not have any posts in the overall top 20 most-liked posts.
+13,aggregate,live-state,clean,top-50 followed IG accounts US-based,How many of the top 50 most-followed Instagram accounts belong to individuals or entities based in the United States?
+14,aggregate,live-state,clean,top-30 YouTube videos by MrBeast,How many of the top 30 most-liked YouTube videos belong to MrBeast?
+15,aggregate,live-state,clean,YouTube videos >29M likes,How many videos on YouTube have received more than 29 million likes?
+16,aggregate,live-state,clean,YouTube videos >4B views,How many YouTube videos have surpassed 4 billion views?
+17,aggregate,live-state,clean,top-50 YouTube channels in India,How many of the top 50 most-subscribed YouTube channels are based in India?
+18,aggregate,live-state,qualifier-trap,top-50 channels with ONLY English,How many of the 50 most-subscribed YouTube channels use only English as their primary language?
+19,aggregate,live-state,time-bound,pre-2020 films currently in top-30 grossing,How many films released before 2020 are currently among the top 30 highest-grossing films worldwide?
+20,multi-set,mainstream,time-bound,consecutive-WDC winners who raced this year,"Of the drivers who have won consecutive World Drivers' Championships, how many competed in this year's Championship?"
+21,aggregate,mainstream,clean,American artists with >40 Grammy nominations,How many American artists have received more than 40 Grammy nominations?
+22,aggregate,live-state,time-bound,lowest grosser among this year films >$150M,"Among this year's films that have grossed over $150 million worldwide, which has earned the least revenue?"
+23,aggregate,authoritative,qualifier-trap,deadliest tropical storm staying at TS-level last year,"Which North Atlantic tropical storm, whose peak intensity remained at tropical storm level, caused the highest number of deaths last year?"
+24,lookup,authoritative,time-bound,Coco Gauff WTA points right after last US Open,What was Coco Gauff's WTA ranking points total immediately after last year's US Open – Women's Singles?
+25,aggregate,mainstream,clean,individuals who won Oscar Best Animated Feature,How many individuals have won the Oscar for Best Animated Feature?
+26,aggregate,live-state,qualifier-trap,non-brand TikTok accounts >45M followers,How many non-brand TikTok accounts have reached more than 45 million followers?
+27,aggregate,mainstream,clean,Google offices across Asian countries (preamble is distractor),"Google is significantly expanding its presence in the Asia-Pacific region, with Singapore as their current Asia Pacific headquarters. How many office locations does the company currently operate across Asian countries?"
+28,aggregate,authoritative,time-bound,largest Northern California wildfire last year,What is the name of the largest wildfire in Northern California last year?
+29,aggregate,live-state,clean,current age of youngest chess GM,What is the current age of the youngest grandmaster of chess?
+30,aggregate,authoritative,time-bound,India Arts civilian awards sum 2015-2025,What is the total number of civilian awards conferred in the Arts discipline in India from 2015 to 2025?
+31,lookup,niche,clean,Sahitya Akademi total documentary count,What is the total number of documentary films produced by Sahitya Akademi?
+32,aggregate,mainstream,clean,highest goals/match ratio among women with 100+ goals,"Among women’s soccer players with 100 or more international goals, who has the highest goals-per-match ratio?"
+33,aggregate,niche,clean,Sahitya Akademi docs under 30min,How many documentary films produced by Sahitya Akademi to date have a duration of less than 30 minutes?
+34,aggregate,mainstream,time-bound,Google offices opened in APAC/Africa/ME since Jan 2022,"How many total offices has Google opened across the Asia–Pacific, Africa, and Middle East regions since January 1, 2022?"
+35,refuse,mainstream,false-premise,no Womens World Cup in 2026,"Which three North American countries will host the 2026 FIFA's Women World Cup, the first to be co-hosted by three nations and the first North American World Cup since 1994?"
+36,refuse,mainstream,false-premise,no female topped Spotify 3 consecutive years 2020-2022,Who is the only female artist to have topped Spotify's list of most-streamed artists in three consecutive years (2020–2022)?
+37,lookup,mainstream,qualifier-trap,"tropical rainforest = Congolian not Amazon, by share-of-remaining",Which tropical rainforest represents a quarter of the total area of remaining tropical forests on Earth and comprises one of the largest and most biodiverse tracts of tropical rainforest in the world?
+38,multi-set,mainstream,qualifier-trap,"countries both Trump-first-term and Biden visited, including West Bank","How many countries did both Donald Trump (during his first term) and Joe Biden visit during their presidencies, including the West Bank?"
+39,lookup,mainstream,clean,"in-place stable sort with O(n log n) worst, O(n) best","What is the name of the in-place, stable comparison sorting algorithm with a worst-case time complexity of O(n log n) and a best-case time complexity of O(n)?"
+40,aggregate,mainstream,clean,sum of palindromic 3-letter Roman numerals,What is the sum of all three-letter Roman numerals that read the same forwards and backwards?
+41,lookup,mainstream,qualifier-trap,longest border by total length = Kazakhstan/Russia not US/Canada,Which two countries share the longest continuous international border in the world by total length?
+42,lookup,mainstream,clean,first awards ceremony where Oppenheimer won Best Film,"At which awards ceremony did the film Oppenheimer, a solemn three-hour biopic that became an unlikely billion-dollar box-office sensation, first win the Best Film award?"
+43,refuse,mainstream,false-premise,Fermat: cube cannot be sum of two cubes,What is the smallest cube number which can be expressed as the sum of two different positive cube numbers in two different ways?
+44,refuse,mainstream,false-premise,no square is prime,"What is the smallest positive integer that can be written as the sum of two perfect squares, with both of these perfect squares being prime numbers?"
+45,aggregate,mainstream,qualifier-trap,countries NOT in paid-only YT Music list at 2018 expansion,How many countries were not listed as offering only paid access to YouTube Music at the time of its initial expansion in 2018?
+46,aggregate,mainstream,time-bound,deadliest Philippine typhoon 2001-2010,In what year did the deadliest Philippine typhoon of the first decade of the 21st century occur?
+47,aggregate,mainstream,clean,living animals with max mass >60 tonnes,How many of the heaviest living animals can reach a maximum mass exceeding 60 tonnes?
+48,lookup,mainstream,clean,mercury valency in Mercury(I) chloride,What is the valency of mercury in Mercury(I) chloride?
+49,aggregate,niche,qualifier-trap,Polish Land Forces smoke grenades EXCLUSIVELY Soviet-origin,How many smoke grenade models listed in the Polish Land Forces equipment originate exclusively from the Soviet Union?
+50,aggregate,mainstream,time-bound,"Brad Pitt actor+producer (not exec) before COVID; alt qualifier-trap on exec exclusion",How many films was Brad Pitt credited as both an actor and a producer (excluding executive producer roles) before the Covid-19 pandemic?
+51,aggregate,authoritative,clean,IDI 2024 countries scoring below 25,"According to the ICT Development Index (IDI) 2024, how many countries scored below 25?"
+52,lookup,authoritative,clean,ITU 2024 2G coverage % of global mobile pop,"What percentage of the global mobile population is covered by 2G networks in 2024, according to the International Telecommunication Union (ITU)?"
+53,aggregate,authoritative,clean,US states >25% adults 25+ with advanced degree (Census 2022),"According to the U.S. Census Bureau 2022 data, how many states had more than 25% of their population aged 25 and older holding an advanced degree?"
+54,lookup,authoritative,clean,FAO 2023 second-largest rice producer,"As reported by the Food and Agriculture Organization of the United Nations, which nation ranked as the world’s second‑largest rice producer in 2023?"
+55,aggregate,authoritative,time-bound,EPA: year 2010-2020 highest crop CO2 in US,"Based on data from the U.S. Environmental Protection Agency, which year between 2010 and 2020 saw the highest CO₂ emissions from crop cultivation in the United States?"
+56,aggregate,authoritative,clean,EPA 2023: lowest CO2 sector in Indiana,"According to 2023 data from the U.S. Environmental Protection Agency, which sector produced the lowest CO₂ emissions in the state of Indiana?"
+57,lookup,authoritative,clean,UN 2021 N.Africa women parliamentary seats %,"According to United Nations data from 2021, what percentage of national parliamentary seats in Northern Africa were held by women?"
+58,aggregate,authoritative,time-bound,UN: N.Africa infant mortality decline 2010-2021,"How much did the infant mortality rate (per 1,000 live births) decline in Northern Africa between 2010 and 2021, according to United Nations data?"
+59,lookup,authoritative,clean,UN 2015 N.America women parliamentary seats %,"According to United Nations data from 2015, what percentage of national parliamentary seats in Northern America were held by women?"
+60,lookup,niche,clean,DC 911 answer time on specific date Apr 30 2025,"What was the average 911 call answer time in Washington D.C. on April 30, 2025?"
+61,aggregate,authoritative,qualifier-trap,Indian states with party >50% exactly twice (as of 2022),"As of 2022, how many Indian states had any political party win more than 50% of the vote in assembly elections exactly twice?"
+62,aggregate,mainstream,clean,US hotels with >3500 rooms,"How many hotels in the United States have more than 3,500 rooms?"
+63,lookup,non-english,clean,PVOIL RON 92-III price VND on Apr 24 2025,"What was the official retail price per liter (in VND, inclusive of VAT and environmental tax) of RON 92-III gasoline on April 24, 2025, according to PetroVietnam Oil Corporation (PVOIL)?"
+64,aggregate,authoritative,qualifier-trap,VT Summer 2025 tuition calc: resident + non-resident at different credit hours,"I am a father of two undergraduate sons enrolling in Virginia Tech's Virtual Campus for Summer 2025. One is a Virginia resident taking 6 credit hours, and the other is a non-resident taking 8 credit hours. What is the total tuition I need to pay for both?"
+65,lookup,non-english,clean,Vietnamese professor in Apr 4 2023 YouTube on long-meditating monks,"Which Vietnamese professor explained the mysterious case of two monks said to have been meditating for over 400 years, as shown in a YouTube video posted on April 4, 2023?"
+66,lookup,non-english,clean,Vietcombank USD cash buy rate May 1 2025,"According to Vietcombank's exchange rate table on May 1, 2025, what was the cash buying rate for the US dollar (USD)?"
+67,aggregate,authoritative,qualifier-trap,PEI 2024: latest-founded non-US PE firm with $30B+ in 5yr,"According to Private Equity International's 2024 ranking, among all non-U.S.-based private equity firms with at least $30 billion raised over the past five years, which firm has the latest founding date?"
+68,refuse,mainstream,false-premise,CLT applies to means not raw samples,"If I randomly select i.i.d. samples from a distribution n times, the distribution of the sampled variables will approximately follow a normal distribution as n becomes very large. This statement is based on which theory?"
+69,refuse,niche,false-premise,no IOI contestant has 5G+1B,Who is currently the most highly decorated IOI contestant with 5 golds and 1 bronze medal?
+70,aggregate,live-state,qualifier-trap,non-American agency most X followers,Which non-American agency has the most followers on X?
+71,lookup,authoritative,clean,most recent month Lake Powell below 3550ft,In what month and year was the water level of Lake Powell last below 3550 feet?
+72,lookup,mainstream,qualifier-trap,"latest concert doc featuring Kendrick = Beyonce Renaissance, not his own",What is the title of the latest concert documentary film featuring Kendrick Lamar?
+73,lookup,mainstream,clean,largest card payment processor = UnionPay,"Which organization is the world's largest card payment processing organization, providing credit cards, debit cards, and electronic payment systems?"
+74,lookup,non-english,clean,Indonesian Name That Tune season count,"How many seasons are there in the Indonesian version of the game show ""Name That Tune""?"
+75,aggregate,mainstream,clean,active players in top-10 all-time international goal scorers,How many active players are currently in the top 10 of all-time men’s international goal scorers in soccer?
+76,lookup,authoritative,clean,most recent American airline Chapter 7,Which American airline has most recently filed for Chapter 7 bankruptcy protection?
+77,aggregate,mainstream,qualifier-trap,BAFTA most recent dominator: >7 wins + most wins + most nominations in year,Which is the most recent film to dominate the British Academy Film Awards by winning more than seven awards while also having the most total wins and nominations in its award year?
+78,aggregate,mainstream,clean,PDC Darts finals with two English players,How many times in history has the PDC World Darts Championship final featured two English players?
+79,refuse,mainstream,false-premise,"""most recent former president"" = Biden, no state felonies",How many state-level felonies has the most recent former president of the United States been convicted of?
+80,aggregate,mainstream,time-bound,LDP PMs since Abe assassination,How many individuals from the Liberal Democratic Party have served as Prime Minister of Japan since the assassination of Shinzo Abe?
+81,aggregate,mainstream,clean,Schengen country with shortest sign-to-implement gap,Which Schengen Area country implemented the Schengen Agreement the soonest after signing it?
+82,multi-set,niche,clean,LA Metro stations on A Line AND another line,How many Los Angeles Metro Rail stations are served by both the A Line and at least one other Metro Rail line?
+83,lookup,mainstream,clean,last Bayern player in Ballon dOr top-3,Who was the last Bayern Munich player to finish in the top three for the Ballon d'Or?
+84,aggregate,mainstream,clean,Ghibli features >=119min runtime,How many Studio Ghibli feature films have been released with a runtime of 119 minutes or longer?
+85,aggregate,mainstream,clean,Ghibli features with RT Tomatometer <90%,How many Studio Ghibli feature films have received a Rotten Tomatoes Tomatometer score below 90%?
+86,aggregate,authoritative,time-bound,EDGAR: largest % per-capita CO2 drop since 2000,"According to the Emissions Database for Global Atmospheric Research, which country has experienced the largest percentage drop in per capita fossil carbon emissions since 2000?"
+87,lookup,mainstream,clean,most widely used ride app in India = Uber,What is the most widely used ride booking application in India that offers a wide variety of vehicle choices and prices?
+88,aggregate,mainstream,qualifier-trap,"most album-of-year noms among multi-winners, each in different year","Among artists with multiple wins for Album of the Year at the Grammys, who has received the most nominations for this award, with each nomination occurring in a different year?"
+89,aggregate,niche,qualifier-trap,Kannada films >=Rs100cr worldwide AND >=Rs50cr opening week,How many Kannada films have grossed at least ₹100 crore worldwide and also earned at least ₹50 crore during their opening week?
+90,aggregate,mainstream,time-bound,Barcelona #10 wearers since Maradona left in 1984,How many players have officially worn the No. 10 shirt for Barcelona's men's first team since Diego Maradona left the club in 1984?
+91,lookup,niche,clean,most recent LA County Sheriff killed in line of duty,Who was the most recent Sheriff of Los Angeles County killed in the line of duty?
+92,lookup,authoritative,clean,third Asian country reporting clade Ib mpox in latest outbreak,Which was the third Asian country to report a case of clade Ib mpox during the most recent outbreak?
+93,aggregate,live-state,clean,days Bieber post held most-liked IG record,For exactly how many days did the Instagram post by Justin Bieber's account that once held the record for most-liked post on the platform remain at the top?
+94,aggregate,live-state,clean,days Kendall Jenner post held most-liked IG record,For exactly how many days did the Instagram post by Kendall Jenner's account that once held the record for most-liked post on the platform remain at the top?
+95,aggregate,non-english,clean,KOSPI largest single-day relative drop date,On what date did the KOSPI (Korea Composite Stock Price Index) experience its largest relative single-day drop?
+96,aggregate,authoritative,time-bound,21st century volcanic plumes >=18 miles,How many volcanic eruptions in the 21st century have produced a plume height of at least 18 miles?
+97,aggregate,mainstream,clean,Turing Award years with multiple winners,How many times has the Turing Award been given to multiple winners in the same year?
+98,aggregate,mainstream,clean,Super Bowls with attendance >70k,"How many Super Bowl games had an attendance of more than 70,000?"
+99,aggregate,mainstream,qualifier-trap,ex-presidents who ran post-loss and lost again,How many former US presidents ran again for president after losing a general election and lost on their second attempt?
+100,aggregate,mainstream,time-bound,UN-member flags with most-recent adoption since 2010,How many national flags of countries recognized as United Nations (UN) member or observer states have had their most recent official adoption date since 2010?
+101,lookup,mainstream,clean,roller coaster that most recently lost tallest title,What is the name of the steel roller coaster that most recently lost its title as the tallest operating steel roller coaster in the world?
+102,lookup,mainstream,clean,latest eruption date of worlds most active composite volcano,"On what date did the latest eruption of the world's most active composite volcano begin, which spewed fiery lava and ash thousands of feet into the sky?"
+103,aggregate,authoritative,clean,WHO peak measles year,"According to the WHO, in which year were the highest number of measles cases recorded worldwide?"
+104,multi-set,mainstream,qualifier-trap,countries with single Summer Olympic medal AND it was gold,"As of now, which country or countries have won a single medal in the history of the Summer Olympic Games—and it was a gold?"
+105,aggregate,mainstream,qualifier-trap,badminton athletes with gold AND >2 total medals,How many badminton athletes have won Olympic Gold and more than 2 Olympic medals in total?
+106,aggregate,authoritative,time-bound,youngest age to set short course 400m freestyle WR since 2010,Who broke the short course world record in women's 400m freestyle at the youngest age from 2010 to now?
+107,lookup,niche,clean,most recent female middle schooler representing China at IMO,Who is the most recent female middle school student to represent China in the International Mathematical Olympiad (IMO) contest?
+108,aggregate,mainstream,qualifier-trap,movies with budget >=$350M that were not top-grossing in their year,How many movies with an estimated net budget of $350 million or more were not the highest-grossing film of their release year?
+109,lookup,mainstream,clean,purchaser in largest failed M&A,Who was the purchaser in the largest confirmed merger or acquisition that ultimately failed to complete?
+110,lookup,niche,clean,total branches of Akhil Bharatiya Marathi Sahitya Mahamandal,What is the total number of branches of the Akhil Bharatiya Marathi Sahitya Mahamandal?
