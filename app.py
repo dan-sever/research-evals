@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import re
 import uuid
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +21,75 @@ st.set_page_config(page_title="Research Benchmarks", layout="wide")
 st.title("Research benchmark runs")
 
 storage.init_db()
+
+
+# ---------- UI state persistence (separate from results.db) ----------
+# `.ui_state.json` lives in the project root and only holds widget keys
+# (toggles, checkboxes, last-used providers, etc). It never touches the
+# eval database. Safe to delete at any time.
+_UI_STATE_PATH = Path(".ui_state.json")
+_UI_PERSIST_PREFIXES = (
+    "launch_show_details",
+    "launch_english_only",
+    "launch_bench",
+    "launch_seed",
+    "launch_count",
+    "launch_workers",
+    "launch_chk_",
+)
+
+
+def _load_ui_state() -> dict:
+    if "_ui_state_cache" in st.session_state:
+        return st.session_state["_ui_state_cache"]
+    data: dict = {}
+    if _UI_STATE_PATH.exists():
+        try:
+            data = json.loads(_UI_STATE_PATH.read_text())
+        except Exception:
+            data = {}
+    st.session_state["_ui_state_cache"] = data
+    return data
+
+
+def _persisted(key: str, default):
+    """Return persisted value for `key` if present, else `default`."""
+    return _load_ui_state().get(key, default)
+
+
+def _save_ui_state() -> None:
+    """Snapshot tracked `launch_*` keys from session_state to disk."""
+    payload = {
+        k: st.session_state[k]
+        for k in list(st.session_state.keys())
+        if isinstance(k, str) and k.startswith(_UI_PERSIST_PREFIXES)
+    }
+    try:
+        old = json.loads(_UI_STATE_PATH.read_text()) if _UI_STATE_PATH.exists() else {}
+    except Exception:
+        old = {}
+    if payload != old:
+        _UI_STATE_PATH.write_text(json.dumps(payload, indent=2, default=str))
+        st.session_state["_ui_state_cache"] = payload
+
+
+def _elapsed_human(started_at: str | None) -> str:
+    """Human-readable elapsed since an ISO timestamp from SQLite."""
+    if not started_at:
+        return "—"
+    try:
+        t0 = datetime.fromisoformat(started_at)
+        t1 = datetime.now(t0.tzinfo) if t0.tzinfo else datetime.now()
+        secs = (t1 - t0).total_seconds()
+        if secs < 0:
+            return "—"
+        if secs < 60:
+            return f"{secs:.0f}s"
+        if secs < 3600:
+            return f"{secs / 60:.1f}m"
+        return f"{secs / 3600:.1f}h"
+    except Exception:
+        return "—"
 
 
 # CJK ideographs, Hiragana/Katakana, Hangul, fullwidth forms. Any hit
@@ -127,23 +197,26 @@ with tab_launch:
         with oc1:
             seed_str = st.text_input(
                 "Seed (blank = original order)",
-                value="",
+                value=_persisted("launch_seed", ""),
                 key="launch_seed",
+                on_change=_save_ui_state,
             )
         with oc2:
             count = st.number_input(
                 "Max per batch (cap)",
                 min_value=1, max_value=50,
-                value=5, step=1,
+                value=_persisted("launch_count", 5), step=1,
                 help="Hard cap on how many rows you can select at once.",
                 key="launch_count",
+                on_change=_save_ui_state,
             )
         with oc3:
             workers = st.number_input(
                 "Workers",
                 min_value=1, max_value=16,
-                value=4, step=1,
+                value=_persisted("launch_workers", 4), step=1,
                 key="launch_workers",
+                on_change=_save_ui_state,
             )
         note = st.text_input("Note (saved with every run)", value="", key="launch_note")
 
@@ -159,16 +232,18 @@ with tab_launch:
     with tcol1:
         show_details = st.toggle(
             "Show answer and duration in coverage cells",
-            value=True,
+            value=_persisted("launch_show_details", True),
             key="launch_show_details",
+            on_change=_save_ui_state,
             help="Off = just ✅/❌/⚠ symbols (fits more providers on screen). "
                  "On = symbol plus extracted answer and run duration.",
         )
     with tcol2:
         english_only = st.toggle(
             "English only (hide CJK questions)",
-            value=False,
+            value=_persisted("launch_english_only", False),
             key="launch_english_only",
+            on_change=_save_ui_state,
             help="Hides questions containing Chinese/Japanese/Korean "
                  "characters. Useful for finsearchcomp which mixes English "
                  "and Chinese prompts. q_index numbering is preserved.",
@@ -313,8 +388,13 @@ with tab_launch:
             default_model = providers.PROVIDERS[p].default_model
             chosen: list[str] = []
             for m in providers.PROVIDERS[p].available_models:
-                initial = (p == "tavily" and m == default_model)
-                if st.checkbox(m, value=initial, key=f"launch_chk_{p}_{m}"):
+                ck_key = f"launch_chk_{p}_{m}"
+                initial = _persisted(
+                    ck_key, p == "tavily" and m == default_model
+                )
+                if st.checkbox(
+                    m, value=initial, key=ck_key, on_change=_save_ui_state
+                ):
                     chosen.append(m)
             if chosen:
                 provider_models[p] = chosen
@@ -372,50 +452,114 @@ with tab_launch:
     if missing:
         st.error("Missing API keys in `.env`: " + ", ".join(missing))
 
-    confirm = st.checkbox(
-        "I'm ready to launch — this will spend API credits.",
-        value=False,
-        key="launch_confirm",
-    )
+    @st.dialog("Confirm launch")
+    def _confirm_launch_dialog(
+        bench_arg, provider_models_arg, selected_q_indices_arg,
+        seed_int_arg, workers_arg, note_arg,
+        runs_planned_arg, calls_planned_arg, missing_arg, already_covered_arg,
+    ):
+        dc1, dc2, dc3 = st.columns(3)
+        dc1.metric("Runs", runs_planned_arg)
+        dc2.metric("Research calls", calls_planned_arg)
+        dc3.metric("Judge calls", calls_planned_arg)
+
+        if missing_arg:
+            st.error("❌ Missing API keys: " + ", ".join(missing_arg))
+        if already_covered_arg:
+            lines = "\n".join(
+                f"- `{p}:{m}` already covers q_index {r}"
+                for p, m, r in already_covered_arg
+            )
+            st.warning(
+                "⚠ Some of these questions have already been run (same "
+                "seed). Launching again will re-bill them:\n\n" + lines
+            )
+
+        st.caption("This will spend API credits.")
+
+        bcol1, bcol2 = st.columns(2)
+        if bcol1.button("Cancel", width="stretch"):
+            st.rerun()
+        if bcol2.button(
+            "Confirm launch",
+            type="primary",
+            width="stretch",
+            disabled=bool(missing_arg),
+        ):
+            comparison_set = str(uuid.uuid4()) if runs_planned_arg > 1 else None
+            launched: list[tuple[str, str, int, Path]] = []
+            for p, models in provider_models_arg.items():
+                for m in models:
+                    pid, log_path = launcher.launch_run(
+                        benchmark=bench_arg,
+                        provider=p,
+                        model=m,
+                        q_indices=selected_q_indices_arg,
+                        seed=seed_int_arg,
+                        workers=int(workers_arg),
+                        note=note_arg,
+                        comparison_set=comparison_set,
+                    )
+                    launched.append((p, m, pid, log_path))
+            st.session_state["_last_launch"] = {
+                "launched": [
+                    (p, m, pid, str(log_path)) for p, m, pid, log_path in launched
+                ],
+                "comparison_set": comparison_set,
+            }
+            st.rerun()
 
     launch_disabled = (
         runs_planned == 0
-        or bool(missing)
-        or not confirm
         or not selected_q_indices
         or over_cap
     )
     if st.button("Launch", type="primary", disabled=launch_disabled):
-        comparison_set = str(uuid.uuid4()) if runs_planned > 1 else None
-        launched: list[tuple[str, str, int, Path]] = []
+        # Recompute overlap for the dialog so the warning is fresh.
+        picked_set = set(selected_q_indices)
+        already_covered_now: list[tuple[str, str, str]] = []
         for p, models in provider_models.items():
             for m in models:
-                pid, log_path = launcher.launch_run(
-                    benchmark=bench,
-                    provider=p,
-                    model=m,
-                    q_indices=selected_q_indices,
-                    seed=seed_int,
-                    workers=int(workers),
-                    note=note,
-                    comparison_set=comparison_set,
+                match = next(
+                    (
+                        c for c in coverage
+                        if c["provider"] == p and c["model"] == m
+                        and c["seed"] == seed_int
+                    ),
+                    None,
                 )
-                launched.append((p, m, pid, log_path))
-        st.success(
-            f"Launched {len(launched)} run(s). They run in the background. "
-            "Refresh below to see status."
+                if not match:
+                    continue
+                overlap = sorted(picked_set & set(match["q_indices"]))
+                if overlap:
+                    already_covered_now.append((p, m, _ranges(overlap)))
+        _confirm_launch_dialog(
+            bench, provider_models, selected_q_indices,
+            seed_int, workers, note,
+            runs_planned, calls_planned, missing, already_covered_now,
         )
-        for p, m, pid, log_path in launched:
-            st.caption(f"  `{p}:{m}`  pid `{pid}`  log `{log_path.name}`")
+
+    last = st.session_state.get("_last_launch")
+    if last:
+        launched = last["launched"]
+        comparison_set = last["comparison_set"]
+        st.success(
+            f"✅ Launched {len(launched)} run(s). They run in the background."
+        )
+        for p, m, pid, log_name in launched:
+            st.caption(f"  `{p}:{m}`  pid `{pid}`  log `{Path(log_name).name}`")
         if comparison_set:
             st.caption(f"comparison_set `{comparison_set[:8]}…`")
 
-    # ----- In-flight runs -----
+    # ----- In-flight runs (auto-refreshing) -----
     st.subheader("In-flight runs")
-    in_flight = storage.list_in_progress_runs()
-    if not in_flight:
-        st.caption("Nothing running.")
-    else:
+
+    @st.fragment(run_every=3)
+    def _render_in_flight():
+        in_flight = storage.list_in_progress_runs()
+        if not in_flight:
+            st.caption("Nothing running.")
+            return
         flight_df = pd.DataFrame([
             {
                 "run_id": r["id"],
@@ -429,14 +573,15 @@ with tab_launch:
                 ),
                 "correct": r["correct_so_far"] or 0,
                 "errors": r["errors_so_far"] or 0,
+                "elapsed": _elapsed_human(r["started_at"]),
                 "started": (r["started_at"] or "")[:16].replace("T", " "),
                 "note": r["note"] or "",
             }
             for r in in_flight
         ])
         st.dataframe(flight_df, width="stretch", hide_index=True)
-    if st.button("Refresh status", key="refresh_inflight"):
-        st.rerun()
+
+    _render_in_flight()
 
 
 # ============================================================================
@@ -511,12 +656,14 @@ with tab_inspect:
         st.subheader("Per-question results")
         fcol, scol = st.columns([1, 2])
         with fcol:
-            filter_choice = st.radio(
+            filter_choice = st.segmented_control(
                 "Filter",
                 ["all", "correct", "incorrect", "errors"],
-                horizontal=True,
+                default="all",
                 key="inspect_filter",
             )
+            if not filter_choice:
+                filter_choice = "all"
         with scol:
             search = st.text_input("Search question text", "", key="inspect_search")
 
@@ -569,7 +716,7 @@ with tab_inspect:
             elif row["is_correct"] == 0:
                 st.error(f"❌ Incorrect  ·  confidence {row['confidence']:.2f}")
             else:
-                st.warning("No grade recorded")
+                st.warning("⚠ No grade recorded")
             if row["reasoning"]:
                 st.caption(f"Judge: {row['reasoning']}")
 
@@ -729,12 +876,14 @@ with tab_compare:
             filter_options += ["tavily wins (unique)", "tavily loses (unique)"]
         filter_options += ["any disagreement", "all correct", "all wrong"]
         with fc1:
-            cmp_filter = st.radio(
+            cmp_filter = st.segmented_control(
                 "Filter",
                 filter_options,
-                horizontal=True,
+                default="all",
                 key="cmp_filter",
             )
+            if not cmp_filter:
+                cmp_filter = "all"
         with fc2:
             cmp_search = st.text_input(
                 "Search question text",
