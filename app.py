@@ -270,7 +270,8 @@ def _load_dataset_df(name: str, seed) -> pd.DataFrame:
     """Return the dataset as `(q_index, question, expected_answer)` in
     whatever order matches `seed`. q_index is the row's position after
     shuffling, so it lines up exactly with what `datasets.load(... seed=...)`
-    produces."""
+    produces. If the parquet has a `prompt_id` column (e.g. finsearchcomp),
+    it is surfaced as an extra column between q_index and question."""
     spec = datasets.REGISTRY[name]
     df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
     if seed is not None:
@@ -278,7 +279,27 @@ def _load_dataset_df(name: str, seed) -> pd.DataFrame:
     df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
     df["question"] = df[spec.question_col].astype(str)
     df["expected_answer"] = df[spec.answer_col].astype(str)
-    return df[["q_index", "question", "expected_answer"]].copy()
+    cols = ["q_index", "question", "expected_answer"]
+    if "prompt_id" in df.columns:
+        df["prompt_id"] = df["prompt_id"].astype(str)
+        cols.insert(1, "prompt_id")
+    return df[cols].copy()
+
+
+@st.cache_data
+def _prompt_ids(name: str, seed) -> dict[int, str]:
+    """q_index -> parquet `prompt_id` mapping for benchmarks that ship one
+    (currently only finsearchcomp). Returns `{}` for datasets without the
+    column. Seed-aware so it matches `_load_dataset_df`'s shuffled ordering,
+    which is also how `q_index` is assigned in `runs.seed` rows."""
+    spec = datasets.REGISTRY[name]
+    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
+    if "prompt_id" not in df.columns:
+        return {}
+    if seed is not None:
+        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
+    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
+    return dict(zip(df["q_index"].astype(int), df["prompt_id"].astype(str)))
 
 
 tab_launch, tab_inspect, tab_compare, tab_tier = st.tabs(
@@ -482,6 +503,13 @@ with tab_launch:
         "question": st.column_config.TextColumn("Question", width="large", pinned=True),
         "expected_answer": st.column_config.TextColumn("Expected", width=140),
     }
+    if "prompt_id" in ds_df.columns:
+        table_cols.insert(1, "prompt_id")
+        column_config["prompt_id"] = st.column_config.TextColumn(
+            "Prompt ID", width=220, pinned=True,
+            help="Source dataset's prompt identifier (e.g. "
+                 "`(T2)Simple_Historical_Lookup_001`).",
+        )
     coverage_col_width = 220 if show_details else 130
     for p, m in all_combos:
         col = f"{p}:{m}"
@@ -807,6 +835,11 @@ with tab_inspect:
     else:
         df = pd.DataFrame(results)
         df["is_correct_bool"] = df["is_correct"].map({1: True, 0: False})
+        _pid_map = _prompt_ids(run["benchmark"], run["seed"])
+        if _pid_map:
+            df["prompt_id"] = df["q_index"].map(
+                lambda qi: _pid_map.get(int(qi), "")
+            )
 
         total = len(df)
         correct = int(df["is_correct"].fillna(0).sum())
@@ -866,9 +899,9 @@ with tab_inspect:
                 duration=view["research_duration_seconds"].map(_fmt_duration)
             )
             display_cols = [
-                "q_index", "question", "expected_answer", "extracted_answer",
-                "is_correct_bool", "confidence", "duration",
-                "research_status", "error",
+                "q_index", "prompt_id", "question", "expected_answer",
+                "extracted_answer", "is_correct_bool", "confidence",
+                "duration", "research_status", "error",
             ]
             display_cols = [c for c in display_cols if c in view.columns]
             results_sel = st.dataframe(
@@ -888,6 +921,9 @@ with tab_inspect:
 
             if row is not None:
                 st.subheader("Drill into one question")
+
+                if "prompt_id" in view.columns and row.get("prompt_id"):
+                    st.caption(f"prompt_id: `{row['prompt_id']}`")
 
                 if row["is_correct"] == 1:
                     st.success(
@@ -1168,6 +1204,7 @@ with tab_compare:
         if not filtered_qis:
             st.info("No questions match this filter.")
         else:
+            _cmp_pid_map = _prompt_ids(meta["benchmark"], meta.get("seed"))
             matrix_rows = []
             for qi in filtered_qis:
                 row = {
@@ -1175,6 +1212,8 @@ with tab_compare:
                     "question": qi_to_question.get(qi) or "",
                     "expected": qi_to_expected.get(qi) or "",
                 }
+                if _cmp_pid_map:
+                    row["prompt_id"] = _cmp_pid_map.get(int(qi), "")
                 for p in providers_in_set:
                     c = qi_to_correctness.get(qi, {}).get(p)
                     ext = qi_to_extracted.get(qi, {}).get(p) or ""
@@ -1187,6 +1226,10 @@ with tab_compare:
                 "question": st.column_config.TextColumn("Question", width="large", pinned=True),
                 "expected": st.column_config.TextColumn("Expected", width="medium"),
             }
+            if _cmp_pid_map:
+                matrix_column_config["prompt_id"] = st.column_config.TextColumn(
+                    "Prompt ID", width=220, pinned=True,
+                )
             for p in providers_in_set:
                 matrix_column_config[p] = st.column_config.TextColumn(
                     p, width="medium"
@@ -1226,6 +1269,8 @@ with tab_compare:
                 key=f"cmp_drill_{selected_set}",
             )
 
+            if _cmp_pid_map and _cmp_pid_map.get(int(drill_qi)):
+                st.caption(f"prompt_id: `{_cmp_pid_map[int(drill_qi)]}`")
             st.markdown(f"**Question:** {qi_to_question.get(drill_qi, '')}")
             st.markdown(
                 f"**Expected answer:** `{qi_to_expected.get(drill_qi, '')}`"
@@ -1512,6 +1557,7 @@ with tab_tier:
                     st.info("No questions match this filter.")
                 else:
                     # ----- Matrix -----
+                    _tier_pid_map = _prompt_ids(tier_bench, tier_seed)
                     matrix_rows = []
                     for qi in filtered_qis:
                         row = {
@@ -1519,6 +1565,8 @@ with tab_tier:
                             "question": qi_to_question.get(qi) or "",
                             "expected": qi_to_expected.get(qi) or "",
                         }
+                        if _tier_pid_map:
+                            row["prompt_id"] = _tier_pid_map.get(int(qi), "")
                         for (p, m) in providers_in_tier:
                             c = qi_to_correctness.get(qi, {}).get((p, m))
                             ext = qi_to_extracted.get(qi, {}).get((p, m)) or ""
@@ -1538,6 +1586,10 @@ with tab_tier:
                             "Expected", width="medium"
                         ),
                     }
+                    if _tier_pid_map:
+                        mcc["prompt_id"] = st.column_config.TextColumn(
+                            "Prompt ID", width=220, pinned=True,
+                        )
                     for (p, m) in providers_in_tier:
                         col_name = f"{p}:{m}"
                         mcc[col_name] = st.column_config.TextColumn(
@@ -1610,6 +1662,8 @@ with tab_tier:
                     else:
                         drill_qi = int(matrix_df.iloc[drill_positions[0]]["q_index"])
                         st.subheader("Drill into one question")
+                        if _tier_pid_map and _tier_pid_map.get(drill_qi):
+                            st.caption(f"prompt_id: `{_tier_pid_map[drill_qi]}`")
                         st.markdown(f"**Question:** {qi_to_question.get(drill_qi, '')}")
                         st.markdown(
                             f"**Expected answer:** `{qi_to_expected.get(drill_qi, '')}`"
