@@ -127,6 +127,13 @@ def _fmt_duration_short(seconds) -> str:
     return f"{seconds / 60:.1f}m"
 
 
+def _quote(text: str | None) -> str:
+    """Render `text` as a markdown blockquote, preserving line breaks."""
+    if not text:
+        return "> —"
+    return "\n".join(f"> {ln}" for ln in str(text).splitlines()) or "> —"
+
+
 def _ranges(sorted_ints: list[int]) -> str:
     """`[0,1,2,4,7,8,9]` -> `0-2, 4, 7-9`."""
     if not sorted_ints:
@@ -604,6 +611,7 @@ with tab_inspect:
     )
 
     st.subheader("All runs")
+    st.caption("Click a row to inspect that run.")
     overview = runs_df.assign(
         accuracy_pct=runs_df["accuracy"].map(
             lambda x: f"{x:.1%}" if x is not None else "—"
@@ -616,25 +624,29 @@ with tab_inspect:
             "accuracy_pct", "note", "started",
         ]
     ].rename(columns={"accuracy_pct": "accuracy", "limit_n": "limit"})
-    st.dataframe(overview, width="stretch", hide_index=True)
 
-    def _fmt_run(rid: int) -> str:
-        r = next(x for x in runs if x["id"] == rid)
-        acc = (r["correct"] or 0) / r["total"] if r["total"] else 0
-        when = (r["started_at"] or "")[:16].replace("T", " ")
-        provider = r.get("provider") or "?"
-        return f"#{rid} · {provider} · {r['benchmark']} · {r['model']} · {acc:.0%} · {when}"
-
-    selected_run = st.selectbox(
-        "Inspect run",
-        [r["id"] for r in runs],
-        format_func=_fmt_run,
+    run_sel = st.dataframe(
+        overview,
+        on_select="rerun",
+        selection_mode="single-row",
+        width="stretch",
+        hide_index=True,
+        key="inspect_runs_table",
     )
+    run_positions = list(run_sel.selection.rows or [])
+    if run_positions:
+        selected_run = int(overview.iloc[run_positions[0]]["id"])
+    elif st.session_state.get("inspect_run_id"):
+        # Cross-tab handoff from the comparison tab.
+        selected_run = int(st.session_state.pop("inspect_run_id"))
+    else:
+        selected_run = int(runs[0]["id"])
 
+    st.caption(f"Inspecting run #{selected_run}")
     run = storage.get_run(selected_run)
     results = storage.get_results(selected_run)
     if not results:
-        st.warning("This run has no results recorded.")
+        st.warning("⚠ This run has no results recorded.")
     else:
         df = pd.DataFrame(results)
         df["is_correct_bool"] = df["is_correct"].map({1: True, 0: False})
@@ -653,7 +665,19 @@ with tab_inspect:
         with st.expander("Run config"):
             st.json(json.loads(run["config_json"]))
 
+        st.download_button(
+            "Download results as CSV",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name=(
+                f"run_{selected_run}_{run['benchmark']}_"
+                f"{run['provider']}_{run['model']}.csv"
+            ),
+            mime="text/csv",
+            key=f"dl_run_{selected_run}",
+        )
+
         st.subheader("Per-question results")
+        st.caption("Click a row to drill into one question.")
         fcol, scol = st.columns([1, 2])
         with fcol:
             filter_choice = st.segmented_control(
@@ -676,6 +700,7 @@ with tab_inspect:
             view = view[view["error"].notna()]
         if search:
             view = view[view["question"].str.contains(search, case=False, na=False)]
+        view = view.reset_index(drop=True)
 
         if view.empty:
             st.info("No questions match the current filter.")
@@ -689,74 +714,74 @@ with tab_inspect:
                 "research_status", "error",
             ]
             display_cols = [c for c in display_cols if c in view.columns]
-            st.dataframe(view[display_cols], width="stretch", hide_index=True)
-
-            st.subheader("Drill into one question")
-
-            q_text_by_index = dict(zip(view["q_index"], view["question"]))
-            correct_by_index = dict(zip(view["q_index"], view["is_correct"]))
-
-            def _fmt_question(qi: int) -> str:
-                text = q_text_by_index[qi]
-                truncated = text if len(text) <= 90 else text[:90] + "…"
-                c = correct_by_index.get(qi)
-                badge = "✅" if c == 1 else ("❌" if c == 0 else "⚠")
-                return f"{badge}  Q{qi}  ·  {truncated}"
-
-            selected_qi = st.selectbox(
-                "Pick a question (type to search)",
-                view["q_index"].tolist(),
-                format_func=_fmt_question,
-                key=f"drill_run_{selected_run}",
+            results_sel = st.dataframe(
+                view[display_cols],
+                on_select="rerun",
+                selection_mode="single-row",
+                width="stretch",
+                hide_index=True,
+                key=f"inspect_results_{selected_run}_{filter_choice}",
             )
-            row = view[view["q_index"] == selected_qi].iloc[0]
-
-            if row["is_correct"] == 1:
-                st.success(f"✅ Correct  ·  confidence {row['confidence']:.2f}")
-            elif row["is_correct"] == 0:
-                st.error(f"❌ Incorrect  ·  confidence {row['confidence']:.2f}")
+            drill_positions = list(results_sel.selection.rows or [])
+            if not drill_positions:
+                st.caption("Click a row above to drill into one question.")
+                row = None
             else:
-                st.warning("⚠ No grade recorded")
-            if row["reasoning"]:
-                st.caption(f"Judge: {row['reasoning']}")
+                row = view.iloc[drill_positions[0]]
 
-            ec1, ec2 = st.columns(2)
-            with ec1:
-                st.markdown("**Expected answer**")
-                st.code(row["expected_answer"] or "—", language=None)
-            with ec2:
-                st.markdown("**Extracted answer**")
-                st.code(row["extracted_answer"] or "—", language=None)
+            if row is not None:
+                st.subheader("Drill into one question")
 
-            st.markdown("**Question**")
-            st.write(row["question"])
+                if row["is_correct"] == 1:
+                    st.success(
+                        f"✅ Correct  ·  confidence {row['confidence']:.2f}"
+                    )
+                elif row["is_correct"] == 0:
+                    st.error(
+                        f"❌ Incorrect  ·  confidence {row['confidence']:.2f}"
+                    )
+                else:
+                    st.warning("⚠ No grade recorded")
+                if row["reasoning"]:
+                    st.caption(f"Judge: {row['reasoning']}")
 
-            if row["error"]:
-                st.error(row["error"])
+                ec1, ec2 = st.columns(2)
+                with ec1:
+                    st.markdown("**Expected answer**")
+                    st.markdown(_quote(row["expected_answer"]))
+                with ec2:
+                    st.markdown("**Extracted answer**")
+                    st.markdown(_quote(row["extracted_answer"]))
 
-            with st.expander("Research report"):
-                st.markdown(row["research_content"] or "_(empty)_")
+                st.markdown("**Question**")
+                st.write(row["question"])
 
-            raw_sources = row["research_sources_json"]
-            if isinstance(raw_sources, str) and raw_sources:
-                sources = json.loads(raw_sources)
-                with st.expander(f"Sources ({len(sources)})"):
-                    for i, s in enumerate(sources, 1):
-                        if isinstance(s, dict):
-                            title = s.get("title") or s.get("url") or f"source {i}"
-                            url = s.get("url")
-                            if url:
-                                st.markdown(f"{i}. [{title}]({url})")
+                if row["error"]:
+                    st.error(row["error"])
+
+                with st.expander("Research report"):
+                    st.markdown(row["research_content"] or "_(empty)_")
+
+                raw_sources = row["research_sources_json"]
+                if isinstance(raw_sources, str) and raw_sources:
+                    sources = json.loads(raw_sources)
+                    with st.expander(f"Sources ({len(sources)})"):
+                        for i, s in enumerate(sources, 1):
+                            if isinstance(s, dict):
+                                title = s.get("title") or s.get("url") or f"source {i}"
+                                url = s.get("url")
+                                if url:
+                                    st.markdown(f"{i}. [{title}]({url})")
+                                else:
+                                    st.markdown(f"{i}. {title}")
                             else:
-                                st.markdown(f"{i}. {title}")
-                        else:
-                            st.markdown(f"{i}. {s}")
+                                st.markdown(f"{i}. {s}")
 
-            st.caption(
-                f"q_index {row['q_index']}  ·  "
-                f"research {_fmt_duration(row['research_duration_seconds'])}  ·  "
-                f"status {row['research_status']}"
-            )
+                st.caption(
+                    f"q_index {row['q_index']}  ·  "
+                    f"research {_fmt_duration(row['research_duration_seconds'])}  ·  "
+                    f"status {row['research_status']}"
+                )
 
 
 # ============================================================================
