@@ -1290,8 +1290,8 @@ with tab_tier:
             "```"
         )
     else:
-        # ----- Picker row: benchmark, tier, seed -----
-        pc1, pc2, pc3 = st.columns([2, 2, 1])
+        # ----- Picker row: benchmark, tier (seed only when ambiguous) -----
+        pc1, pc2 = st.columns(2)
         with pc1:
             _benchmarks = datasets.list_benchmarks()
             _saved_bench = _persisted("tier_bench", _benchmarks[0])
@@ -1324,7 +1324,7 @@ with tab_tier:
         tier_member_list = _tier_members(tier_name, _tiers_def)
         _member_set = set(tier_member_list)
 
-        # Seeds that actually have data for at least one tier member.
+        # Distinct seeds with data for this tier on this benchmark.
         _status_rows = storage.get_question_status(tier_bench)
         _seeds = sorted(
             {
@@ -1334,23 +1334,28 @@ with tab_tier:
             key=lambda x: (x is None, x),
         )
 
-        with pc3:
-            if not _seeds:
-                st.caption("Seed")
-                st.caption("—")
-                tier_seed = None
-            else:
-                _saved_seed = _persisted("tier_seed", _seeds[0])
-                if _saved_seed not in _seeds:
-                    _saved_seed = _seeds[0]
-                tier_seed = st.selectbox(
-                    "Seed",
-                    _seeds,
-                    index=_seeds.index(_saved_seed),
-                    format_func=lambda s: "(no seed)" if s is None else str(s),
-                    key="tier_seed",
-                    on_change=_save_ui_state,
-                )
+        # Only surface a seed picker when there's actual ambiguity. When all
+        # data is at a single seed (the common case for UI-launched runs),
+        # we silently pick it and keep the picker out of sight.
+        if not _seeds:
+            tier_seed = None
+        elif len(_seeds) == 1:
+            tier_seed = _seeds[0]
+        else:
+            _saved_seed = _persisted("tier_seed", _seeds[0])
+            if _saved_seed not in _seeds:
+                _saved_seed = _seeds[0]
+            tier_seed = st.selectbox(
+                "Seed (multiple detected — pick which slice to compare)",
+                _seeds,
+                index=_seeds.index(_saved_seed),
+                format_func=lambda s: "(no seed)" if s is None else str(s),
+                key="tier_seed",
+                on_change=_save_ui_state,
+                help="Different seeds shuffle the dataset differently, so "
+                     "q_index 5 means a different question across seeds. "
+                     "Pick one slice to keep comparisons honest.",
+            )
 
         if not _seeds:
             st.info(
