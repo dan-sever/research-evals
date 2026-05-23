@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider tavily --benchmark finsearchcomp --model mini --workers 5 --judge-model claude-haiku-4-5 --q-indices 135,137,138,140,141 --comparison-set 6765b6a3-ddb1-43a5-887f-916f529b8444
+Run 88: provider=tavily model=mini | finsearchcomp | n=5 | workers=5
+tavily:mini:   0%|          | 0/5 [00:00<?, ?it/s]tavily:mini:  20%|██        | 1/5 [00:15<01:01, 15.42s/it]tavily:mini:  40%|████      | 2/5 [00:24<00:34, 11.54s/it]tavily:mini:  60%|██████    | 3/5 [00:32<00:20, 10.20s/it]tavily:mini:  80%|████████  | 4/5 [00:37<00:07,  7.91s/it]tavily:mini: 100%|██████████| 5/5 [00:37<00:00,  5.15s/it]tavily:mini: 100%|██████████| 5/5 [00:37<00:00,  7.50s/it]
+
+Run 88 done (tavily/mini). Correct 2/5 (40.0%).

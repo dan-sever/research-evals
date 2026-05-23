@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider parallel --benchmark sealqa_seal0 --model base --workers 5 --judge-model claude-haiku-4-5 --q-indices 2,3,4,5 --comparison-set 7d46bb80-4a58-4301-8893-7a1a09cf1a46
+Run 71: provider=parallel model=base | sealqa_seal0 | n=4 | workers=5
+parallel:base:   0%|          | 0/4 [00:00<?, ?it/s]parallel:base:  25%|██▌       | 1/4 [01:05<03:16, 65.60s/it]parallel:base:  50%|█████     | 2/4 [01:43<01:38, 49.44s/it]parallel:base:  75%|███████▌  | 3/4 [02:38<00:51, 51.91s/it]parallel:base: 100%|██████████| 4/4 [03:05<00:00, 42.15s/it]parallel:base: 100%|██████████| 4/4 [03:05<00:00, 46.44s/it]
+
+Run 71 done (parallel/base). Correct 3/4 (75.0%).
