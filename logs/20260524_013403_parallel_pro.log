@@ -1,0 +1,3 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider parallel --benchmark finsearchcomp --model pro --workers 5 --judge-model claude-haiku-4-5 --q-indices 365,303,355,310,337,351,104,105 --comparison-set 1c89608b-205f-4b31-9fff-366624aa9f90
+Run 159: provider=parallel model=pro | finsearchcomp | n=8 | workers=5
+parallel:pro:   0%|          | 0/8 [00:00<?, ?it/s]

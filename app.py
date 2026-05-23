@@ -434,40 +434,55 @@ with tab_launch:
     # just the symbol so more provider columns fit on screen at once.
     # Only count and display status for q_indices that survived the filter
     # so the per-column score matches what the user actually sees.
+    #
+    # `get_question_status` returns every attempt (one row per run_id, q_index),
+    # sorted by run_id ascending. Dedupe first by overwriting per
+    # (provider, model, q_index) so retries collapse to the latest attempt,
+    # then derive cell symbols and per-column scores from the deduped map.
+    # Same latest-wins convention as the Tier tab roster (see _tier_run_data).
+    # Counting before dedupe would inflate `total` by every retry — e.g.
+    # Perplexity heavy with many 429/401 retries on the same q_indices would
+    # show e.g. (1/34, 3%) in the header while the body shows only 15 cells.
     visible_q_indices = set(ds_df["q_index"].astype(int).tolist())
     status_rows = storage.get_question_status(bench)
-    combo_status: dict[tuple[str, str], dict[int, str]] = {}
-    combo_score: dict[tuple[str, str], dict[str, int]] = {}
+    combo_latest: dict[tuple[str, str], dict[int, dict]] = {}
     for s in status_rows:
         if s["seed"] != seed_int:
             continue
         if int(s["q_index"]) not in visible_q_indices:
             continue
-        if s["error"]:
-            symbol = "⚠"
-        elif s["is_correct"] == 1:
-            symbol = "✅"
-        elif s["is_correct"] == 0:
-            symbol = "❌"
-        else:
-            symbol = "·"
-        if show_details:
-            ans = (s.get("extracted_answer") or "").strip()
-            if len(ans) > 40:
-                ans = ans[:40] + "…"
-            head = "⚠ error" if s["error"] else (
-                f"{symbol} {ans}" if ans else symbol
-            )
-            dur = _fmt_duration_short(s.get("research_duration_seconds"))
-            cell = f"{head} · {dur}" if dur else head
-        else:
-            cell = symbol
         key = (s["provider"], s["model"])
-        combo_status.setdefault(key, {})[int(s["q_index"])] = cell
+        combo_latest.setdefault(key, {})[int(s["q_index"])] = s
+
+    combo_status: dict[tuple[str, str], dict[int, str]] = {}
+    combo_score: dict[tuple[str, str], dict[str, int]] = {}
+    for key, qi_to_row in combo_latest.items():
         score = combo_score.setdefault(key, {"correct": 0, "total": 0})
-        score["total"] += 1
-        if s["is_correct"] == 1:
-            score["correct"] += 1
+        status_map = combo_status.setdefault(key, {})
+        for qi, s in qi_to_row.items():
+            if s["error"]:
+                symbol = "⚠"
+            elif s["is_correct"] == 1:
+                symbol = "✅"
+            elif s["is_correct"] == 0:
+                symbol = "❌"
+            else:
+                symbol = "·"
+            if show_details:
+                ans = (s.get("extracted_answer") or "").strip()
+                if len(ans) > 40:
+                    ans = ans[:40] + "…"
+                head = "⚠ error" if s["error"] else (
+                    f"{symbol} {ans}" if ans else symbol
+                )
+                dur = _fmt_duration_short(s.get("research_duration_seconds"))
+                cell = f"{head} · {dur}" if dur else head
+            else:
+                cell = symbol
+            status_map[qi] = cell
+            score["total"] += 1
+            if s["is_correct"] == 1:
+                score["correct"] += 1
 
     def _combo_key(combo):
         # When tiers are defined, sort by (tier order, position within tier,

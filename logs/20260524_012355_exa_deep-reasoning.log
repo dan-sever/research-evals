@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark finsearchcomp --model deep-reasoning --workers 5 --judge-model claude-haiku-4-5 --q-indices 375,367,348,249,343,304,101,320,345,106
+Run 144: provider=exa model=deep-reasoning | finsearchcomp | n=10 | workers=5
+exa:deep-reasoning:   0%|          | 0/10 [00:00<?, ?it/s]exa:deep-reasoning:  10%|█         | 1/10 [00:15<02:19, 15.52s/it]exa:deep-reasoning:  20%|██        | 2/10 [00:22<01:25, 10.70s/it]exa:deep-reasoning:  30%|███       | 3/10 [00:28<00:57,  8.17s/it]exa:deep-reasoning:  40%|████      | 4/10 [00:29<00:33,  5.56s/it]exa:deep-reasoning:  50%|█████     | 5/10 [00:45<00:46,  9.26s/it]exa:deep-reasoning:  60%|██████    | 6/10 [00:51<00:32,  8.09s/it]exa:deep-reasoning:  70%|███████   | 7/10 [01:07<00:32, 10.86s/it]exa:deep-reasoning:  80%|████████  | 8/10 [01:13<00:18,  9.18s/it]exa:deep-reasoning:  90%|█████████ | 9/10 [01:52<00:18, 18.43s/it]exa:deep-reasoning: 100%|██████████| 10/10 [02:02<00:00, 16.08s/it]exa:deep-reasoning: 100%|██████████| 10/10 [02:02<00:00, 12.30s/it]
+
+Run 144 done (exa/deep-reasoning). Correct 5/10 (50.0%).
