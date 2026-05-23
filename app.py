@@ -347,6 +347,10 @@ with tab_launch:
         column_config[col] = st.column_config.TextColumn(label, width=coverage_col_width)
 
     table_height = min(720, max(300, 90 + 38 * len(ds_df)))
+    # Bumping launch_table_version forces Streamlit to mount a fresh
+    # dataframe widget, which is the reliable way to clear a multi-row
+    # selection. The Deselect all button below bumps it.
+    sel_version = st.session_state.get("launch_table_version", 0)
     sel = st.dataframe(
         ds_df[table_cols],
         on_select="rerun",
@@ -355,7 +359,7 @@ with tab_launch:
         width="stretch",
         hide_index=True,
         height=table_height,
-        key=f"launch_table_{bench}_{seed_int}",
+        key=f"launch_table_{bench}_{seed_int}_v{sel_version}",
     )
 
     selected_positions: list[int] = list(sel.selection.rows or [])
@@ -376,11 +380,20 @@ with tab_launch:
             "Click row checkboxes to multi-select."
         )
     else:
-        sel_c1, sel_c2 = st.columns([1, 4])
+        sel_c1, sel_c2, sel_c3 = st.columns([1, 3, 1])
         sel_c1.metric("Selected", f"{len(selected_q_indices)}")
         with sel_c2:
             st.caption("q_index ranges")
             st.code(_ranges(sorted(selected_q_indices)), language=None)
+        with sel_c3:
+            if st.button(
+                "Deselect all",
+                key="launch_deselect_all",
+                width="stretch",
+                help="Clear the current row selection. Does not delete any data.",
+            ):
+                st.session_state["launch_table_version"] = sel_version + 1
+                st.rerun()
 
     # ----- Provider and model matrix -----
     st.subheader("Providers and models")
