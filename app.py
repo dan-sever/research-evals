@@ -150,13 +150,20 @@ def _tier_run_data(
     tier_members: list[tuple[str, str]],
     seed,
 ) -> tuple[pd.DataFrame, dict[tuple[str, str], int]]:
-    """For each (provider, model) in `tier_members`, find the most recent run
-    matching (benchmark, seed, provider, model) and join its per-question
-    results into one long-format DataFrame with `provider` and `model_used`
-    columns. Returns `(data, run_ids_used)`. Members with no matching run are
-    absent from both. Pure reads via storage.list_runs + storage.get_results."""
+    """For each (provider, model) in `tier_members`, collect results from
+    EVERY run matching (benchmark, seed, provider, model), then dedupe by
+    (provider, model, q_index) keeping the row from the most recent run.
+    Mirrors the Launch tab coverage convention of latest-run-wins per
+    question, so partial runs spread across many batches still show their
+    full cumulative coverage in the matrix.
+
+    Returns `(data, most_recent_run)` where `data` has one row per
+    (provider, model, q_index) and `most_recent_run` maps each present
+    member to its latest run_id (for roster help text).
+    """
     wanted = set(tier_members)
-    best: dict[tuple[str, str], int] = {}
+    runs_for_member: dict[tuple[str, str], list[int]] = {}
+    most_recent: dict[tuple[str, str], int] = {}
     for r in storage.list_runs():
         if r["benchmark"] != benchmark or r["seed"] != seed:
             continue
@@ -164,23 +171,32 @@ def _tier_run_data(
         if key not in wanted:
             continue
         rid = int(r["id"])
-        if key not in best or rid > best[key]:
-            best[key] = rid
+        runs_for_member.setdefault(key, []).append(rid)
+        if key not in most_recent or rid > most_recent[key]:
+            most_recent[key] = rid
 
     frames: list[pd.DataFrame] = []
-    for (p, m), run_id in best.items():
-        rows = storage.get_results(run_id)
-        if not rows:
-            continue
-        df = pd.DataFrame(rows)
-        df["provider"] = p
-        df["model_used"] = m
-        df["_run_id"] = run_id
-        frames.append(df)
+    for (p, m), run_ids in runs_for_member.items():
+        # Iterate ASC so drop_duplicates(keep="last") picks the latest row
+        # per q_index for this member.
+        for rid in sorted(run_ids):
+            rows = storage.get_results(rid)
+            if not rows:
+                continue
+            df = pd.DataFrame(rows)
+            df["provider"] = p
+            df["model_used"] = m
+            df["_run_id"] = rid
+            frames.append(df)
 
     if not frames:
-        return pd.DataFrame(), best
-    return pd.concat(frames, ignore_index=True), best
+        return pd.DataFrame(), most_recent
+
+    data = pd.concat(frames, ignore_index=True)
+    data = data.drop_duplicates(
+        subset=["provider", "model_used", "q_index"], keep="last"
+    ).reset_index(drop=True)
+    return data, most_recent
 
 
 # CJK ideographs, Hiragana/Katakana, Hangul, fullwidth forms. Any hit
@@ -1363,7 +1379,11 @@ with tab_tier:
                         st.metric(
                             f"{p}:{m}",
                             f"{accuracy:.1%}",
-                            help=f"run #{run_ids[(p, m)]}, {correct}/{total}",
+                            help=(
+                                f"latest run #{run_ids[(p, m)]}  ·  "
+                                f"{correct}/{total} distinct questions answered "
+                                f"correctly (latest answer per q_index wins)"
+                            ),
                         )
 
             if data.empty:
