@@ -122,55 +122,30 @@ with tab_launch:
 
     coverage = storage.get_coverage(bench)
 
-    st.markdown("---")
-    st.markdown("**Providers and models**")
-
-    selected_providers: list[str] = st.multiselect(
-        "Providers",
-        list(providers.PROVIDERS),
-        default=["tavily"],
-        key="launch_providers",
-    )
-
-    provider_models: dict[str, list[str]] = {}
-    if selected_providers:
-        prov_cols = st.columns(len(selected_providers))
-        for col, p in zip(prov_cols, selected_providers):
-            with col:
-                provider_models[p] = st.multiselect(
-                    f"{p} models",
-                    list(providers.PROVIDERS[p].available_models),
-                    default=[providers.PROVIDERS[p].default_model],
-                    key=f"launch_models_{p}",
-                )
-
-    st.markdown("---")
-    st.markdown("**Options**")
-
-    oc1, oc2, oc3 = st.columns(3)
-    with oc1:
-        seed_str = st.text_input(
-            "Seed (blank = original order)",
-            value="",
-            key="launch_seed",
-        )
-    with oc2:
-        count = st.number_input(
-            "Max per batch (cap)",
-            min_value=1, max_value=50,
-            value=5, step=1,
-            help="Hard cap on how many rows you can select at once.",
-            key="launch_count",
-        )
-    with oc3:
-        workers = st.number_input(
-            "Workers",
-            min_value=1, max_value=16,
-            value=4, step=1,
-            key="launch_workers",
-        )
-
-    note = st.text_input("Note (saved with every run)", value="", key="launch_note")
+    with st.expander("Run options", expanded=False):
+        oc1, oc2, oc3 = st.columns(3)
+        with oc1:
+            seed_str = st.text_input(
+                "Seed (blank = original order)",
+                value="",
+                key="launch_seed",
+            )
+        with oc2:
+            count = st.number_input(
+                "Max per batch (cap)",
+                min_value=1, max_value=50,
+                value=5, step=1,
+                help="Hard cap on how many rows you can select at once.",
+                key="launch_count",
+            )
+        with oc3:
+            workers = st.number_input(
+                "Workers",
+                min_value=1, max_value=16,
+                value=4, step=1,
+                key="launch_workers",
+            )
+        note = st.text_input("Note (saved with every run)", value="", key="launch_note")
 
     try:
         seed_int = int(seed_str) if seed_str.strip() else None
@@ -179,8 +154,7 @@ with tab_launch:
         seed_int = None
 
     # ----- Dataset table with coverage marks -----
-    st.markdown("---")
-    st.markdown("**Pick the starting question**")
+    st.subheader("Questions to run")
     tcol1, tcol2 = st.columns(2)
     with tcol1:
         show_details = st.toggle(
@@ -279,7 +253,7 @@ with tab_launch:
     table_cols = ["q_index", "question", "expected_answer"] + coverage_cols
     column_config = {
         "q_index": st.column_config.NumberColumn("#", width=60, pinned=True),
-        "question": st.column_config.TextColumn("Question", width="large"),
+        "question": st.column_config.TextColumn("Question", width="large", pinned=True),
         "expected_answer": st.column_config.TextColumn("Expected", width=140),
     }
     coverage_col_width = 220 if show_details else 130
@@ -290,6 +264,7 @@ with tab_launch:
         label = f"{col} ({sc['correct']}/{sc['total']}, {pct:.0f}%)"
         column_config[col] = st.column_config.TextColumn(label, width=coverage_col_width)
 
+    table_height = min(720, max(300, 90 + 38 * len(ds_df)))
     sel = st.dataframe(
         ds_df[table_cols],
         on_select="rerun",
@@ -297,7 +272,7 @@ with tab_launch:
         column_config=column_config,
         width="stretch",
         hide_index=True,
-        height=420,
+        height=table_height,
         key=f"launch_table_{bench}_{seed_int}",
     )
 
@@ -319,15 +294,31 @@ with tab_launch:
             "Click row checkboxes to multi-select."
         )
     else:
-        st.markdown(
-            f"**Selected:** {len(selected_q_indices)} question(s)  ·  "
-            f"q_index `{_ranges(sorted(selected_q_indices))}`"
-        )
-        with st.expander("Preview selected questions", expanded=False):
-            preview = ds_df[ds_df["q_index"].isin(selected_q_indices)][
-                ["q_index", "question"]
-            ].set_index("q_index").loc[selected_q_indices].reset_index()
-            st.dataframe(preview, width="stretch", hide_index=True)
+        sel_c1, sel_c2 = st.columns([1, 4])
+        sel_c1.metric("Selected", f"{len(selected_q_indices)}")
+        with sel_c2:
+            st.caption("q_index ranges")
+            st.code(_ranges(sorted(selected_q_indices)), language=None)
+
+    # ----- Provider and model matrix -----
+    st.subheader("Providers and models")
+    st.caption("Tick a model to include it. Each ticked model becomes one run.")
+    prov_names = list(providers.PROVIDERS)
+    prov_cols = st.columns(len(prov_names))
+    provider_models: dict[str, list[str]] = {}
+    selected_providers: list[str] = []
+    for col, p in zip(prov_cols, prov_names):
+        with col:
+            st.markdown(f"**{p}**")
+            default_model = providers.PROVIDERS[p].default_model
+            chosen: list[str] = []
+            for m in providers.PROVIDERS[p].available_models:
+                initial = (p == "tavily" and m == default_model)
+                if st.checkbox(m, value=initial, key=f"launch_chk_{p}_{m}"):
+                    chosen.append(m)
+            if chosen:
+                provider_models[p] = chosen
+                selected_providers.append(p)
 
     # ----- Overlap warning for the selected rows -----
     if selected_q_indices and selected_providers and any(provider_models.values()):
@@ -358,14 +349,13 @@ with tab_launch:
                 "Launching again will re-bill them:\n\n" + lines
             )
 
-    # ----- Cost preview -----
+    # ----- Cost preview as metric strip -----
     runs_planned = sum(len(ms) for ms in provider_models.values())
     calls_planned = runs_planned * len(selected_q_indices)
-    st.info(
-        f"This will launch **{runs_planned} run(s)** × "
-        f"**{len(selected_q_indices)} question(s)** = "
-        f"**{calls_planned} research call(s)** + {calls_planned} judge call(s)."
-    )
+    mc1, mc2, mc3 = st.columns(3)
+    mc1.metric("Runs", runs_planned)
+    mc2.metric("Research calls", calls_planned)
+    mc3.metric("Judge calls", calls_planned)
 
     # ----- Env key check -----
     env = load_env()
@@ -421,7 +411,6 @@ with tab_launch:
             st.caption(f"comparison_set `{comparison_set[:8]}…`")
 
     # ----- In-flight runs -----
-    st.markdown("---")
     st.subheader("In-flight runs")
     in_flight = storage.list_in_progress_runs()
     if not in_flight:
