@@ -36,6 +36,8 @@ _UI_PERSIST_PREFIXES = (
     "launch_count",
     "launch_workers",
     "launch_chk_",
+    "launch_tier_filter",
+    "tier_",
 )
 
 
@@ -90,6 +92,57 @@ def _elapsed_human(started_at: str | None) -> str:
         return f"{secs / 3600:.1f}h"
     except Exception:
         return "—"
+
+
+# ---------- Model tiers (analytical grouping across providers) ----------
+# `model_tiers.json` lives at project root, is committed to git, and maps
+# a tier name (e.g. "fast", "heavy") to an ordered list of [provider, model]
+# pairs that should be compared as peers. Pure UI overlay — never touches
+# results.db or run rows. Editing the file rotates safely; missing or
+# malformed file hides every tier-aware UI control.
+_TIERS_PATH = Path("model_tiers.json")
+
+
+def _load_tiers() -> dict[str, list[tuple[str, str]]]:
+    """Cached tier definitions. Returns {} if the file is missing or
+    malformed. Normalizes members to (provider, model) tuples and drops
+    anything that isn't a 2-element list of strings."""
+    if "_tiers_cache" in st.session_state:
+        return st.session_state["_tiers_cache"]
+    out: dict[str, list[tuple[str, str]]] = {}
+    if _TIERS_PATH.exists():
+        try:
+            raw = json.loads(_TIERS_PATH.read_text())
+            if isinstance(raw, dict):
+                for name, members in raw.items():
+                    if not isinstance(name, str) or not isinstance(members, list):
+                        continue
+                    cleaned: list[tuple[str, str]] = []
+                    for m in members:
+                        if (
+                            isinstance(m, (list, tuple))
+                            and len(m) == 2
+                            and all(isinstance(x, str) for x in m)
+                        ):
+                            cleaned.append((m[0], m[1]))
+                    if cleaned:
+                        out[name] = cleaned
+        except Exception:
+            out = {}
+    st.session_state["_tiers_cache"] = out
+    return out
+
+
+def _tier_of(provider: str, model: str, tiers: dict) -> str | None:
+    """First tier (in JSON-key order) that contains (provider, model)."""
+    for name, members in tiers.items():
+        if (provider, model) in members:
+            return name
+    return None
+
+
+def _tier_members(tier_name: str, tiers: dict) -> list[tuple[str, str]]:
+    return list(tiers.get(tier_name, []))
 
 
 # CJK ideographs, Hiragana/Katakana, Hangul, fullwidth forms. Any hit
@@ -235,7 +288,13 @@ with tab_launch:
 
     # ----- Dataset table with coverage marks -----
     st.subheader("Questions to run")
-    tcol1, tcol2 = st.columns(2)
+    _launch_tiers = _load_tiers()
+    _tier_names = list(_launch_tiers.keys())
+    if _tier_names:
+        tcol1, tcol2, tcol3 = st.columns(3)
+    else:
+        tcol1, tcol2 = st.columns(2)
+        tcol3 = None
     with tcol1:
         show_details = st.toggle(
             "Show answer and duration in coverage cells",
@@ -255,6 +314,25 @@ with tab_launch:
                  "characters. Useful for finsearchcomp which mixes English "
                  "and Chinese prompts. q_index numbering is preserved.",
         )
+    if tcol3 is not None:
+        with tcol3:
+            _tier_filter_options = ["all"] + _tier_names
+            _saved_tier_filter = _persisted("launch_tier_filter", "all")
+            if _saved_tier_filter not in _tier_filter_options:
+                _saved_tier_filter = "all"
+            tier_filter = st.segmented_control(
+                "Tier columns",
+                _tier_filter_options,
+                default=_saved_tier_filter,
+                key="launch_tier_filter",
+                on_change=_save_ui_state,
+                help="Limit coverage columns to one tier's members "
+                     "(from model_tiers.json).",
+            )
+            if not tier_filter:
+                tier_filter = "all"
+    else:
+        tier_filter = "all"
     st.caption(
         "Click row checkboxes to pick which questions to run. The right-hand "
         "columns show every provider:model that has ever run this benchmark "
@@ -317,11 +395,23 @@ with tab_launch:
             score["correct"] += 1
 
     def _combo_key(combo):
-        # Tavily first since this is your home turf, then alphabetical.
+        # When tiers are defined, sort by (tier order, position within tier,
+        # provider, model). Members of the first tier come first in their
+        # declared order, then second tier, etc; anything outside every tier
+        # falls to the end alphabetically. Without tiers, fall back to the
+        # original tavily-first-then-alphabetical ordering.
         p, m = combo
-        return (0 if p == "tavily" else 1, p, m)
+        if _launch_tiers:
+            for ti, (_tname, members) in enumerate(_launch_tiers.items()):
+                if (p, m) in members:
+                    return (ti, members.index((p, m)), p, m)
+            return (len(_launch_tiers), 0, p, m)
+        return (0 if p == "tavily" else 1, 0, p, m)
 
     all_combos = sorted(combo_status.keys(), key=_combo_key)
+    if tier_filter != "all":
+        _members = set(_tier_members(tier_filter, _launch_tiers))
+        all_combos = [c for c in all_combos if c in _members]
 
     coverage_cols: list[str] = []
     for p, m in all_combos:

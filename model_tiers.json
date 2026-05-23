@@ -1,0 +1,15 @@
+{
+  "fast": [
+    ["tavily", "mini"],
+    ["perplexity", "sonar-reasoning-pro"],
+    ["exa", "deep"],
+    ["parallel", "base"],
+    ["parallel", "core"]
+  ],
+  "heavy": [
+    ["tavily", "pro"],
+    ["perplexity", "sonar-deep-research"],
+    ["exa", "deep-reasoning"],
+    ["parallel", "pro"]
+  ]
+}
