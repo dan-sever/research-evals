@@ -848,8 +848,42 @@ with tab_compare:
         display_summary = summary_df.assign(
             accuracy=summary_df["accuracy_raw"].map(lambda x: f"{x:.1%}"),
             avg_duration=summary_df["avg_seconds_raw"].map(_fmt_duration),
-        )[["provider", "model", "total", "correct", "errors", "accuracy", "avg_duration", "run_id"]]
-        st.dataframe(display_summary, width="stretch", hide_index=True)
+        )[["provider", "model", "total", "correct", "errors", "accuracy", "avg_duration", "run_id"]].reset_index(drop=True)
+        st.caption("Click a row, then 'Open in inspector' to drill in.")
+        sum_sel = st.dataframe(
+            display_summary,
+            on_select="rerun",
+            selection_mode="single-row",
+            width="stretch",
+            hide_index=True,
+            key=f"cmp_summary_{selected_set}",
+        )
+        sum_positions = list(sum_sel.selection.rows or [])
+
+        sum_btn_col, sum_dl_col = st.columns([2, 1])
+        with sum_btn_col:
+            if sum_positions:
+                target_run_id = int(
+                    display_summary.iloc[sum_positions[0]]["run_id"]
+                )
+                if st.button(
+                    f"Open run #{target_run_id} in Single run inspector",
+                    key=f"open_inspector_{selected_set}_{target_run_id}",
+                ):
+                    st.session_state["inspect_run_id"] = target_run_id
+                    st.toast(
+                        f"Run #{target_run_id} preselected. Click "
+                        f"'Single run inspector' above to view it.",
+                        icon="🔍",
+                    )
+        with sum_dl_col:
+            st.download_button(
+                "Download summary CSV",
+                data=display_summary.to_csv(index=False).encode("utf-8"),
+                file_name=f"comparison_{selected_set[:8]}_summary.csv",
+                mime="text/csv",
+                key=f"dl_cmp_sum_{selected_set}",
+            )
 
         # ----- Build cross-provider data -----
         all_results: list[pd.DataFrame] = []
@@ -894,43 +928,68 @@ with tab_compare:
 
         all_qis = sorted(qi_to_correctness.keys())
 
-        # Filters
+        # Filters — two independent controls: row-class on the left, an
+        # optional Tavily pivot on the right (only when Tavily is in this set).
         fc1, fc2 = st.columns([2, 2])
-        filter_options = ["all"]
-        if "tavily" in providers_in_set:
-            filter_options += ["tavily wins (unique)", "tavily loses (unique)"]
-        filter_options += ["any disagreement", "all correct", "all wrong"]
         with fc1:
             cmp_filter = st.segmented_control(
                 "Filter",
-                filter_options,
+                ["all", "any disagreement", "all correct", "all wrong"],
                 default="all",
                 key="cmp_filter",
             )
             if not cmp_filter:
                 cmp_filter = "all"
-        with fc2:
             cmp_search = st.text_input(
                 "Search question text",
                 "",
                 key="cmp_search",
             )
+        with fc2:
+            has_tavily = "tavily" in providers_in_set
+            if has_tavily:
+                tav_pivot = st.toggle(
+                    "Tavily pivot",
+                    value=False,
+                    key="cmp_tavily_pivot",
+                    help="When on, show only questions where Tavily is "
+                         "uniquely right or uniquely wrong vs every other "
+                         "provider in this set. Overrides the filter on the left.",
+                )
+                if tav_pivot:
+                    tav_side = st.segmented_control(
+                        "Tavily side",
+                        ["wins (unique)", "loses (unique)"],
+                        default="wins (unique)",
+                        key="cmp_tavily_side",
+                    )
+                    if not tav_side:
+                        tav_side = "wins (unique)"
+                else:
+                    tav_side = None
+            else:
+                tav_pivot = False
+                tav_side = None
 
         def _passes(qi: int) -> bool:
             c = qi_to_correctness.get(qi, {})
             vals = [v for v in c.values() if v is not None]
+            if tav_pivot and has_tavily:
+                if not vals:
+                    return False
+                tav = c.get("tavily")
+                others = [
+                    v for k, v in c.items() if k != "tavily" and v is not None
+                ]
+                if tav_side == "wins (unique)":
+                    return tav == 1 and bool(others) and all(v == 0 for v in others)
+                if tav_side == "loses (unique)":
+                    return tav == 0 and bool(others) and all(v == 1 for v in others)
+                return True
             if not vals:
                 return cmp_filter == "all"
             if cmp_filter == "all":
                 return True
-            if cmp_filter == "tavily wins (unique)":
-                tav = c.get("tavily")
-                others = [v for k, v in c.items() if k != "tavily" and v is not None]
-                return tav == 1 and others and all(v == 0 for v in others)
-            if cmp_filter == "tavily loses (unique)":
-                tav = c.get("tavily")
-                others = [v for k, v in c.items() if k != "tavily" and v is not None]
-                return tav == 0 and others and all(v == 1 for v in others)
             if cmp_filter == "any disagreement":
                 return len(set(vals)) > 1
             if cmp_filter == "all correct":
@@ -954,23 +1013,39 @@ with tab_compare:
         else:
             matrix_rows = []
             for qi in filtered_qis:
-                q = qi_to_question.get(qi) or ""
                 row = {
                     "q_index": qi,
-                    "question": (q[:80] + "…") if len(q) > 80 else q,
-                    "expected": (qi_to_expected.get(qi) or "")[:60],
+                    "question": qi_to_question.get(qi) or "",
+                    "expected": qi_to_expected.get(qi) or "",
                 }
                 for p in providers_in_set:
                     c = qi_to_correctness.get(qi, {}).get(p)
                     ext = qi_to_extracted.get(qi, {}).get(p) or ""
                     badge = "✅" if c == 1 else ("❌" if c == 0 else "—")
-                    cell = f"{badge} {ext}"
-                    row[p] = cell[:60] + ("…" if len(cell) > 60 else "")
+                    row[p] = f"{badge} {ext}".strip()
                 matrix_rows.append(row)
+            matrix_df = pd.DataFrame(matrix_rows)
+            matrix_column_config = {
+                "q_index": st.column_config.NumberColumn("#", width=60, pinned=True),
+                "question": st.column_config.TextColumn("Question", width="large", pinned=True),
+                "expected": st.column_config.TextColumn("Expected", width="medium"),
+            }
+            for p in providers_in_set:
+                matrix_column_config[p] = st.column_config.TextColumn(
+                    p, width="medium"
+                )
             st.dataframe(
-                pd.DataFrame(matrix_rows),
+                matrix_df,
                 width="stretch",
                 hide_index=True,
+                column_config=matrix_column_config,
+            )
+            st.download_button(
+                "Download matrix CSV",
+                data=matrix_df.to_csv(index=False).encode("utf-8"),
+                file_name=f"comparison_{selected_set[:8]}_matrix.csv",
+                mime="text/csv",
+                key=f"dl_cmp_mat_{selected_set}",
             )
 
             # ----- Drill into one question, side-by-side providers -----
@@ -1016,7 +1091,7 @@ with tab_compare:
                         f"{_fmt_duration(r['research_duration_seconds'])}"
                     )
                     st.markdown("**Extracted**")
-                    st.code(r["extracted_answer"] or "—", language=None)
+                    st.markdown(_quote(r["extracted_answer"]))
                     if pd.notna(r["confidence"]):
                         st.caption(f"confidence {r['confidence']:.2f}")
                     if r["reasoning"]:
