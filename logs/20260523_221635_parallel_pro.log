@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider parallel --benchmark finsearchcomp --model pro --workers 5 --judge-model claude-haiku-4-5 --q-indices 375,367,249,101,106,219,108,110
+Run 128: provider=parallel model=pro | finsearchcomp | n=8 | workers=5
+parallel:pro:   0%|          | 0/8 [00:00<?, ?it/s]parallel:pro:  12%|█▎        | 1/8 [02:30<17:34, 150.63s/it]parallel:pro:  25%|██▌       | 2/8 [02:43<06:58, 69.69s/it] parallel:pro:  38%|███▊      | 3/8 [02:54<03:33, 42.71s/it]parallel:pro:  50%|█████     | 4/8 [04:30<04:14, 63.72s/it]parallel:pro:  62%|██████▎   | 5/8 [05:14<02:50, 56.86s/it]parallel:pro:  75%|███████▌  | 6/8 [05:20<01:18, 39.38s/it]parallel:pro:  88%|████████▊ | 7/8 [05:30<00:29, 29.74s/it]parallel:pro: 100%|██████████| 8/8 [10:06<00:00, 108.32s/it]parallel:pro: 100%|██████████| 8/8 [10:06<00:00, 75.85s/it] 
+
+Run 128 done (parallel/pro). Correct 4/8 (50.0%).

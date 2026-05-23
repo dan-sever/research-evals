@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark finsearchcomp --model deep --workers 5 --judge-model claude-haiku-4-5 --q-indices 233,249,109,303
+Run 110: provider=exa model=deep | finsearchcomp | n=4 | workers=5
+exa:deep:   0%|          | 0/4 [00:00<?, ?it/s]exa:deep:  25%|██▌       | 1/4 [00:05<00:16,  5.34s/it]exa:deep:  75%|███████▌  | 3/4 [00:08<00:02,  2.42s/it]exa:deep: 100%|██████████| 4/4 [00:10<00:00,  2.45s/it]exa:deep: 100%|██████████| 4/4 [00:10<00:00,  2.66s/it]
+
+Run 110 done (exa/deep). Correct 3/4 (75.0%).
