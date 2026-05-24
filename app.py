@@ -114,6 +114,51 @@ def _elapsed_human(started_at: str | None) -> str:
 # results.db or run rows. Editing the file rotates safely; missing or
 # malformed file hides every tier-aware UI control.
 _TIERS_PATH = Path("model_tiers.json")
+_COSTS_PATH = Path("model_costs.json")
+
+
+def _load_costs() -> dict:
+    """Cached per-call USD lookup. Returns `{}` if the file is missing or
+    malformed — the Launch tab then hides the $ estimate gracefully."""
+    if "_costs_cache" in st.session_state:
+        return st.session_state["_costs_cache"]
+    out: dict = {}
+    if _COSTS_PATH.exists():
+        try:
+            raw = json.loads(_COSTS_PATH.read_text())
+            if isinstance(raw, dict):
+                out = raw
+        except Exception:
+            out = {}
+    st.session_state["_costs_cache"] = out
+    return out
+
+
+def _estimate_cost(
+    provider_models: dict[str, list[str]], n_questions: int,
+) -> tuple[float, list[tuple[str, str]]]:
+    """Sum estimated USD over every (provider, model, question). Returns
+    `(total, missing)` where `missing` lists (provider, model) pairs that
+    had no cost entry. Includes one judge call per question per run."""
+    costs = _load_costs()
+    if not costs or n_questions == 0:
+        return 0.0, []
+    judge_per_call = float(costs.get("judge_per_call") or 0)
+    provider_costs = costs.get("providers") or {}
+    total = 0.0
+    missing: list[tuple[str, str]] = []
+    for p, models in provider_models.items():
+        for m in models:
+            per_call = (
+                provider_costs.get(p, {}).get(m)
+                if isinstance(provider_costs.get(p), dict)
+                else None
+            )
+            if per_call is None:
+                missing.append((p, m))
+                per_call = 0.0
+            total += (float(per_call) + judge_per_call) * n_questions
+    return total, missing
 
 
 def _load_tiers() -> dict[str, list[tuple[str, str]]]:
@@ -662,10 +707,31 @@ with tab_launch:
     # ----- Cost preview as metric strip -----
     runs_planned = sum(len(ms) for ms in provider_models.values())
     calls_planned = runs_planned * len(selected_q_indices)
-    mc1, mc2, mc3 = st.columns(3)
-    mc1.metric("Runs", runs_planned)
-    mc2.metric("Research calls", calls_planned)
-    mc3.metric("Judge calls", calls_planned)
+    est_cost, missing_costs = _estimate_cost(
+        provider_models, len(selected_q_indices),
+    )
+    if _load_costs():
+        mc1, mc2, mc3, mc4 = st.columns(4)
+        mc1.metric("Runs", runs_planned)
+        mc2.metric("Research calls", calls_planned)
+        mc3.metric("Judge calls", calls_planned)
+        # Hard to predict the actual bill; this is a rough order-of-magnitude
+        # from list prices in model_costs.json. Useful as a sanity check
+        # before clicking Launch, not as a finance number.
+        cost_label = f"≈ ${est_cost:.2f}" if est_cost else "—"
+        help_text = "Rough estimate from model_costs.json. Includes judge calls."
+        if missing_costs:
+            help_text += (
+                "  Missing prices for: "
+                + ", ".join(f"{p}:{m}" for p, m in missing_costs)
+                + ". Those rows counted as $0 — edit model_costs.json to fill them in."
+            )
+        mc4.metric("Est. cost", cost_label, help=help_text)
+    else:
+        mc1, mc2, mc3 = st.columns(3)
+        mc1.metric("Runs", runs_planned)
+        mc2.metric("Research calls", calls_planned)
+        mc3.metric("Judge calls", calls_planned)
 
     # ----- Env key check -----
     env = load_env()
@@ -688,10 +754,24 @@ with tab_launch:
         seed_int_arg, workers_arg, note_arg,
         runs_planned_arg, calls_planned_arg, missing_arg, already_covered_arg,
     ):
-        dc1, dc2, dc3 = st.columns(3)
-        dc1.metric("Runs", runs_planned_arg)
-        dc2.metric("Research calls", calls_planned_arg)
-        dc3.metric("Judge calls", calls_planned_arg)
+        est_cost_arg, _missing_costs_arg = _estimate_cost(
+            provider_models_arg, len(selected_q_indices_arg),
+        )
+        if _load_costs():
+            dc1, dc2, dc3, dc4 = st.columns(4)
+            dc1.metric("Runs", runs_planned_arg)
+            dc2.metric("Research calls", calls_planned_arg)
+            dc3.metric("Judge calls", calls_planned_arg)
+            dc4.metric(
+                "Est. cost",
+                f"≈ ${est_cost_arg:.2f}" if est_cost_arg else "—",
+                help="Rough estimate from model_costs.json.",
+            )
+        else:
+            dc1, dc2, dc3 = st.columns(3)
+            dc1.metric("Runs", runs_planned_arg)
+            dc2.metric("Research calls", calls_planned_arg)
+            dc3.metric("Judge calls", calls_planned_arg)
 
         if missing_arg:
             st.error("❌ Missing API keys: " + ", ".join(missing_arg))

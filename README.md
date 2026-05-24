@@ -126,7 +126,7 @@ Cherry-pick mode for new evals.
    - **Tier columns** (only when `model_tiers.json` exists) — restrict the visible provider columns to one tier's members.
 5. Click row checkboxes to pick exactly which questions to run. The selection is capped at "Max per batch".
 6. Tick provider models in the matrix below the table. Each ticked model becomes one run.
-7. Cost preview and overlap warning update live (overlap = questions some of your selected providers have already covered).
+7. Cost preview and overlap warning update live. If `model_costs.json` is present, a rough `Est. cost` figure appears alongside the call counts (estimate, not a contract). Overlap = questions some of your selected providers have already covered.
 8. Click **Launch** to open a confirm dialog with the final cost preview and any overlap warning. Confirm to spend credits.
 
 Each `(provider, model)` becomes its own detached subprocess that survives Streamlit hot reloads and browser tab closes. Logs land in `logs/{timestamp}_{provider}_{model}.log`. The "In-flight runs" panel at the bottom auto-refreshes every 3 seconds and shows live row counts, correct counts, error counts, and elapsed time.
@@ -337,6 +337,7 @@ Constraint: `UNIQUE(run_id, q_index)`. Re-running the same `q_index` within the 
 | `benchmarks/insights.py` | Two-stage LLM analysis pipeline (Haiku + Sonnet). |
 | `benchmarks/providers/` | One file per provider plus the `ResearchProvider` ABC. |
 | `model_tiers.json` | Tier groupings of `[provider, model]` pairs (UI overlay, committed). |
+| `model_costs.json` | Approximate per-call USD costs for the Launch cost preview. Optional, hot-editable. |
 | `.ui_state.json` | Streamlit widget state (gitignored, auto-created). |
 | `docs/question_taxonomy.md` | Two labeling schemes for benchmark questions. |
 | `docs/tags/{benchmark}.csv` | Per-question taxonomy labels. |

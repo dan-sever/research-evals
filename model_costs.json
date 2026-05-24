@@ -1,0 +1,28 @@
+{
+  "_doc": "Approximate per-call USD costs used by the Launch tab cost preview. Edit to match your contracted pricing. Missing entries fall back to zero (still shown but flagged in the UI). The judge entry covers one Haiku grading call per question.",
+  "judge_per_call": 0.01,
+  "providers": {
+    "tavily": {
+      "mini": 0.008,
+      "pro": 0.025,
+      "auto": 0.015
+    },
+    "perplexity": {
+      "sonar-reasoning-pro": 0.015,
+      "sonar-deep-research": 0.10
+    },
+    "exa": {
+      "deep-lite": 0.005,
+      "deep": 0.025,
+      "deep-reasoning": 0.05
+    },
+    "parallel": {
+      "lite": 0.005,
+      "base": 0.01,
+      "core": 0.025,
+      "core-fast": 0.025,
+      "pro": 0.10,
+      "ultra": 0.20
+    }
+  }
+}

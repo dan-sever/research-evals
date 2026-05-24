@@ -180,6 +180,7 @@ UI-launched runs use `subprocess.Popen(..., start_new_session=True, close_fds=Tr
 | Insights tab UI | `ui/tabs/insights.py` |
 | Export CSV tab | `ui/tabs/export.py` |
 | Tier definitions (UI overlay) | `model_tiers.json` |
+| Approx per-call pricing for Launch cost preview | `model_costs.json` |
 | Widget state persistence (gitignored) | `.ui_state.json` |
 | CLI: single run | `run.py` |
 | CLI: multi-provider fan-out | `compare.py` |
