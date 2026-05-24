@@ -25,6 +25,15 @@ st.title("Research benchmark runs")
 
 storage.init_db()
 
+# One-shot log prune at app boot. Keeps last 100 logs, skips anything
+# touched in the last hour so in-flight runs are never disturbed.
+if "_logs_pruned" not in st.session_state:
+    try:
+        launcher.prune_logs(keep_n=100, min_age_seconds=3600)
+    except Exception:
+        pass
+    st.session_state["_logs_pruned"] = True
+
 
 # ---------- UI state persistence (separate from results.db) ----------
 # `.ui_state.json` lives in the project root and only holds widget keys

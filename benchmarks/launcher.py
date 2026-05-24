@@ -14,6 +14,7 @@ from __future__ import annotations
 import shlex
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -27,6 +28,36 @@ def _log_path(provider: str, model: str) -> Path:
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe = model.replace("/", "_").replace(":", "_")
     return LOG_DIR / f"{ts}_{provider}_{safe}.log"
+
+
+def prune_logs(keep_n: int = 100, min_age_seconds: int = 3600) -> int:
+    """Delete oldest `*.log` files under LOG_DIR, keeping at most `keep_n`.
+
+    Files modified within the last `min_age_seconds` are always kept, so an
+    in-flight run can never have its log deleted out from under it. Safe to
+    call at app startup. Returns the count of files removed."""
+    if not LOG_DIR.exists():
+        return 0
+    now = time.time()
+    candidates = []
+    for p in LOG_DIR.glob("*.log"):
+        try:
+            mtime = p.stat().st_mtime
+        except OSError:
+            continue
+        if now - mtime < min_age_seconds:
+            continue
+        candidates.append((mtime, p))
+    # Newest first; everything past keep_n is fair game.
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    removed = 0
+    for _mtime, path in candidates[keep_n:]:
+        try:
+            path.unlink()
+            removed += 1
+        except OSError:
+            pass
+    return removed
 
 
 def launch_run(
