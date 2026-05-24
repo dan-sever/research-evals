@@ -20,6 +20,7 @@ import pandas as pd
 import streamlit as st
 
 from benchmarks import datasets, dimensions, storage
+from ui import cache as ui_cache
 from ui import dashboard_charts as dc
 
 # ---------------------------------------------------------------------------
@@ -339,7 +340,7 @@ def render() -> None:
         bench = benchmarks[0]
 
     # Seed picker — only surface when ambiguous, mirroring Tier Analysis.
-    status_rows = storage.get_question_status(bench)
+    status_rows = ui_cache.question_status(bench)
     seeds = sorted({s["seed"] for s in status_rows},
                    key=lambda x: (x is None, x))
     if not seeds:

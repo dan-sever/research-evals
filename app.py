@@ -16,6 +16,7 @@ import streamlit as st
 
 from benchmarks import datasets, launcher, providers, storage
 from benchmarks.config import load_env
+from ui import cache as ui_cache
 from ui.tabs import dashboard as dashboard_tab
 from ui.tabs import export as export_tab
 from ui.tabs import insights as insights_tab
@@ -458,7 +459,7 @@ with tab_launch:
     # Perplexity heavy with many 429/401 retries on the same q_indices would
     # show e.g. (1/34, 3%) in the header while the body shows only 15 cells.
     visible_q_indices = set(ds_df["q_index"].astype(int).tolist())
-    status_rows = storage.get_question_status(bench)
+    status_rows = ui_cache.question_status(bench)
     combo_latest: dict[tuple[str, str], dict[int, dict]] = {}
     for s in status_rows:
         if s["seed"] != seed_int:
@@ -1443,7 +1444,7 @@ with tab_tier:
         _member_set = set(tier_member_list)
 
         # Distinct seeds with data for this tier on this benchmark.
-        _status_rows = storage.get_question_status(tier_bench)
+        _status_rows = ui_cache.question_status(tier_bench)
         _seeds = sorted(
             {
                 s["seed"] for s in _status_rows

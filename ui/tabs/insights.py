@@ -15,6 +15,7 @@ import streamlit as st
 
 from benchmarks import insights as insights_mod
 from benchmarks import storage
+from ui import cache as ui_cache
 
 
 KIND_BADGE = {
@@ -55,7 +56,7 @@ def _render_content(content: dict) -> None:
 
 
 def _seed_picker(benchmark: str) -> Optional[int]:
-    status_rows = storage.get_question_status(benchmark)
+    status_rows = ui_cache.question_status(benchmark)
     seeds = sorted({s["seed"] for s in status_rows},
                    key=lambda x: (x is None, x))
     if not seeds:
