@@ -108,10 +108,10 @@ def _sealqa_seal0_tags() -> pd.DataFrame:
     """Taxonomy CSV. Anchored to the parquet's natural order."""
     if not _SEALQA_SEAL0_TAGS_PATH.exists():
         return pd.DataFrame(
-            columns=["q_index", "reasoning", "knowledge", "traps", "notes"]
+            columns=["q_index", "reasoning", "retrieval", "notes"]
         )
     df = pd.read_csv(_SEALQA_SEAL0_TAGS_PATH)
-    keep = ["q_index", "reasoning", "knowledge", "traps", "notes"]
+    keep = ["q_index", "reasoning", "retrieval", "notes"]
     return df[[c for c in keep if c in df.columns]].copy()
 
 
@@ -255,19 +255,6 @@ def _render_finsearchcomp_panel(matrix: pd.DataFrame, dims: pd.DataFrame) -> Non
         key="finsearch_tier_bar",
     )
 
-    st.markdown("### By region")
-    region_df = dc.slice_accuracy(
-        matrix, dims, "region", dim_order=["Global", "Greater China"]
-    )
-    _missing_caption(region_df, "region", ["Global", "Greater China"])
-    _altair(
-        dc.grouped_accuracy_bar(
-            region_df, "region", ["Global", "Greater China"],
-            "Accuracy by region",
-        ),
-        key="finsearch_region_bar",
-    )
-
     st.markdown("### Coverage heatmap")
     _altair(
         dc.coverage_heatmap(matrix, dims, "tier", dim_order=["T1", "T2", "T3"]),
@@ -288,11 +275,34 @@ def _render_finsearchcomp_panel(matrix: pd.DataFrame, dims: pd.DataFrame) -> Non
     _render_easy_missed(matrix, dims_lookup=dims, dim_cols=["tier", "region"])
 
 
+def _drop_low_n_models(matrix: pd.DataFrame, min_n: int) -> pd.DataFrame:
+    """Drop (provider, model) pairs with fewer than ``min_n`` graded rows.
+    Sparse models distort accuracy slices, latency percentiles, and the
+    error-vs-wrong split."""
+    if matrix.empty:
+        return matrix
+    counts = (
+        matrix[matrix["is_correct"].notna()]
+        .groupby(["provider", "model"]).size()
+        .reset_index(name="_n_graded")
+    )
+    keep = counts[counts["_n_graded"] >= min_n][["provider", "model"]]
+    if keep.empty:
+        return matrix.iloc[0:0]
+    return matrix.merge(keep, on=["provider", "model"], how="inner")
+
+
 def _render_sealqa_seal0_panel(
     matrix: pd.DataFrame, tags: pd.DataFrame, native: pd.DataFrame, seed_value,
 ) -> None:
     if matrix.empty:
         st.info("No sealqa_seal0 runs yet at this seed.")
+        return
+    matrix = _drop_low_n_models(matrix, dc.MIN_N_DISPLAY)
+    if matrix.empty:
+        st.info(
+            f"No sealqa_seal0 models with ≥{dc.MIN_N_DISPLAY} graded runs yet."
+        )
         return
 
     # Taxonomy slices (only when seed is natural order, since the tags CSV
@@ -311,12 +321,12 @@ def _render_sealqa_seal0_panel(
     if taxonomy_ok:
         st.markdown("### By taxonomy (docs/tags/sealqa_seal0.csv)")
         schemes = [
-            ("reasoning", ["lookup", "aggregate", "multi-set", "refuse"],
-             "By reasoning structure"),
-            ("knowledge", ["mainstream", "authoritative", "niche", "live-state",
-                           "non-english"], "By knowledge access"),
-            ("traps", ["clean", "time-bound", "qualifier-trap", "false-premise"],
-             "By trap density"),
+            ("reasoning",
+             ["single-hop", "multi-hop", "comparative", "unanswerable"],
+             "By reasoning hops"),
+            ("retrieval",
+             ["common", "specialized", "fresh", "tricky-phrasing"],
+             "By retrieval difficulty"),
         ]
         for col, order, title in schemes:
             slice_df = dc.slice_accuracy(matrix, tags, col, dim_order=order)
@@ -362,7 +372,7 @@ def _render_sealqa_seal0_panel(
         _altair(
             dc.coverage_heatmap(
                 matrix, tags, "reasoning",
-                dim_order=["lookup", "aggregate", "multi-set", "refuse"],
+                dim_order=["single-hop", "multi-hop", "comparative", "unanswerable"],
             ),
             key="sealqa_coverage_reasoning",
         )
@@ -375,7 +385,7 @@ def _render_sealqa_seal0_panel(
 
     st.markdown("### Tavily mini vs pro")
     dims_for_tag = tags if taxonomy_ok else native
-    tag_cols = ["reasoning", "knowledge", "traps"] if taxonomy_ok else \
+    tag_cols = ["reasoning", "retrieval"] if taxonomy_ok else \
         [c for c in ("topic", "freshness") if c in native.columns]
     _render_mini_vs_pro(matrix, dims_lookup=dims_for_tag, dim_cols=tag_cols)
 

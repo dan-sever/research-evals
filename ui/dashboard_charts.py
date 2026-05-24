@@ -194,6 +194,9 @@ def grouped_accuracy_bar(
     # Facet by dim_col so each slice (e.g. T1/T2/T3) gets its own panel
     # with bars sorted ascending by accuracy within that panel. xOffset
     # with a global sort can't do per-group ordering — facets can.
+    # Panel width is sized so the facets together fill a typical Streamlit
+    # page width (~1100px) regardless of how many dim values there are.
+    panel_width = max(220, 1100 // max(len(dim_order), 1))
     base = alt.Chart(df).mark_bar().encode(
         x=alt.X(
             "provider_label:N",
@@ -203,15 +206,20 @@ def grouped_accuracy_bar(
         ),
         y=alt.Y("accuracy_pct:Q", title="accuracy (%)",
                 scale=alt.Scale(domain=[0, 100])),
-        color=alt.Color("provider_label:N", scale=palette_scale,
-                        legend=alt.Legend(title="provider:model")),
+        color=alt.Color(
+            "provider_label:N", scale=palette_scale,
+            legend=alt.Legend(
+                title="provider:model", orient="top", columns=4,
+                labelLimit=200, symbolSize=80,
+            ),
+        ),
         tooltip=[
             alt.Tooltip("provider_label:N", title="model"),
             alt.Tooltip(f"{dim_col}:N", title=dim_col),
             alt.Tooltip("accuracy_pct:Q", title="accuracy %"),
             alt.Tooltip("n:Q", title="n"),
         ],
-    ).properties(height=320, width=alt.Step(28))
+    ).properties(height=320, width=panel_width)
 
     chart = base.facet(
         column=alt.Column(
@@ -341,6 +349,9 @@ def mini_vs_pro_outcome_bar(counts: pd.DataFrame) -> alt.Chart | None:
 # --- D. Latency views -------------------------------------------------------
 
 def latency_box(matrix: pd.DataFrame) -> alt.Chart | None:
+    """Percentile chart: thin rule from p5 to p95 (whiskers), thick bar
+    from p25 to p75 (box), white tick at p50 (median). Max is intentionally
+    excluded so slow outliers don't stretch the y-axis."""
     if matrix.empty:
         return None
     df = matrix.dropna(subset=["research_duration_seconds"]).copy()
@@ -350,30 +361,56 @@ def latency_box(matrix: pd.DataFrame) -> alt.Chart | None:
     df["provider_label"] = [
         provider_label(p, m) for p, m in zip(df["provider"], df["model"])
     ]
-    df["is_tavily"] = df["provider"] == "tavily"
 
-    medians = (
+    pct = (
         df.groupby("provider_label")["research_duration_seconds"]
-        .median().sort_values().index.tolist()
+        .quantile([0.05, 0.25, 0.5, 0.75, 0.95])
+        .unstack()
     )
-    chart = alt.Chart(df).mark_boxplot(extent=1.5, size=18).encode(
-        x=alt.X("provider_label:N", sort=medians, title=None,
-                axis=alt.Axis(labelAngle=-30, labelLimit=200)),
-        y=alt.Y(
-            "research_duration_seconds:Q",
-            scale=alt.Scale(type="log"),
-            title="latency (seconds, log)",
-        ),
-        color=alt.Color(
-            "is_tavily:N",
-            scale=alt.Scale(domain=[True, False],
-                            range=[TAVILY_COLOR, NEUTRAL_MID]),
-            legend=None,
-        ),
-    ).properties(
+    pct.columns = ["p5", "p25", "p50", "p75", "p95"]
+    pct = pct.reset_index()
+    pct["is_tavily"] = pct["provider_label"].str.startswith("tavily:")
+    pct = pct.sort_values("p50").reset_index(drop=True)
+    order = pct["provider_label"].tolist()
+
+    color = alt.Color(
+        "is_tavily:N",
+        scale=alt.Scale(domain=[True, False],
+                        range=[TAVILY_COLOR, NEUTRAL_MID]),
+        legend=None,
+    )
+    x_enc = alt.X(
+        "provider_label:N", sort=order, title=None,
+        axis=alt.Axis(labelAngle=-30, labelLimit=200),
+    )
+
+    whisker = alt.Chart(pct).mark_rule(size=2).encode(
+        x=x_enc,
+        y=alt.Y("p5:Q", title="latency (seconds)",
+                scale=alt.Scale(zero=True)),
+        y2="p95:Q",
+        color=color,
+    )
+    box = alt.Chart(pct).mark_bar(size=18).encode(
+        x=x_enc, y="p25:Q", y2="p75:Q", color=color,
+        tooltip=[
+            alt.Tooltip("provider_label:N", title="model"),
+            alt.Tooltip("p5:Q", title="p5 (s)", format=".1f"),
+            alt.Tooltip("p25:Q", title="p25 (s)", format=".1f"),
+            alt.Tooltip("p50:Q", title="p50 (s)", format=".1f"),
+            alt.Tooltip("p75:Q", title="p75 (s)", format=".1f"),
+            alt.Tooltip("p95:Q", title="p95 (s)", format=".1f"),
+        ],
+    )
+    median = alt.Chart(pct).mark_tick(
+        thickness=2, size=22, color="white",
+    ).encode(x=x_enc, y="p50:Q")
+
+    chart = (whisker + box + median).properties(
         height=320,
         title=alt.TitleParams(
-            "Latency distribution (sorted by median)", anchor="start",
+            "Latency distribution (p5–p95 whiskers, p25–p75 box, p50 tick; sorted by median)",
+            anchor="start",
         ),
     )
     return chart
@@ -406,8 +443,8 @@ def latency_accuracy_scatter(matrix: pd.DataFrame) -> alt.Chart | None:
 
     points = alt.Chart(df).mark_circle().encode(
         x=alt.X("median_latency:Q",
-                scale=alt.Scale(type="log"),
-                title="median latency (seconds, log)"),
+                scale=alt.Scale(zero=True),
+                title="median latency (seconds)"),
         y=alt.Y("accuracy_pct:Q", title="accuracy (%)",
                 scale=alt.Scale(domain=[0, 100])),
         size=alt.Size("n:Q", scale=alt.Scale(range=[60, 600]),
@@ -458,27 +495,35 @@ def error_vs_wrong_bar(matrix: pd.DataFrame) -> alt.Chart | None:
     df["provider_label"] = [
         provider_label(p, m) for p, m in zip(df["provider"], df["model"])
     ]
+    has_error_col = "error" in df.columns
+    df["_errored"] = (
+        df["error"].notna() & df["error"].astype(str).str.len().gt(0)
+        if has_error_col else False
+    )
+    # Drop rows that are neither errored nor graded — they'd skew "wrong".
+    df = df[df["_errored"] | df["is_correct"].notna()].copy()
+    if df.empty:
+        return None
 
     def _bucket(row):
-        if row.get("error"):
+        if row["_errored"]:
             return "errored"
-        if row["is_correct"] == 1:
-            return "correct"
-        return "wrong"
+        return "correct" if row["is_correct"] == 1 else "wrong"
 
     df["bucket"] = df.apply(_bucket, axis=1)
     counts = (
         df.groupby(["provider_label", "bucket"]).size()
         .reset_index(name="n")
     )
-    # Sort providers by accuracy desc so the best models are on top.
     order = (
-        df.assign(c=df["is_correct"].fillna(0).astype(int))
+        df.assign(c=(df["is_correct"] == 1).astype(int))
         .groupby("provider_label")["c"].mean()
         .sort_values(ascending=False).index.tolist()
     )
     bucket_order = ["correct", "wrong", "errored"]
-    bucket_colors = [OK_GREEN, NEUTRAL_MID, "#dc2626"]
+    bucket_colors = [OK_GREEN, WARN_AMBER, "#dc2626"]
+    bucket_rank = {b: i for i, b in enumerate(bucket_order)}
+    counts["bucket_rank"] = counts["bucket"].map(bucket_rank)
 
     chart = alt.Chart(counts).mark_bar().encode(
         y=alt.Y("provider_label:N", sort=order, title=None,
@@ -490,10 +535,7 @@ def error_vs_wrong_bar(matrix: pd.DataFrame) -> alt.Chart | None:
             scale=alt.Scale(domain=bucket_order, range=bucket_colors),
             legend=alt.Legend(title="outcome"),
         ),
-        order=alt.Order(
-            "bucket:N",
-            sort="ascending",
-        ),
+        order=alt.Order("bucket_rank:Q", sort="ascending"),
         tooltip=[
             alt.Tooltip("provider_label:N", title="model"),
             alt.Tooltip("bucket:N", title="outcome"),
@@ -502,7 +544,7 @@ def error_vs_wrong_bar(matrix: pd.DataFrame) -> alt.Chart | None:
     ).properties(
         height=max(40 + 26 * len(order), 120),
         title=alt.TitleParams(
-            "Correct vs wrong vs errored (share of answered questions)",
+            "Correct vs wrong vs errored (share of judged + errored rows)",
             anchor="start",
         ),
     )
@@ -563,8 +605,9 @@ def coverage_heatmap(
     dim_col: str,
     dim_order: list[str] | None = None,
 ) -> alt.Chart | None:
-    """Heatmap of n runs per (provider:model × dim_col value). Makes
-    low-coverage cells visible at a glance."""
+    """Heatmap of success rate (% correct) per (provider:model × dim_col
+    value). Models with fewer than ``MIN_N_DISPLAY`` graded runs total are
+    hidden so sparse rows don't skew the read."""
     if matrix.empty or dims.empty:
         return None
     joined = matrix.merge(dims[["q_index", dim_col]], on="q_index", how="inner")
@@ -573,32 +616,53 @@ def coverage_heatmap(
     joined["provider_label"] = [
         provider_label(p, m) for p, m in zip(joined["provider"], joined["model"])
     ]
+    joined = joined[joined["is_correct"].notna()].copy()
+    if joined.empty:
+        return None
+    totals = joined.groupby("provider_label").size()
+    keep = totals[totals >= MIN_N_DISPLAY].index
+    joined = joined[joined["provider_label"].isin(keep)]
+    if joined.empty:
+        return None
     cell = (
-        joined.groupby(["provider_label", dim_col]).size()
-        .reset_index(name="n")
+        joined.groupby(["provider_label", dim_col])
+        .agg(
+            n=("is_correct", "size"),
+            correct=("is_correct", lambda s: int((s == 1).sum())),
+        )
+        .reset_index()
     )
+    cell["accuracy_pct"] = (cell["correct"] / cell["n"] * 100).round(1)
     label_sort = tavily_first(cell["provider_label"].unique().tolist())
     x_sort = dim_order or sorted(cell[dim_col].unique().tolist())
 
     rect = alt.Chart(cell).mark_rect().encode(
         x=alt.X(f"{dim_col}:N", sort=x_sort, title=dim_col),
-        y=alt.Y("provider_label:N", sort=label_sort, title=None,
-                axis=alt.Axis(labelLimit=240)),
-        color=alt.Color("n:Q",
-                        scale=alt.Scale(scheme="blues"),
-                        legend=alt.Legend(title="n runs")),
+        y=alt.Y(
+            "provider_label:N", sort=label_sort, title=None,
+            axis=alt.Axis(labelLimit=400, labelOverlap=False, labelPadding=4),
+        ),
+        color=alt.Color(
+            "accuracy_pct:Q",
+            scale=alt.Scale(scheme="blues", domain=[0, 100]),
+            legend=alt.Legend(title="accuracy %"),
+        ),
         tooltip=[
             alt.Tooltip("provider_label:N", title="model"),
             alt.Tooltip(f"{dim_col}:N", title=dim_col),
-            alt.Tooltip("n:Q", title="n"),
+            alt.Tooltip("accuracy_pct:Q", title="accuracy %"),
+            alt.Tooltip("correct:Q", title="correct"),
+            alt.Tooltip("n:Q", title="n graded"),
         ],
     )
-    text = alt.Chart(cell).mark_text(fontSize=11).encode(
+    text = alt.Chart(cell).transform_calculate(
+        cell_label="format(datum.accuracy_pct, '.0f') + '%'",
+    ).mark_text(fontSize=11).encode(
         x=alt.X(f"{dim_col}:N", sort=x_sort),
         y=alt.Y("provider_label:N", sort=label_sort),
-        text="n:Q",
+        text=alt.Text("cell_label:N"),
         color=alt.condition(
-            "datum.n > 30",
+            "datum.accuracy_pct > 60",
             alt.value("white"),
             alt.value("#111"),
         ),
@@ -606,7 +670,8 @@ def coverage_heatmap(
     chart = (rect + text).properties(
         height=max(40 + 24 * len(label_sort), 120),
         title=alt.TitleParams(
-            f"Coverage heatmap by {dim_col} (n runs per cell)",
+            f"Success rate by {dim_col} (% correct per cell, "
+            f"hiding models with graded n < {MIN_N_DISPLAY})",
             anchor="start",
         ),
     )
