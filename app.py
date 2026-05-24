@@ -16,6 +16,7 @@ import streamlit as st
 
 from benchmarks import datasets, launcher, providers, storage
 from benchmarks.config import load_env
+from ui.tabs import dashboard as dashboard_tab
 
 st.set_page_config(page_title="Research Benchmarks", layout="wide")
 st.title("Research benchmark runs")
@@ -302,8 +303,9 @@ def _prompt_ids(name: str, seed) -> dict[int, str]:
     return dict(zip(df["q_index"].astype(int), df["prompt_id"].astype(str)))
 
 
-tab_launch, tab_inspect, tab_compare, tab_tier = st.tabs(
-    ["Launch run", "Single run inspector", "Provider comparison", "Tier analysis"]
+tab_launch, tab_inspect, tab_compare, tab_tier, tab_dashboard = st.tabs(
+    ["Launch run", "Single run inspector", "Provider comparison",
+     "Tier analysis", "Dashboard"]
 )
 
 
@@ -1731,3 +1733,8 @@ with tab_tier:
                                                     st.markdown(f"{i}. {title}")
                                             else:
                                                 st.markdown(f"{i}. {s}")
+
+
+
+with tab_dashboard:
+    dashboard_tab.render()
