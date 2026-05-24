@@ -6,9 +6,7 @@
 from __future__ import annotations
 
 import json
-import re
 import uuid
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -17,6 +15,11 @@ import streamlit as st
 from benchmarks import datasets, launcher, providers, storage
 from benchmarks.config import load_env
 from ui import cache as ui_cache
+from ui import costs as ui_costs
+from ui import data as ui_data
+from ui import format as fmt
+from ui import state as ui_state
+from ui import tiers as ui_tiers
 from ui.tabs import dashboard as dashboard_tab
 from ui.tabs import export as export_tab
 from ui.tabs import insights as insights_tab
@@ -36,328 +39,25 @@ if "_logs_pruned" not in st.session_state:
     st.session_state["_logs_pruned"] = True
 
 
-# ---------- UI state persistence (separate from results.db) ----------
-# `.ui_state.json` lives in the project root and only holds widget keys
-# (toggles, checkboxes, last-used providers, etc). It never touches the
-# eval database. Safe to delete at any time.
-_UI_STATE_PATH = Path(".ui_state.json")
-_UI_PERSIST_PREFIXES = (
-    "launch_show_details",
-    "launch_english_only",
-    "launch_bench",
-    "launch_seed",
-    "launch_count",
-    "launch_workers",
-    "launch_chk_",
-    "launch_tier_filter",
-    "tier_",
-)
-
-
-def _load_ui_state() -> dict:
-    if "_ui_state_cache" in st.session_state:
-        return st.session_state["_ui_state_cache"]
-    data: dict = {}
-    if _UI_STATE_PATH.exists():
-        try:
-            data = json.loads(_UI_STATE_PATH.read_text())
-        except Exception:
-            data = {}
-    st.session_state["_ui_state_cache"] = data
-    return data
-
-
-def _persisted(key: str, default):
-    """Return persisted value for `key` if present, else `default`."""
-    return _load_ui_state().get(key, default)
-
-
-def _save_ui_state() -> None:
-    """Snapshot tracked `launch_*` keys from session_state to disk."""
-    payload = {
-        k: st.session_state[k]
-        for k in list(st.session_state.keys())
-        if isinstance(k, str) and k.startswith(_UI_PERSIST_PREFIXES)
-    }
-    try:
-        old = json.loads(_UI_STATE_PATH.read_text()) if _UI_STATE_PATH.exists() else {}
-    except Exception:
-        old = {}
-    if payload != old:
-        _UI_STATE_PATH.write_text(json.dumps(payload, indent=2, default=str))
-        st.session_state["_ui_state_cache"] = payload
-
-
-def _elapsed_human(started_at: str | None) -> str:
-    """Human-readable elapsed since an ISO timestamp from SQLite."""
-    if not started_at:
-        return "—"
-    try:
-        t0 = datetime.fromisoformat(started_at)
-        t1 = datetime.now(t0.tzinfo) if t0.tzinfo else datetime.now()
-        secs = (t1 - t0).total_seconds()
-        if secs < 0:
-            return "—"
-        if secs < 60:
-            return f"{secs:.0f}s"
-        if secs < 3600:
-            return f"{secs / 60:.1f}m"
-        return f"{secs / 3600:.1f}h"
-    except Exception:
-        return "—"
-
-
-# ---------- Model tiers (analytical grouping across providers) ----------
-# `model_tiers.json` lives at project root, is committed to git, and maps
-# a tier name (e.g. "fast", "heavy") to an ordered list of [provider, model]
-# pairs that should be compared as peers. Pure UI overlay — never touches
-# results.db or run rows. Editing the file rotates safely; missing or
-# malformed file hides every tier-aware UI control.
-_TIERS_PATH = Path("model_tiers.json")
-_COSTS_PATH = Path("model_costs.json")
-
-
-def _load_costs() -> dict:
-    """Cached per-call USD lookup. Returns `{}` if the file is missing or
-    malformed — the Launch tab then hides the $ estimate gracefully."""
-    if "_costs_cache" in st.session_state:
-        return st.session_state["_costs_cache"]
-    out: dict = {}
-    if _COSTS_PATH.exists():
-        try:
-            raw = json.loads(_COSTS_PATH.read_text())
-            if isinstance(raw, dict):
-                out = raw
-        except Exception:
-            out = {}
-    st.session_state["_costs_cache"] = out
-    return out
-
-
-def _estimate_cost(
-    provider_models: dict[str, list[str]], n_questions: int,
-) -> tuple[float, list[tuple[str, str]]]:
-    """Sum estimated USD over every (provider, model, question). Returns
-    `(total, missing)` where `missing` lists (provider, model) pairs that
-    had no cost entry. Includes one judge call per question per run."""
-    costs = _load_costs()
-    if not costs or n_questions == 0:
-        return 0.0, []
-    judge_per_call = float(costs.get("judge_per_call") or 0)
-    provider_costs = costs.get("providers") or {}
-    total = 0.0
-    missing: list[tuple[str, str]] = []
-    for p, models in provider_models.items():
-        for m in models:
-            per_call = (
-                provider_costs.get(p, {}).get(m)
-                if isinstance(provider_costs.get(p), dict)
-                else None
-            )
-            if per_call is None:
-                missing.append((p, m))
-                per_call = 0.0
-            total += (float(per_call) + judge_per_call) * n_questions
-    return total, missing
-
-
-def _load_tiers() -> dict[str, list[tuple[str, str]]]:
-    """Cached tier definitions. Returns {} if the file is missing or
-    malformed. Normalizes members to (provider, model) tuples and drops
-    anything that isn't a 2-element list of strings."""
-    if "_tiers_cache" in st.session_state:
-        return st.session_state["_tiers_cache"]
-    out: dict[str, list[tuple[str, str]]] = {}
-    if _TIERS_PATH.exists():
-        try:
-            raw = json.loads(_TIERS_PATH.read_text())
-            if isinstance(raw, dict):
-                for name, members in raw.items():
-                    if not isinstance(name, str) or not isinstance(members, list):
-                        continue
-                    cleaned: list[tuple[str, str]] = []
-                    for m in members:
-                        if (
-                            isinstance(m, (list, tuple))
-                            and len(m) == 2
-                            and all(isinstance(x, str) for x in m)
-                        ):
-                            cleaned.append((m[0], m[1]))
-                    if cleaned:
-                        out[name] = cleaned
-        except Exception:
-            out = {}
-    st.session_state["_tiers_cache"] = out
-    return out
-
-
-def _tier_of(provider: str, model: str, tiers: dict) -> str | None:
-    """First tier (in JSON-key order) that contains (provider, model)."""
-    for name, members in tiers.items():
-        if (provider, model) in members:
-            return name
-    return None
-
-
-def _tier_members(tier_name: str, tiers: dict) -> list[tuple[str, str]]:
-    return list(tiers.get(tier_name, []))
-
-
-def _tier_run_data(
-    benchmark: str,
-    tier_members: list[tuple[str, str]],
-    seed,
-) -> tuple[pd.DataFrame, dict[tuple[str, str], int]]:
-    """For each (provider, model) in `tier_members`, collect results from
-    EVERY run matching (benchmark, seed, provider, model), then dedupe by
-    (provider, model, q_index) keeping the row from the most recent run.
-    Mirrors the Launch tab coverage convention of latest-run-wins per
-    question, so partial runs spread across many batches still show their
-    full cumulative coverage in the matrix.
-
-    Returns `(data, most_recent_run)` where `data` has one row per
-    (provider, model, q_index) and `most_recent_run` maps each present
-    member to its latest run_id (for roster help text).
-    """
-    wanted = set(tier_members)
-    runs_for_member: dict[tuple[str, str], list[int]] = {}
-    most_recent: dict[tuple[str, str], int] = {}
-    for r in storage.list_runs():
-        if r["benchmark"] != benchmark or r["seed"] != seed:
-            continue
-        key = (r["provider"], r["model"])
-        if key not in wanted:
-            continue
-        rid = int(r["id"])
-        runs_for_member.setdefault(key, []).append(rid)
-        if key not in most_recent or rid > most_recent[key]:
-            most_recent[key] = rid
-
-    frames: list[pd.DataFrame] = []
-    for (p, m), run_ids in runs_for_member.items():
-        # Iterate ASC so drop_duplicates(keep="last") picks the latest row
-        # per q_index for this member.
-        for rid in sorted(run_ids):
-            rows = storage.get_results(rid)
-            if not rows:
-                continue
-            df = pd.DataFrame(rows)
-            df["provider"] = p
-            df["model_used"] = m
-            df["_run_id"] = rid
-            frames.append(df)
-
-    if not frames:
-        return pd.DataFrame(), most_recent
-
-    data = pd.concat(frames, ignore_index=True)
-    data = data.drop_duplicates(
-        subset=["provider", "model_used", "q_index"], keep="last"
-    ).reset_index(drop=True)
-    return data, most_recent
-
-
-# CJK ideographs, Hiragana/Katakana, Hangul, fullwidth forms. Any hit
-# means the string is almost certainly not English. Benchmarks here are
-# either entirely English or entirely a CJK language per row, so even
-# a stray glyph is a strong signal.
-_NON_ENGLISH_RE = re.compile(
-    "["
-    "　-鿿"   # CJK Symbols, Hiragana, Katakana, CJK Unified Ideographs
-    "가-힯"   # Hangul Syllables
-    "＀-￯"   # Halfwidth/fullwidth forms
-    "]"
-)
-
-
-def _looks_non_english(text: str) -> bool:
-    return bool(_NON_ENGLISH_RE.search(text or ""))
-
-
-def _fmt_duration(seconds) -> str:
-    """`45.3s` under a minute, `128.0s (2.1 min)` above."""
-    if seconds is None or pd.isna(seconds) or seconds == 0:
-        return "—"
-    if seconds < 60:
-        return f"{seconds:.1f}s"
-    return f"{seconds:.1f}s ({seconds / 60:.1f} min)"
-
-
-def _fmt_duration_short(seconds) -> str:
-    """Compact form for dense table cells: `12.3s` or `2.1m`."""
-    if seconds is None or pd.isna(seconds) or seconds == 0:
-        return ""
-    if seconds < 60:
-        return f"{seconds:.1f}s"
-    return f"{seconds / 60:.1f}m"
-
-
-def _quote(text: str | None) -> str:
-    """Render `text` as a markdown blockquote, preserving line breaks."""
-    if not text:
-        return "> —"
-    return "\n".join(f"> {ln}" for ln in str(text).splitlines()) or "> —"
-
-
-def _ranges(sorted_ints: list[int]) -> str:
-    """`[0,1,2,4,7,8,9]` -> `0-2, 4, 7-9`."""
-    if not sorted_ints:
-        return "—"
-    parts: list[str] = []
-    start = prev = sorted_ints[0]
-    for n in sorted_ints[1:]:
-        if n == prev + 1:
-            prev = n
-            continue
-        parts.append(f"{start}" if start == prev else f"{start}-{prev}")
-        start = prev = n
-    parts.append(f"{start}" if start == prev else f"{start}-{prev}")
-    return ", ".join(parts)
-
-
-@st.cache_data
-def _dataset_size(name: str) -> int:
-    """Total questions in the parquet, ignoring limit/offset."""
-    spec = datasets.REGISTRY[name]
-    import pyarrow.parquet as pq
-    return pq.ParquetFile(datasets.DATA_DIR / spec.parquet).metadata.num_rows
-
-
-@st.cache_data
-def _load_dataset_df(name: str, seed) -> pd.DataFrame:
-    """Return the dataset as `(q_index, question, expected_answer)` in
-    whatever order matches `seed`. q_index is the row's position after
-    shuffling, so it lines up exactly with what `datasets.load(... seed=...)`
-    produces. If the parquet has a `prompt_id` column (e.g. finsearchcomp),
-    it is surfaced as an extra column between q_index and question."""
-    spec = datasets.REGISTRY[name]
-    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if seed is not None:
-        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
-    df["question"] = df[spec.question_col].astype(str)
-    df["expected_answer"] = df[spec.answer_col].astype(str)
-    cols = ["q_index", "question", "expected_answer"]
-    if "prompt_id" in df.columns:
-        df["prompt_id"] = df["prompt_id"].astype(str)
-        cols.insert(1, "prompt_id")
-    return df[cols].copy()
-
-
-@st.cache_data
-def _prompt_ids(name: str, seed) -> dict[int, str]:
-    """q_index -> parquet `prompt_id` mapping for benchmarks that ship one
-    (currently only finsearchcomp). Returns `{}` for datasets without the
-    column. Seed-aware so it matches `_load_dataset_df`'s shuffled ordering,
-    which is also how `q_index` is assigned in `runs.seed` rows."""
-    spec = datasets.REGISTRY[name]
-    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if "prompt_id" not in df.columns:
-        return {}
-    if seed is not None:
-        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
-    return dict(zip(df["q_index"].astype(int), df["prompt_id"].astype(str)))
+# Helpers (UI state, formatting, tiers, parquet readers, cost lookup)
+# live in dedicated modules under ui/. Local aliases keep the tab bodies
+# below unchanged while we incrementally move them into ui/tabs/.
+_persisted = ui_state.persisted
+_save_ui_state = ui_state.save_ui_state
+_elapsed_human = fmt.elapsed_human
+_fmt_duration = fmt.fmt_duration
+_fmt_duration_short = fmt.fmt_duration_short
+_quote = fmt.quote
+_ranges = fmt.ranges
+_looks_non_english = fmt.looks_non_english
+_load_tiers = ui_tiers.load_tiers
+_tier_members = ui_tiers.tier_members
+_tier_run_data = ui_tiers.tier_run_data
+_dataset_size = ui_data.dataset_size
+_load_dataset_df = ui_data.load_dataset_df
+_prompt_ids = ui_data.prompt_ids
+_load_costs = ui_costs.load_costs
+_estimate_cost = ui_costs.estimate_cost
 
 
 (tab_launch, tab_inspect, tab_compare, tab_tier, tab_dashboard,
