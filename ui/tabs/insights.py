@@ -55,6 +55,27 @@ def _render_content(content: dict) -> None:
                         unsafe_allow_html=True)
 
 
+def _render_history_diff(rows: list[Optional[dict]]) -> None:
+    """Render one or two stored insights side by side. Bad rows are
+    skipped with a visible error so a corrupt entry doesn't hide the rest."""
+    rows = [r for r in rows if r]
+    if not rows:
+        return
+    cols = st.columns(len(rows))
+    for col, row in zip(cols, rows):
+        with col:
+            st.markdown(
+                f"**{_format_local(row['generated_at'])}**  \n"
+                f"`{row['model']}`  ·  prompt `{row['prompt_version']}`"
+            )
+            try:
+                content = json.loads(row["content_json"])
+            except Exception:
+                st.error("Stored insight is not valid JSON.")
+                continue
+            _render_content(content)
+
+
 def _seed_picker(benchmark: str) -> Optional[int]:
     status_rows = ui_cache.question_status(benchmark)
     seeds = sorted({s["seed"] for s in status_rows},
@@ -144,19 +165,30 @@ def render() -> None:
     _render_content(content)
 
     if len(history) > 1:
-        with st.expander(f"History ({len(history)} generations)"):
-            for h in history:
-                ts = _format_local(h["generated_at"])
-                if st.button(
-                    f"{ts} · {h['model']} · {h['prompt_version']}",
-                    key=f"insights_hist_{h['id']}",
-                ):
-                    older = storage.get_insight(h["id"])
-                    if older:
-                        try:
-                            _render_content(json.loads(older["content_json"]))
-                        except Exception:
-                            st.error("Stored insight is not valid JSON.")
+        with st.expander(f"History + diff ({len(history)} generations)"):
+            st.caption(
+                "Pick one or two prior generations. Pick two to render them "
+                "side by side and compare headlines + insight ordering."
+            )
+
+            def _label(h: dict) -> str:
+                return (
+                    f"{_format_local(h['generated_at'])}  ·  "
+                    f"{h['model']}  ·  {h['prompt_version']}"
+                )
+
+            label_to_id = {_label(h): h["id"] for h in history}
+            picked = st.multiselect(
+                "Generations to inspect",
+                list(label_to_id.keys()),
+                max_selections=2,
+                key=f"insights_hist_picker_{bench}_{seed}",
+            )
+
+            if picked:
+                _render_history_diff(
+                    [storage.get_insight(label_to_id[lbl]) for lbl in picked]
+                )
 
     meta = content.get("_meta") or {}
     if meta:

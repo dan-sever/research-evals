@@ -193,7 +193,7 @@ Two-stage LLM analysis layered on top of the Dashboard data.
 - **Stage 1 (Haiku):** reads each of ~30 wrong-answer examples and tags it with `failure_mode` (closed enum), `source_type_needed` (specific source description), and a one-sentence `diagnosis`.
 - **Stage 2 (Sonnet):** receives the dimensional accuracy tables + enriched wrong examples + failure-mode counts. Produces `headline` + 5–8 ranked `insights` where each item is `{claim, evidence, examples, action, kind}` and `kind ∈ {gap, win, infra}`.
 
-The latest cached insight loads on tab open. **Regenerate** calls Haiku + Sonnet again and persists the new generation in the `insights` table. History is browsable for the active `(benchmark, seed)`. Each insight stores the model pair, prompt version, and token usage so older generations stay traceable when the prompt evolves.
+The latest cached insight loads on tab open. **Regenerate** calls Haiku + Sonnet again and persists the new generation in the `insights` table. History is browsable for the active `(benchmark, seed)`; pick one prior generation to render inline, or two to render side by side and compare how the headline / ordering shifted. Each insight stores the model pair, prompt version, and token usage so older generations stay traceable when the prompt evolves.
 
 Requires `ANTHROPIC_API_KEY`. Benchmarks currently supported: `finsearchcomp`, `sealqa_seal0`, `sealqa_seal_hard`, `sealqa_longseal`. The three SealQA variants share a generalized payload builder; only `sealqa_seal0` has a taxonomy CSV (`docs/tags/sealqa_seal0.csv`), so the reasoning/retrieval slices only appear there.
 

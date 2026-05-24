@@ -14,8 +14,8 @@ The big modularization (#11) is intentionally last so all the small refactors la
 - [X] **6. Cache `get_question_status`** — `ui/cache.py` exposes `question_status(benchmark)` with a 10s TTL. Launch / Tier / Dashboard / Insights tabs all route through it. **DONE**
 - [X] **7. Cost preview in $** — `model_costs.json` (optional, committed) drives an `Est. cost` metric in the Launch tab and confirm dialog. Missing providers/models flagged in the tooltip. **DONE**
 - [X] **8. Compare tab bug: multiple Tavily models collapse** — rekeyed Compare tab by `(provider, model)` tuples throughout. Matrix columns, drill view, and Tavily pivot now show every entry instead of collapsing on the provider name. **DONE**
-- [x] **9. Insights diff view** — side-by-side comparison of two stored insight generations.
-- [x] **10. Surface `graded` in Provider comparison summary** — minor cleanup uncovered while reviewing #8.
+- [X] **9. Insights diff view** — history expander now uses a multiselect (max 2) to render one or two prior generations inline / side by side. **DONE**
+- [X] **10. Surface `graded` in Provider comparison summary** — verified already present; no change needed. **DONE (no-op)**
 - [ ] **11. Modularize `app.py`** — move Launch / Inspect / Compare / Tier tabs into `ui/tabs/`. Mirror the existing Dashboard/Insights/Export pattern. Done one tab per commit so each step is reversible.
 
 ## Conventions for this batch
