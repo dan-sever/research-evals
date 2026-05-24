@@ -233,7 +233,8 @@ def _render_headline(matrix: pd.DataFrame, total_questions: int) -> None:
         return
     st.caption(
         f"{total_questions} total questions in the dataset  ·  "
-        f"hiding models with fewer than {dc.MIN_N_DISPLAY} runs"
+        f"hiding models with fewer than {dc.MIN_N_DISPLAY} graded responses  ·  "
+        "accuracy = correct / graded (errored & ungraded rows excluded)"
     )
     _altair(dc.headline_ranked_bar(matrix), key="headline_ranked_bar")
 

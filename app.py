@@ -459,7 +459,11 @@ with tab_launch:
     combo_status: dict[tuple[str, str], dict[int, str]] = {}
     combo_score: dict[tuple[str, str], dict[str, int]] = {}
     for key, qi_to_row in combo_latest.items():
-        score = combo_score.setdefault(key, {"correct": 0, "total": 0})
+        # `graded` excludes errored / ungraded rows from the accuracy
+        # denominator so a flaky API doesn't artificially drag accuracy down.
+        score = combo_score.setdefault(
+            key, {"correct": 0, "graded": 0, "total": 0}
+        )
         status_map = combo_status.setdefault(key, {})
         for qi, s in qi_to_row.items():
             if s["error"]:
@@ -483,6 +487,8 @@ with tab_launch:
                 cell = symbol
             status_map[qi] = cell
             score["total"] += 1
+            if s["is_correct"] is not None:
+                score["graded"] += 1
             if s["is_correct"] == 1:
                 score["correct"] += 1
 
@@ -530,9 +536,11 @@ with tab_launch:
     coverage_col_width = 220 if show_details else 130
     for p, m in all_combos:
         col = f"{p}:{m}"
-        sc = combo_score.get((p, m), {"correct": 0, "total": 0})
-        pct = (sc["correct"] / sc["total"] * 100) if sc["total"] else 0
-        label = f"{col} ({sc['correct']}/{sc['total']}, {pct:.0f}%)"
+        sc = combo_score.get((p, m), {"correct": 0, "graded": 0, "total": 0})
+        graded = sc.get("graded", 0)
+        pct = (sc["correct"] / graded * 100) if graded else 0
+        pct_label = f"{pct:.0f}%" if graded else "—"
+        label = f"{col} ({sc['correct']}/{graded}, {pct_label})"
         column_config[col] = st.column_config.TextColumn(label, width=coverage_col_width)
 
     table_height = min(720, max(300, 90 + 38 * len(ds_df)))
@@ -807,13 +815,21 @@ with tab_inspect:
         st.stop()
 
     runs_df = pd.DataFrame(runs)
+    # Accuracy uses `graded` (rows the judge could decide on) as the
+    # denominator, so errors / ungraded responses do not drag the rate down.
     runs_df["accuracy"] = runs_df.apply(
-        lambda r: (r["correct"] or 0) / r["total"] if r["total"] else None,
+        lambda r: (
+            (r["correct"] or 0) / r["graded"]
+            if r.get("graded") else None
+        ),
         axis=1,
     )
 
     st.subheader("All runs")
-    st.caption("Click a row to inspect that run.")
+    st.caption(
+        "Click a row to inspect that run. "
+        "Accuracy = correct / graded (errored and ungraded rows are excluded)."
+    )
     overview = runs_df.assign(
         accuracy_pct=runs_df["accuracy"].map(
             lambda x: f"{x:.1%}" if x is not None else "—"
@@ -822,7 +838,7 @@ with tab_inspect:
     )[
         [
             "id", "provider", "benchmark", "model", "limit_n", "workers",
-            "judge_model", "total", "correct", "errors",
+            "judge_model", "total", "graded", "correct", "errors",
             "accuracy_pct", "note", "started",
         ]
     ].rename(columns={"accuracy_pct": "accuracy", "limit_n": "limit"})
@@ -859,15 +875,20 @@ with tab_inspect:
             )
 
         total = len(df)
-        correct = int(df["is_correct"].fillna(0).sum())
+        correct = int((df["is_correct"] == 1).sum())
+        graded = int(df["is_correct"].notna().sum())
         errors = int(df["error"].notna().sum())
-        accuracy = correct / total if total else 0.0
+        accuracy = correct / graded if graded else None
 
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Questions", total)
+        col1.metric("Questions", total, help=f"{graded} graded · {errors} errored")
         col2.metric("Correct", correct)
         col3.metric("Errors", errors)
-        col4.metric("Accuracy", f"{accuracy:.1%}")
+        col4.metric(
+            "Accuracy",
+            f"{accuracy:.1%}" if accuracy is not None else "—",
+            help="correct / graded (errored and ungraded rows excluded)",
+        )
 
         with st.expander("Run config"):
             st.json(json.loads(run["config_json"]))
@@ -1038,27 +1059,34 @@ with tab_compare:
         )
 
         # ----- Provider accuracy summary -----
+        # accuracy = correct / graded so errored / ungraded rows do not drag
+        # the rate down. `total` and `errors` stay visible as separate cols.
         summary_rows = []
         for r in set_runs:
             total = r["total"] or 0
             correct = r["correct"] or 0
+            graded = r.get("graded") or 0
             summary_rows.append({
                 "provider": r["provider"],
                 "model": r["model"],
                 "total": total,
+                "graded": graded,
                 "correct": correct,
                 "errors": r["errors"] or 0,
-                "accuracy_raw": correct / total if total else 0,
+                "accuracy_raw": correct / graded if graded else None,
                 "avg_seconds_raw": r["avg_seconds"] or 0,
                 "run_id": r["id"],
             })
         summary_df = pd.DataFrame(summary_rows).sort_values(
-            "accuracy_raw", ascending=False
+            "accuracy_raw", ascending=False, na_position="last"
         )
         display_summary = summary_df.assign(
-            accuracy=summary_df["accuracy_raw"].map(lambda x: f"{x:.1%}"),
+            accuracy=summary_df["accuracy_raw"].map(
+                lambda x: f"{x:.1%}" if x is not None else "—"
+            ),
             avg_duration=summary_df["avg_seconds_raw"].map(_fmt_duration),
-        )[["provider", "model", "total", "correct", "errors", "accuracy", "avg_duration", "run_id"]].reset_index(drop=True)
+        )[["provider", "model", "total", "graded", "correct", "errors",
+           "accuracy", "avg_duration", "run_id"]].reset_index(drop=True)
         st.caption("Click a row, then 'Open in inspector' to drill in.")
         sum_sel = st.dataframe(
             display_summary,
@@ -1369,7 +1397,7 @@ with tab_tier:
             if not tier_bench:
                 tier_bench = _benchmarks[0]
         with pc2:
-            _tier_keys = list(_tiers_def.keys())
+            _tier_keys = ["all"] + list(_tiers_def.keys())
             _saved_tier = _persisted("tier_name", _tier_keys[0])
             if _saved_tier not in _tier_keys:
                 _saved_tier = _tier_keys[0]
@@ -1383,7 +1411,18 @@ with tab_tier:
             if not tier_name:
                 tier_name = _tier_keys[0]
 
-        tier_member_list = _tier_members(tier_name, _tiers_def)
+        if tier_name == "all":
+            # Union of every tier's members, preserving first-seen order.
+            seen: set[tuple[str, str]] = set()
+            tier_member_list = []
+            for _tname, _members in _tiers_def.items():
+                for _pair in _members:
+                    _key = tuple(_pair)
+                    if _key not in seen:
+                        seen.add(_key)
+                        tier_member_list.append(_key)
+        else:
+            tier_member_list = _tier_members(tier_name, _tiers_def)
         _member_set = set(tier_member_list)
 
         # Distinct seeds with data for this tier on this benchmark.
@@ -1441,15 +1480,19 @@ with tab_tier:
                             & (data["model_used"] == m)
                         ]
                         total = len(sub)
-                        correct = int(sub["is_correct"].fillna(0).sum())
-                        accuracy = correct / total if total else 0.0
+                        correct = int((sub["is_correct"] == 1).sum())
+                        graded = int(sub["is_correct"].notna().sum())
+                        errored = int(sub.get("error", pd.Series([])).notna().sum())
+                        accuracy_str = f"{correct / graded:.1%}" if graded else "—"
                         st.metric(
                             f"{p}:{m}",
-                            f"{accuracy:.1%}",
+                            accuracy_str,
                             help=(
                                 f"latest run #{run_ids[(p, m)]}  ·  "
-                                f"{correct}/{total} distinct questions answered "
-                                f"correctly (latest answer per q_index wins)"
+                                f"{correct}/{graded} graded correct  ·  "
+                                f"{errored} errored, {total - graded - errored} ungraded "
+                                "(latest answer per q_index wins; errors excluded "
+                                "from the accuracy denominator)"
                             ),
                         )
 
@@ -1631,7 +1674,7 @@ with tab_tier:
                         if (p, m) not in run_ids:
                             roster_rows.append({
                                 "provider": p, "model": m,
-                                "total": 0, "correct": 0,
+                                "total": 0, "graded": 0, "correct": 0, "errored": 0,
                                 "accuracy": "—", "run_id": None,
                             })
                         else:
@@ -1640,12 +1683,15 @@ with tab_tier:
                                 & (data["model_used"] == m)
                             ]
                             total = len(sub)
-                            correct = int(sub["is_correct"].fillna(0).sum())
-                            acc = (correct / total) if total else 0.0
+                            correct = int((sub["is_correct"] == 1).sum())
+                            graded = int(sub["is_correct"].notna().sum())
+                            errored = int(sub.get("error", pd.Series([])).notna().sum())
+                            acc_str = f"{correct / graded:.1%}" if graded else "—"
                             roster_rows.append({
                                 "provider": p, "model": m,
-                                "total": total, "correct": correct,
-                                "accuracy": f"{acc:.1%}",
+                                "total": total, "graded": graded,
+                                "correct": correct, "errored": errored,
+                                "accuracy": acc_str,
                                 "run_id": run_ids[(p, m)],
                             })
                     roster_df = pd.DataFrame(roster_rows)

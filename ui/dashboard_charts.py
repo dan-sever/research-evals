@@ -67,15 +67,27 @@ def color_scale_for(labels: list[str]) -> alt.Scale:
 
 
 def provider_summary(matrix: pd.DataFrame) -> pd.DataFrame:
-    """Per (provider, model): n, correct, accuracy. Used by the headline bar
-    and the latency/accuracy scatter."""
+    """Per (provider, model): graded counts and accuracy. Used by the
+    headline bar and the latency/accuracy scatter.
+
+    ``n`` (denominator for accuracy) counts only rows the judge could decide
+    on (``is_correct in {0, 1}``). Errored and ungraded rows are surfaced
+    in ``n_errored`` / ``n_ungraded`` separately so the reader still sees
+    the infra picture. ``n_total`` is every row including those."""
     if matrix.empty:
         return pd.DataFrame(
-            columns=["provider", "model", "provider_label", "n", "correct",
-                     "accuracy", "is_tavily"]
+            columns=["provider", "model", "provider_label", "n", "n_total",
+                     "n_errored", "n_ungraded", "correct", "accuracy",
+                     "is_tavily"]
         )
+    has_error_col = "error" in matrix.columns
     df = matrix.assign(
-        correct=matrix["is_correct"].fillna(0).astype(int),
+        _is_correct1=(matrix["is_correct"] == 1).astype(int),
+        _is_graded=matrix["is_correct"].notna().astype(int),
+        _is_errored=(
+            matrix["error"].notna().astype(int)
+            if has_error_col else 0
+        ),
         provider_label=[
             provider_label(p, m)
             for p, m in zip(matrix["provider"], matrix["model"])
@@ -83,10 +95,19 @@ def provider_summary(matrix: pd.DataFrame) -> pd.DataFrame:
     )
     out = (
         df.groupby(["provider", "model", "provider_label"])
-        .agg(n=("q_index", "size"), correct=("correct", "sum"))
+        .agg(
+            n_total=("q_index", "size"),
+            n=("_is_graded", "sum"),
+            correct=("_is_correct1", "sum"),
+            n_errored=("_is_errored", "sum"),
+        )
         .reset_index()
     )
-    out["accuracy"] = out["correct"] / out["n"]
+    out["n_ungraded"] = out["n_total"] - out["n"] - out["n_errored"]
+    out["n_ungraded"] = out["n_ungraded"].clip(lower=0)  # safety
+    out["accuracy"] = out.apply(
+        lambda r: r["correct"] / r["n"] if r["n"] else None, axis=1
+    )
     out["is_tavily"] = out["provider"] == "tavily"
     return out
 
@@ -132,8 +153,10 @@ def headline_ranked_bar(matrix: pd.DataFrame) -> alt.Chart | None:
         tooltip=[
             alt.Tooltip("provider_label:N", title="model"),
             alt.Tooltip("accuracy_pct:Q", title="accuracy %"),
-            alt.Tooltip("n:Q", title="n"),
+            alt.Tooltip("n:Q", title="graded"),
             alt.Tooltip("correct:Q", title="correct"),
+            alt.Tooltip("n_errored:Q", title="errored"),
+            alt.Tooltip("n_total:Q", title="total attempts"),
         ],
     )
     text = base.mark_text(
@@ -145,7 +168,8 @@ def headline_ranked_bar(matrix: pd.DataFrame) -> alt.Chart | None:
     chart = (bars + text).properties(
         height=max(60 + 32 * len(summary), 160),
         title=alt.TitleParams(
-            f"Accuracy by provider:model (best on top, hiding n < {MIN_N_DISPLAY})",
+            f"Accuracy by provider:model (best on top, "
+            f"hiding graded n < {MIN_N_DISPLAY}; errors excluded from denominator)",
             anchor="start",
         ),
     )
@@ -598,16 +622,19 @@ def slice_accuracy(
     dim_order: list[str] | None = None,
 ) -> pd.DataFrame:
     """Inner-join matrix with dims on q_index, then return (dim_col,
-    provider_label, accuracy, n). Cells with n=0 are dropped naturally."""
+    provider_label, accuracy, n). ``n`` counts only rows the judge could
+    decide on (is_correct in {0, 1}). Errored/ungraded rows are excluded
+    from both numerator and denominator. Cells where n=0 (e.g. every row
+    errored) are dropped so the chart doesn't show a misleading 0% bar."""
+    cols = [dim_col, "provider_label", "accuracy", "n"]
     if matrix.empty or dims.empty:
-        return pd.DataFrame(
-            columns=[dim_col, "provider_label", "accuracy", "n"]
-        )
+        return pd.DataFrame(columns=cols)
     df = matrix.merge(dims[["q_index", dim_col]], on="q_index", how="inner")
     if df.empty:
-        return pd.DataFrame(
-            columns=[dim_col, "provider_label", "accuracy", "n"]
-        )
+        return pd.DataFrame(columns=cols)
+    df = df[df["is_correct"].notna()].copy()
+    if df.empty:
+        return pd.DataFrame(columns=cols)
     df["provider_label"] = [
         provider_label(p, m) for p, m in zip(df["provider"], df["model"])
     ]
@@ -615,14 +642,15 @@ def slice_accuracy(
         df.groupby([dim_col, "provider_label"], dropna=False)
         .agg(
             n=("is_correct", "size"),
-            correct=("is_correct", lambda s: int(s.fillna(0).sum())),
+            correct=("is_correct", lambda s: int((s == 1).sum())),
         )
         .reset_index()
     )
+    grp = grp[grp["n"] > 0].copy()
     grp["accuracy"] = grp["correct"] / grp["n"]
     if dim_order:
         grp[dim_col] = pd.Categorical(
             grp[dim_col], categories=dim_order, ordered=True
         )
         grp = grp.sort_values([dim_col, "provider_label"]).reset_index(drop=True)
-    return grp[[dim_col, "provider_label", "accuracy", "n"]]
+    return grp[cols]

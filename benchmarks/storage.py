@@ -189,11 +189,15 @@ def insert_result(
 
 
 def list_runs(db_path: Path = DB_PATH) -> list[dict]:
+    """Per-run aggregates. ``total`` is rows; ``graded`` is rows the judge
+    could decide on (is_correct in {0, 1}); use ``correct / graded`` for
+    quality-only accuracy that excludes errored / ungraded rows."""
     with connect(db_path) as conn:
         rows = conn.execute(
             """SELECT r.*,
                       COUNT(res.id) AS total,
                       SUM(CASE WHEN res.is_correct = 1 THEN 1 ELSE 0 END) AS correct,
+                      SUM(CASE WHEN res.is_correct IS NOT NULL THEN 1 ELSE 0 END) AS graded,
                       SUM(CASE WHEN res.error IS NOT NULL THEN 1 ELSE 0 END) AS errors
                FROM runs r
                LEFT JOIN results res ON res.run_id = r.id
@@ -314,12 +318,17 @@ def list_in_progress_runs(db_path: Path = DB_PATH) -> list[dict]:
 
 
 def get_runs_in_set(comparison_set: str, db_path: Path = DB_PATH) -> list[dict]:
-    """All runs in a comparison set, with totals + accuracy + avg duration."""
+    """All runs in a comparison set, with totals + accuracy + avg duration.
+
+    ``total`` counts every row; ``graded`` counts rows the judge could
+    decide on (is_correct in {0, 1}). Use ``correct / graded`` for
+    quality accuracy that excludes errored / ungraded responses."""
     with connect(db_path) as conn:
         rows = conn.execute(
             """SELECT r.*,
                       COUNT(res.id) AS total,
                       SUM(CASE WHEN res.is_correct = 1 THEN 1 ELSE 0 END) AS correct,
+                      SUM(CASE WHEN res.is_correct IS NOT NULL THEN 1 ELSE 0 END) AS graded,
                       SUM(CASE WHEN res.error IS NOT NULL THEN 1 ELSE 0 END) AS errors,
                       AVG(res.research_duration_seconds) AS avg_seconds
                FROM runs r
