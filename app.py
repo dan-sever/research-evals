@@ -18,6 +18,7 @@ from benchmarks import datasets, launcher, providers, storage
 from benchmarks.config import load_env
 from ui.tabs import dashboard as dashboard_tab
 from ui.tabs import export as export_tab
+from ui.tabs import insights as insights_tab
 
 st.set_page_config(page_title="Research Benchmarks", layout="wide")
 st.title("Research benchmark runs")
@@ -304,9 +305,10 @@ def _prompt_ids(name: str, seed) -> dict[int, str]:
     return dict(zip(df["q_index"].astype(int), df["prompt_id"].astype(str)))
 
 
-tab_launch, tab_inspect, tab_compare, tab_tier, tab_dashboard, tab_export = st.tabs(
+(tab_launch, tab_inspect, tab_compare, tab_tier, tab_dashboard,
+ tab_insights, tab_export) = st.tabs(
     ["Launch run", "Single run inspector", "Provider comparison",
-     "Tier analysis", "Dashboard", "Export data"]
+     "Tier analysis", "Dashboard", "Insights", "Export data"]
 )
 
 
@@ -1785,6 +1787,10 @@ with tab_tier:
 
 with tab_dashboard:
     dashboard_tab.render()
+
+
+with tab_insights:
+    insights_tab.render()
 
 
 with tab_export:

@@ -148,7 +148,7 @@ def headline_ranked_bar(matrix: pd.DataFrame) -> alt.Chart | None:
                 scale=alt.Scale(domain=[0, 100])),
         color=alt.Color(
             "provider_label:N", scale=palette_scale,
-            legend=alt.Legend(title="provider:model"),
+            legend=None,
         ),
         tooltip=[
             alt.Tooltip("provider_label:N", title="model"),

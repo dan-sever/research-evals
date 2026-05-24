@@ -65,6 +65,19 @@ CREATE TABLE IF NOT EXISTS results (
 
 CREATE INDEX IF NOT EXISTS idx_results_run ON results(run_id);
 CREATE INDEX IF NOT EXISTS idx_results_correct ON results(run_id, is_correct);
+
+CREATE TABLE IF NOT EXISTS insights (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    benchmark TEXT NOT NULL,
+    seed INTEGER,
+    generated_at TEXT NOT NULL,
+    model TEXT NOT NULL,
+    prompt_version TEXT NOT NULL,
+    content_json TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_insights_bench_seed
+    ON insights(benchmark, seed, generated_at DESC);
 """
 # Indexes on `runs.provider` / `runs.comparison_set` are created in _migrate
 # AFTER any ALTER TABLE statements, so this also works on older DBs that
@@ -103,6 +116,13 @@ def _migrate(conn: sqlite3.Connection) -> None:
         )
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_runs_provider ON runs(provider)"
+    )
+    # Insights table: older DBs predate it. CREATE IF NOT EXISTS is in the
+    # main SCHEMA above; this ALTER-safe path is here for symmetry if the
+    # shape ever evolves.
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_insights_bench_seed "
+        "ON insights(benchmark, seed, generated_at DESC)"
     )
 
 
@@ -339,3 +359,60 @@ def get_runs_in_set(comparison_set: str, db_path: Path = DB_PATH) -> list[dict]:
             (comparison_set,),
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+# ---------- Insights ----------
+
+def save_insight(
+    benchmark: str,
+    seed: Optional[int],
+    model: str,
+    prompt_version: str,
+    content: dict,
+    db_path: Path = DB_PATH,
+) -> int:
+    with connect(db_path) as conn:
+        cur = conn.execute(
+            """INSERT INTO insights
+               (benchmark, seed, generated_at, model, prompt_version, content_json)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (benchmark, seed, now_iso(), model, prompt_version, json.dumps(content)),
+        )
+        return cur.lastrowid
+
+
+def get_latest_insight(
+    benchmark: str, seed: Optional[int], db_path: Path = DB_PATH,
+) -> Optional[dict]:
+    with connect(db_path) as conn:
+        row = conn.execute(
+            """SELECT * FROM insights
+               WHERE benchmark = ?
+                 AND ((seed IS NULL AND ? IS NULL) OR seed = ?)
+               ORDER BY generated_at DESC LIMIT 1""",
+            (benchmark, seed, seed),
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def list_insights(
+    benchmark: str, seed: Optional[int], db_path: Path = DB_PATH,
+) -> list[dict]:
+    with connect(db_path) as conn:
+        rows = conn.execute(
+            """SELECT id, benchmark, seed, generated_at, model, prompt_version
+               FROM insights
+               WHERE benchmark = ?
+                 AND ((seed IS NULL AND ? IS NULL) OR seed = ?)
+               ORDER BY generated_at DESC""",
+            (benchmark, seed, seed),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_insight(insight_id: int, db_path: Path = DB_PATH) -> Optional[dict]:
+    with connect(db_path) as conn:
+        row = conn.execute(
+            "SELECT * FROM insights WHERE id = ?", (insight_id,),
+        ).fetchone()
+        return dict(row) if row else None
