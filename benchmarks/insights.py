@@ -38,7 +38,11 @@ SYNTHESIS_MODEL = "claude-sonnet-4-6"
 # Back-compat alias for older callers.
 DEFAULT_MODEL = SYNTHESIS_MODEL
 
-_SEALQA_SEAL0_TAGS_PATH = Path("docs/tags/sealqa_seal0.csv")
+_TAGS_DIR = Path("docs/tags")
+
+
+def _tags_path(benchmark: str) -> Path:
+    return _TAGS_DIR / f"{benchmark}.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -353,16 +357,23 @@ def _build_finsearchcomp_payload(
     }
 
 
-def _sealqa_seal0_tags() -> pd.DataFrame:
-    if not _SEALQA_SEAL0_TAGS_PATH.exists():
+def _sealqa_tags(benchmark: str) -> pd.DataFrame:
+    """Per-benchmark taxonomy CSV at docs/tags/{benchmark}.csv. Currently
+    only sealqa_seal0 has one; the other seal variants return empty so the
+    panel gracefully omits the taxonomy slice."""
+    path = _tags_path(benchmark)
+    if not path.exists():
         return pd.DataFrame(columns=["q_index", "reasoning", "retrieval"])
-    df = pd.read_csv(_SEALQA_SEAL0_TAGS_PATH)
+    df = pd.read_csv(path)
     keep = [c for c in ("q_index", "reasoning", "retrieval", "notes") if c in df.columns]
     return df[keep].copy()
 
 
-def _sealqa_seal0_native_dims(seed: Optional[int]) -> pd.DataFrame:
-    spec = datasets.REGISTRY["sealqa_seal0"]
+def _sealqa_native_dims(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
+    """Read native parquet columns (topic, freshness, question_types) at
+    the active seed. `question_types` may be missing on longseal — caller
+    checks for the column rather than assuming it's present."""
+    spec = datasets.REGISTRY[benchmark]
     df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
     if seed is not None:
         df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
@@ -379,18 +390,21 @@ def _sealqa_seal0_native_dims(seed: Optional[int]) -> pd.DataFrame:
     return out
 
 
-def _build_sealqa_seal0_payload(
-    matrix: pd.DataFrame, seed: Optional[int],
+def _build_sealqa_payload(
+    matrix: pd.DataFrame, seed: Optional[int], benchmark: str = "sealqa_seal0",
 ) -> dict:
-    native = _sealqa_seal0_native_dims(seed)
-    tags = _sealqa_seal0_tags() if seed is None else pd.DataFrame()
+    """Generalized SealQA payload. Taxonomy tags only join when the
+    benchmark has a tags CSV AND the seed is blank (the CSV is anchored
+    to natural order). Other SealQA variants reuse this with no tags."""
+    native = _sealqa_native_dims(benchmark, seed)
+    tags = _sealqa_tags(benchmark) if seed is None else pd.DataFrame()
     # Merge native + tags into a single dims frame so we can crosstab.
     dims = native.copy()
     if not tags.empty:
         dims = dims.merge(tags, on="q_index", how="left")
 
     payload: dict = {
-        "benchmark": "sealqa_seal0",
+        "benchmark": benchmark,
         "dimension_descriptions": {
             "topic": "Native dataset topic label.",
             "freshness": "Whether the answer requires fresh / recent information.",
@@ -426,9 +440,20 @@ def _build_sealqa_seal0_payload(
     return payload
 
 
+def _sealqa_payload_for(name: str) -> Callable[[pd.DataFrame, Optional[int]], dict]:
+    """Bind `_build_sealqa_payload` to a specific benchmark name so the
+    registry signature stays `(matrix, seed) -> dict`."""
+    def _inner(matrix: pd.DataFrame, seed: Optional[int]) -> dict:
+        return _build_sealqa_payload(matrix, seed, benchmark=name)
+    _inner.__name__ = f"_build_{name}_payload"
+    return _inner
+
+
 BENCHMARK_PAYLOADS: dict[str, Callable[[pd.DataFrame, Optional[int]], dict]] = {
     "finsearchcomp": _build_finsearchcomp_payload,
-    "sealqa_seal0": _build_sealqa_seal0_payload,
+    "sealqa_seal0": _sealqa_payload_for("sealqa_seal0"),
+    "sealqa_seal_hard": _sealqa_payload_for("sealqa_seal_hard"),
+    "sealqa_longseal": _sealqa_payload_for("sealqa_longseal"),
 }
 
 

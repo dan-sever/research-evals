@@ -100,27 +100,31 @@ def _finsearchcomp_dims(seed) -> pd.DataFrame:
     return df[["q_index", "tier", "region", "label", "prompt_id"]].copy()
 
 
-_SEALQA_SEAL0_TAGS_PATH = Path("docs/tags/sealqa_seal0.csv")
+_TAGS_DIR = Path("docs/tags")
 
 
 @st.cache_data
-def _sealqa_seal0_tags() -> pd.DataFrame:
-    """Taxonomy CSV. Anchored to the parquet's natural order."""
-    if not _SEALQA_SEAL0_TAGS_PATH.exists():
+def _sealqa_tags(benchmark: str) -> pd.DataFrame:
+    """Taxonomy CSV at docs/tags/{benchmark}.csv. Anchored to the parquet's
+    natural order. Currently only sealqa_seal0 ships one; the other seal
+    variants return empty so the panel gracefully omits taxonomy slices."""
+    path = _TAGS_DIR / f"{benchmark}.csv"
+    if not path.exists():
         return pd.DataFrame(
             columns=["q_index", "reasoning", "retrieval", "notes"]
         )
-    df = pd.read_csv(_SEALQA_SEAL0_TAGS_PATH)
+    df = pd.read_csv(path)
     keep = ["q_index", "reasoning", "retrieval", "notes"]
     return df[[c for c in keep if c in df.columns]].copy()
 
 
 @st.cache_data
-def _sealqa_seal0_native_dims(seed) -> pd.DataFrame:
+def _sealqa_native_dims(benchmark: str, seed) -> pd.DataFrame:
     """q_index -> (topic, freshness, question_types) at the given seed,
     pulled from the parquet itself. `question_types` is kept as a list so
-    callers can explode it for per-tag slicing."""
-    spec = datasets.REGISTRY["sealqa_seal0"]
+    callers can explode it for per-tag slicing. Missing columns are
+    silently skipped — longseal lacks `question_types`, for example."""
+    spec = datasets.REGISTRY[benchmark]
     df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
     if seed is not None:
         df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
@@ -292,34 +296,35 @@ def _drop_low_n_models(matrix: pd.DataFrame, min_n: int) -> pd.DataFrame:
     return matrix.merge(keep, on=["provider", "model"], how="inner")
 
 
-def _render_sealqa_seal0_panel(
-    matrix: pd.DataFrame, tags: pd.DataFrame, native: pd.DataFrame, seed_value,
+def _render_sealqa_panel(
+    matrix: pd.DataFrame, tags: pd.DataFrame, native: pd.DataFrame,
+    seed_value, benchmark: str,
 ) -> None:
     if matrix.empty:
-        st.info("No sealqa_seal0 runs yet at this seed.")
+        st.info(f"No {benchmark} runs yet at this seed.")
         return
     matrix = _drop_low_n_models(matrix, dc.MIN_N_DISPLAY)
     if matrix.empty:
         st.info(
-            f"No sealqa_seal0 models with ≥{dc.MIN_N_DISPLAY} graded runs yet."
+            f"No {benchmark} models with ≥{dc.MIN_N_DISPLAY} graded runs yet."
         )
         return
 
     # Taxonomy slices (only when seed is natural order, since the tags CSV
-    # is anchored there).
-    taxonomy_ok = seed_value is None and not tags.empty
-    if not taxonomy_ok:
-        if seed_value is not None:
-            st.info(
-                "Taxonomy tags in `docs/tags/sealqa_seal0.csv` are anchored to "
-                "the parquet's natural order (seed=blank). Switch to seed=blank "
-                "to see the taxonomy breakdown."
-            )
-        elif tags.empty:
-            st.warning("Could not load `docs/tags/sealqa_seal0.csv`.")
+    # is anchored there). Tags-less benchmarks (seal_hard, longseal) skip
+    # this block entirely with no warning.
+    tags_path = f"docs/tags/{benchmark}.csv"
+    has_tags = not tags.empty
+    taxonomy_ok = seed_value is None and has_tags
+    if has_tags and not taxonomy_ok and seed_value is not None:
+        st.info(
+            f"Taxonomy tags in `{tags_path}` are anchored to the parquet's "
+            "natural order (seed=blank). Switch to seed=blank to see the "
+            "taxonomy breakdown."
+        )
 
     if taxonomy_ok:
-        st.markdown("### By taxonomy (docs/tags/sealqa_seal0.csv)")
+        st.markdown(f"### By taxonomy ({tags_path})")
         schemes = [
             ("reasoning",
              ["single-hop", "multi-hop", "comparative", "unanswerable"],
@@ -412,7 +417,9 @@ def render() -> None:
         "q_index) wins."
     )
 
-    benchmarks = ["finsearchcomp", "sealqa_seal0"]
+    benchmarks = [
+        "finsearchcomp", "sealqa_seal0", "sealqa_seal_hard", "sealqa_longseal",
+    ]
     bench = st.segmented_control(
         "Benchmark",
         benchmarks,
@@ -456,10 +463,11 @@ def render() -> None:
 
     if bench == "finsearchcomp":
         _render_finsearchcomp_panel(matrix, _finsearchcomp_dims(seed))
-    elif bench == "sealqa_seal0":
-        _render_sealqa_seal0_panel(
+    elif bench.startswith("sealqa"):
+        _render_sealqa_panel(
             matrix,
-            _sealqa_seal0_tags(),
-            _sealqa_seal0_native_dims(seed),
+            _sealqa_tags(bench),
+            _sealqa_native_dims(bench, seed),
             seed,
+            bench,
         )

@@ -165,7 +165,7 @@ The Tier tab is the place to ask "across providers at the same compute tier, who
 
 Per-benchmark analytics. Tavily-centric color scheme: Tavily blue for Tavily models, gray gradient for competitors.
 
-Currently wired for `finsearchcomp` and `sealqa_seal0`. Each panel uses the latest-run-wins matrix at the selected seed, then drops any `(provider, model)` with fewer than 10 graded responses.
+Currently wired for `finsearchcomp` and all three SealQA variants (`sealqa_seal0`, `sealqa_seal_hard`, `sealqa_longseal`). Each panel uses the latest-run-wins matrix at the selected seed, then drops any `(provider, model)` with fewer than 10 graded responses.
 
 Common to both benchmarks:
 - **Headline ranked bar** — accuracy per `provider:model`, sorted, with `n` graded.
@@ -193,7 +193,7 @@ Two-stage LLM analysis layered on top of the Dashboard data.
 
 The latest cached insight loads on tab open. **Regenerate** calls Haiku + Sonnet again and persists the new generation in the `insights` table. History is browsable for the active `(benchmark, seed)`. Each insight stores the model pair, prompt version, and token usage so older generations stay traceable when the prompt evolves.
 
-Requires `ANTHROPIC_API_KEY`. Benchmarks currently supported: `finsearchcomp`, `sealqa_seal0`.
+Requires `ANTHROPIC_API_KEY`. Benchmarks currently supported: `finsearchcomp`, `sealqa_seal0`, `sealqa_seal_hard`, `sealqa_longseal`. The three SealQA variants share a generalized payload builder; only `sealqa_seal0` has a taxonomy CSV (`docs/tags/sealqa_seal0.csv`), so the reasoning/retrieval slices only appear there.
 
 ### 7. Export data
 

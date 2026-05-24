@@ -85,7 +85,9 @@ def render() -> None:
         "dimension combinations where Tavily systematically wins or loses."
     )
 
-    benchmarks = ["finsearchcomp", "sealqa_seal0"]
+    benchmarks = [
+        "finsearchcomp", "sealqa_seal0", "sealqa_seal_hard", "sealqa_longseal",
+    ]
     bench = st.segmented_control(
         "Benchmark", benchmarks, default=benchmarks[0], key="insights_bench",
     )
