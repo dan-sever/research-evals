@@ -324,7 +324,11 @@ Constraint: `UNIQUE(run_id, q_index)`. Re-running the same `q_index` within the 
 | `load-datasets.py` | One-time HF download bootstrap. |
 | `run.py` | CLI for a single-provider run. |
 | `compare.py` | CLI that fans the same questions across providers. |
-| `app.py` | Streamlit entrypoint; owns Launch / Inspect / Compare / Tier tabs inline. |
+| `app.py` | Streamlit entrypoint — thin dispatcher that wires the seven tabs. |
+| `ui/tabs/launch.py` | Launch run tab. Cherry-pick mode, cost preview, subprocess spawn, in-flight panel. |
+| `ui/tabs/inspect.py` | Single run inspector tab. |
+| `ui/tabs/compare.py` | Provider comparison tab. |
+| `ui/tabs/tier.py` | Tier analysis tab. |
 | `ui/tabs/dashboard.py` | Dashboard tab. Per-benchmark analytics. |
 | `ui/tabs/insights.py` | Insights tab. Renders LLM-generated findings + history. |
 | `ui/tabs/export.py` | Export tab. Long-format CSV with parquet + taxonomy joins. |
@@ -334,7 +338,13 @@ Constraint: `UNIQUE(run_id, q_index)`. Re-running the same `q_index` within the 
 | `benchmarks/judge.py` | Anthropic judge with structured tool use. |
 | `benchmarks/storage.py` | SQLite schema, migrations, query helpers, insights persistence. |
 | `benchmarks/runner.py` | Orchestrates load → research → judge → store. |
-| `benchmarks/dimensions.py` | Shared per-benchmark dimension helpers + latest-wins matrix builder. Imported by Dashboard, Insights, and Export. |
+| `benchmarks/dimensions.py` | Shared per-benchmark dimension helpers + latest-wins matrix builder. Streamlit-free; imported by Dashboard, Insights, and Export. |
+| `ui/state.py` | Widget state persistence (`.ui_state.json`). |
+| `ui/format.py` | Small formatters reused across tabs. |
+| `ui/tiers.py` | `model_tiers.json` loader + tier roster aggregator. |
+| `ui/data.py` | `@st.cache_data` wrappers around parquet readers. |
+| `ui/costs.py` | `model_costs.json` loader + Launch-tab cost estimate. |
+| `ui/cache.py` | 10s TTL cache for hot DB reads (`get_question_status`). |
 | `benchmarks/launcher.py` | Subprocess wrapper for UI-launched runs. |
 | `benchmarks/insights.py` | Two-stage LLM analysis pipeline (Haiku + Sonnet). |
 | `benchmarks/providers/` | One file per provider plus the `ResearchProvider` ABC. |

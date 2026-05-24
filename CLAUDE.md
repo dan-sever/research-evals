@@ -36,17 +36,21 @@ These are load-bearing. Breaking one breaks the app's correctness without obviou
 
 ## Tab map (what code owns what UI surface)
 
-`app.py` is the entrypoint and owns three of the seven tabs. The other four are thin delegates that call into `ui/tabs/*.py`. Keep this split: the tabs in `app.py` predate the modular layout and stay there for now, but new analytical tabs go into `ui/tabs/`.
+`app.py` is a thin entrypoint — config, DB init, log prune, tab dispatch. Every tab lives in `ui/tabs/<name>.py` and exposes a `render()` function. New tabs go in the same place.
 
 | tab | code | reads | writes |
 | --- | --- | --- | --- |
-| Launch run | `app.py` (inline) | `results.db` runs+results, `.ui_state.json`, `model_tiers.json` | spawns subprocesses via `benchmarks/launcher.py` |
-| Single run inspector | `app.py` (inline) | `results.db` | nothing |
-| Provider comparison | `app.py` (inline) | `results.db` (comparison_set rows) | nothing |
-| Tier analysis | `app.py` (inline) | `results.db`, `model_tiers.json`, `.ui_state.json` | nothing |
+| Launch run | `ui/tabs/launch.py` | `results.db`, parquet, `.ui_state.json`, `model_tiers.json`, `model_costs.json` | spawns subprocesses via `benchmarks/launcher.py` |
+| Single run inspector | `ui/tabs/inspect.py` | `results.db`, parquet | nothing |
+| Provider comparison | `ui/tabs/compare.py` | `results.db` (comparison_set rows) | nothing |
+| Tier analysis | `ui/tabs/tier.py` | `results.db`, `model_tiers.json`, `.ui_state.json` | nothing |
 | Dashboard | `ui/tabs/dashboard.py` + `ui/dashboard_charts.py` | `results.db`, parquet, `docs/tags/sealqa_seal0.csv` | nothing |
 | Insights | `ui/tabs/insights.py` + `benchmarks/insights.py` | `results.db`, parquet, `docs/tags/sealqa_seal0.csv` | `results.db` `insights` table (LLM-generated) |
 | Export data | `ui/tabs/export.py` | `results.db`, parquet, `docs/tags/sealqa_seal0.csv` | downloads CSV (nothing persistent) |
+
+Shared helpers under `ui/` (Streamlit-aware): `state.py` (widget persistence), `format.py` (formatters), `tiers.py` (model_tiers.json loader + tier_run_data), `data.py` (parquet readers), `costs.py` (model_costs.json loader + estimate), `cache.py` (10s TTL wrappers around hot DB reads), `dashboard_charts.py` (Altair builders).
+
+Pure (Streamlit-free) helpers under `benchmarks/`: `dimensions.py` (label parsing + latest-wins matrix builder).
 
 ### Tab intent in one sentence each
 
@@ -174,7 +178,8 @@ UI-launched runs use `subprocess.Popen(..., start_new_session=True, close_fds=Tr
 | Shared dimension + matrix helpers (label parsing, latest-wins matrix) | `benchmarks/dimensions.py` |
 | Streamlit-side caches (`get_question_status` etc.) | `ui/cache.py` |
 | Two-stage LLM insights pipeline | `benchmarks/insights.py` |
-| Streamlit dashboard entrypoint + Launch/Inspect/Compare/Tier tabs | `app.py` |
+| Streamlit dashboard entrypoint (thin dispatcher) | `app.py` |
+| Launch / Inspect / Compare / Tier tabs | `ui/tabs/launch.py` / `inspect.py` / `compare.py` / `tier.py` |
 | Dashboard analytics tab | `ui/tabs/dashboard.py` |
 | Altair chart builders (Tavily-centric colors) | `ui/dashboard_charts.py` |
 | Insights tab UI | `ui/tabs/insights.py` |

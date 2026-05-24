@@ -16,7 +16,7 @@ The big modularization (#11) is intentionally last so all the small refactors la
 - [X] **8. Compare tab bug: multiple Tavily models collapse** — rekeyed Compare tab by `(provider, model)` tuples throughout. Matrix columns, drill view, and Tavily pivot now show every entry instead of collapsing on the provider name. **DONE**
 - [X] **9. Insights diff view** — history expander now uses a multiselect (max 2) to render one or two prior generations inline / side by side. **DONE**
 - [X] **10. Surface `graded` in Provider comparison summary** — verified already present; no change needed. **DONE (no-op)**
-- [ ] **11. Modularize `app.py`** — move Launch / Inspect / Compare / Tier tabs into `ui/tabs/`. Mirror the existing Dashboard/Insights/Export pattern. Done one tab per commit so each step is reversible.
+- [X] **11. Modularize `app.py`** — moved all four remaining tabs into `ui/tabs/`. app.py is now a 62-line dispatcher. Shared helpers under `ui/` (state, format, tiers, data, costs, cache). Five commits: 11a extract helpers, 11b inspect, 11c compare, 11d tier, 11e launch. **DONE**
 
 ## Conventions for this batch
 
