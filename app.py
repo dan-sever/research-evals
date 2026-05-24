@@ -892,11 +892,16 @@ with tab_inspect:
         errors = int(df["error"].notna().sum())
         accuracy = correct / graded if graded else None
 
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Questions", total, help=f"{graded} graded · {errors} errored")
-        col2.metric("Correct", correct)
-        col3.metric("Errors", errors)
-        col4.metric(
+        col1, col2, col3, col4, col5 = st.columns(5)
+        col1.metric("Questions", total, help="Every row recorded for this run.")
+        col2.metric(
+            "Graded", graded,
+            help="Rows the judge could decide on (is_correct in {0, 1}). "
+                 "This is the accuracy denominator.",
+        )
+        col3.metric("Correct", correct)
+        col4.metric("Errors", errors, help="Provider or judge failures.")
+        col5.metric(
             "Accuracy",
             f"{accuracy:.1%}" if accuracy is not None else "—",
             help="correct / graded (errored and ungraded rows excluded)",
