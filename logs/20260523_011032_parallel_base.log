@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider parallel --benchmark sealqa_seal0 --model base --workers 4 --judge-model claude-haiku-4-5 --q-indices 100,101,102,103,104,105,109 --comparison-set 2bb17032-eb76-4321-b48d-5278ca2e2106
-Run 28: provider=parallel model=base | sealqa_seal0 | n=7 | workers=4
-parallel:base:   0%|          | 0/7 [00:00<?, ?it/s]parallel:base:  14%|█▍        | 1/7 [01:36<09:40, 96.80s/it]parallel:base:  29%|██▊       | 2/7 [01:54<04:11, 50.37s/it]parallel:base:  43%|████▎     | 3/7 [02:12<02:22, 35.61s/it]parallel:base:  57%|█████▋    | 4/7 [02:16<01:09, 23.12s/it]parallel:base:  71%|███████▏  | 5/7 [04:23<02:00, 60.36s/it]parallel:base:  86%|████████▌ | 6/7 [05:28<01:02, 62.22s/it]parallel:base: 100%|██████████| 7/7 [07:16<00:00, 76.98s/it]parallel:base: 100%|██████████| 7/7 [07:16<00:00, 62.33s/it]
-
-Run 28 done (parallel/base). Correct 2/7 (28.6%).

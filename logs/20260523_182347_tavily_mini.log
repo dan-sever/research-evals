@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider tavily --benchmark sealqa_seal0 --model mini --workers 5 --judge-model claude-haiku-4-5 --q-indices 58
-Run 73: provider=tavily model=mini | sealqa_seal0 | n=1 | workers=5
-tavily:mini:   0%|          | 0/1 [00:00<?, ?it/s]tavily:mini: 100%|██████████| 1/1 [00:07<00:00,  7.88s/it]tavily:mini: 100%|██████████| 1/1 [00:07<00:00,  7.88s/it]
-
-Run 73 done (tavily/mini). Correct 0/1 (0.0%).

@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider tavily --benchmark sealqa_seal0 --model pro --workers 4 --judge-model claude-haiku-4-5 --q-indices 2,7
-Run 10: provider=tavily model=pro | sealqa_seal0 | n=2 | workers=4
-tavily:pro:   0%|          | 0/2 [00:00<?, ?it/s]tavily:pro:  50%|█████     | 1/2 [03:20<03:20, 200.95s/it]tavily:pro: 100%|██████████| 2/2 [05:48<00:00, 169.57s/it]tavily:pro: 100%|██████████| 2/2 [05:48<00:00, 174.28s/it]
-
-Run 10 done (tavily/pro). Correct 1/2 (50.0%).

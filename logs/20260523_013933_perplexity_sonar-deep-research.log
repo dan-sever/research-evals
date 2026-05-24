@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider perplexity --benchmark sealqa_seal0 --model sonar-deep-research --workers 4 --judge-model claude-haiku-4-5 --q-indices 8,17,18
-Run 35: provider=perplexity model=sonar-deep-research | sealqa_seal0 | n=3 | workers=4
-perplexity:sonar-deep-research:   0%|          | 0/3 [00:00<?, ?it/s]perplexity:sonar-deep-research:  33%|███▎      | 1/3 [00:00<00:01,  1.78it/s]perplexity:sonar-deep-research:  67%|██████▋   | 2/3 [02:30<01:28, 88.45s/it]perplexity:sonar-deep-research: 100%|██████████| 3/3 [02:57<00:00, 60.27s/it]perplexity:sonar-deep-research: 100%|██████████| 3/3 [02:57<00:00, 59.09s/it]
-
-Run 35 done (perplexity/sonar-deep-research). Correct 0/3 (0.0%).
