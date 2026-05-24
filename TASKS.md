@@ -6,7 +6,7 @@ The big modularization (#11) is intentionally last so all the small refactors la
 
 ## Status
 
-- [x] **1. Backup helper script** — `tools/backup_db.py` snapshots `results.db` to `backups/results.db.bak.{timestamp}`. New file; touches nothing existing.
+- [X] **1. Backup helper script** — `tools/backup_db.py` snapshots `results.db` to `backups/results.db.bak.{timestamp}`. New file; touches nothing existing. **DONE**
 - [x] **2. Log pruning at startup** — keep last N logs in `logs/`, prune the rest. Called once on app boot.
 - [x] **3. Inspector `Graded` metric** — surface graded count in the metric grid, not just the tooltip. One-line UI tweak.
 - [x] **4. Wire `sealqa_seal_hard` and `sealqa_longseal` into Dashboard + Insights** — generalize the `_sealqa_seal0_*` helpers to accept a benchmark parameter, register all three variants. Taxonomy CSV still only applies to seal0.

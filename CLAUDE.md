@@ -30,7 +30,7 @@ These are load-bearing. Breaking one breaks the app's correctness without obviou
 
 10. **`.ui_state.json` is widget state, not eval state.** Lives at repo root, gitignored, persists `launch_*` and `tier_*` widget keys across Streamlit reloads. Safe to delete at any time — the app re-creates it on the next interaction. Never put data that needs to survive a wipe in this file; it goes in `results.db`.
 
-11. **Backups are gitignored snapshots.** `backups/results.db.bak.*` are manual snapshots taken before risky migrations. They are intentionally not in git (`.gitignore` matches `results.db.bak.*`). Don't add a code path that writes here automatically; this is a human-driven safety net.
+11. **Backups are gitignored snapshots.** `backups/results.db.bak.*` are manual snapshots taken before risky migrations. They are intentionally not in git (`.gitignore` matches `results.db.bak.*`). Take one with `python tools/backup_db.py` (optionally `--label preinsights` for context in the filename). Don't add a code path that writes here automatically; this is a human-driven safety net.
 
 ---
 
@@ -185,6 +185,7 @@ UI-launched runs use `subprocess.Popen(..., start_new_session=True, close_fds=Tr
 | Question taxonomy doc (2 schemes) | `docs/question_taxonomy.md` |
 | Per-benchmark question tags | `docs/tags/{benchmark}.csv` |
 | Manual DB snapshots (gitignored) | `backups/` |
+| Snapshot helper | `tools/backup_db.py` |
 
 ---
 
