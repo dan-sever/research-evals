@@ -1237,7 +1237,15 @@ with tab_compare:
             st.stop()
 
         data = pd.concat(all_results, ignore_index=True)
-        providers_in_set = sorted(data["provider"].unique())
+        # Key everything downstream by (provider, model) tuples so a
+        # comparison_set with multiple models from the same provider
+        # (e.g. tavily:mini + tavily:pro) doesn't collapse into one column.
+        # Tavily entries come first, then everyone else alphabetical.
+        combos_in_set = sorted(
+            {(p, m) for p, m in zip(data["provider"], data["model_used"])},
+            key=lambda c: (0 if c[0] == "tavily" else 1, c[0], c[1]),
+        )
+        combo_labels = [f"{p}:{m}" for p, m in combos_in_set]
 
         # Pre-compute lookups for filters and rendering
         qi_to_question = (
@@ -1246,20 +1254,21 @@ with tab_compare:
         qi_to_expected = (
             data.drop_duplicates("q_index").set_index("q_index")["expected_answer"].to_dict()
         )
-        qi_to_correctness: dict[int, dict[str, int | None]] = {}
-        qi_to_extracted: dict[int, dict[str, str | None]] = {}
+        qi_to_correctness: dict[int, dict[tuple[str, str], int | None]] = {}
+        qi_to_extracted: dict[int, dict[tuple[str, str], str | None]] = {}
         for _, r in data.iterrows():
             qi = int(r["q_index"])
-            qi_to_correctness.setdefault(qi, {})[r["provider"]] = (
+            combo = (r["provider"], r["model_used"])
+            qi_to_correctness.setdefault(qi, {})[combo] = (
                 int(r["is_correct"]) if pd.notna(r["is_correct"]) else None
             )
-            qi_to_extracted.setdefault(qi, {})[r["provider"]] = r.get("extracted_answer")
+            qi_to_extracted.setdefault(qi, {})[combo] = r.get("extracted_answer")
 
         # ----- Matrix table -----
         st.subheader("Per-question matrix")
         st.caption(
-            "One row per question, one column per provider. ✅ correct, ❌ wrong, "
-            "— no result. Hover or scroll right for the extracted answer."
+            "One row per question, one column per provider:model. ✅ correct, "
+            "❌ wrong, — no result. Hover or scroll right for the extracted answer."
         )
 
         all_qis = sorted(qi_to_correctness.keys())
@@ -1282,15 +1291,16 @@ with tab_compare:
                 key="cmp_search",
             )
         with fc2:
-            has_tavily = "tavily" in providers_in_set
+            has_tavily = any(p == "tavily" for p, _ in combos_in_set)
             if has_tavily:
                 tav_pivot = st.toggle(
                     "Tavily pivot",
                     value=False,
                     key="cmp_tavily_pivot",
-                    help="When on, show only questions where Tavily is "
-                         "uniquely right or uniquely wrong vs every other "
-                         "provider in this set. Overrides the filter on the left.",
+                    help="When on, show only questions where every Tavily "
+                         "entry in this set is right (or wrong) and every "
+                         "non-Tavily entry disagrees. Overrides the filter "
+                         "on the left.",
                 )
                 if tav_pivot:
                     tav_side = st.segmented_control(
@@ -1311,16 +1321,20 @@ with tab_compare:
             c = qi_to_correctness.get(qi, {})
             vals = [v for v in c.values() if v is not None]
             if tav_pivot and has_tavily:
-                if not vals:
-                    return False
-                tav = c.get("tavily")
-                others = [
-                    v for k, v in c.items() if k != "tavily" and v is not None
+                tav = [
+                    v for combo, v in c.items()
+                    if combo[0] == "tavily" and v is not None
                 ]
+                oth = [
+                    v for combo, v in c.items()
+                    if combo[0] != "tavily" and v is not None
+                ]
+                if not tav or not oth:
+                    return False
                 if tav_side == "wins (unique)":
-                    return tav == 1 and bool(others) and all(v == 0 for v in others)
+                    return all(v == 1 for v in tav) and all(v == 0 for v in oth)
                 if tav_side == "loses (unique)":
-                    return tav == 0 and bool(others) and all(v == 1 for v in others)
+                    return all(v == 0 for v in tav) and all(v == 1 for v in oth)
                 return True
             if not vals:
                 return cmp_filter == "all"
@@ -1357,11 +1371,11 @@ with tab_compare:
                 }
                 if _cmp_pid_map:
                     row["prompt_id"] = _cmp_pid_map.get(int(qi), "")
-                for p in providers_in_set:
-                    c = qi_to_correctness.get(qi, {}).get(p)
-                    ext = qi_to_extracted.get(qi, {}).get(p) or ""
+                for combo, label in zip(combos_in_set, combo_labels):
+                    c = qi_to_correctness.get(qi, {}).get(combo)
+                    ext = qi_to_extracted.get(qi, {}).get(combo) or ""
                     badge = "✅" if c == 1 else ("❌" if c == 0 else "—")
-                    row[p] = f"{badge} {ext}".strip()
+                    row[label] = f"{badge} {ext}".strip()
                 matrix_rows.append(row)
             matrix_df = pd.DataFrame(matrix_rows)
             matrix_column_config = {
@@ -1373,9 +1387,9 @@ with tab_compare:
                 matrix_column_config["prompt_id"] = st.column_config.TextColumn(
                     "Prompt ID", width=220, pinned=True,
                 )
-            for p in providers_in_set:
-                matrix_column_config[p] = st.column_config.TextColumn(
-                    p, width="medium"
+            for label in combo_labels:
+                matrix_column_config[label] = st.column_config.TextColumn(
+                    label, width="medium"
                 )
             st.dataframe(
                 matrix_df,
@@ -1399,9 +1413,9 @@ with tab_compare:
                 truncated = q if len(q) <= 90 else q[:90] + "…"
                 c = qi_to_correctness.get(qi, {})
                 badges = "".join(
-                    "✅" if c.get(p) == 1
-                    else ("❌" if c.get(p) == 0 else "·")
-                    for p in providers_in_set
+                    "✅" if c.get(combo) == 1
+                    else ("❌" if c.get(combo) == 0 else "·")
+                    for combo in combos_in_set
                 )
                 return f"{badges}  Q{qi}  ·  {truncated}"
 
@@ -1419,20 +1433,24 @@ with tab_compare:
                 f"**Expected answer:** `{qi_to_expected.get(drill_qi, '')}`"
             )
 
-            cols = st.columns(len(providers_in_set))
-            for col, p in zip(cols, providers_in_set):
-                sub = data[(data["q_index"] == drill_qi) & (data["provider"] == p)]
+            cols = st.columns(len(combos_in_set))
+            for col, (provider, model) in zip(cols, combos_in_set):
+                label = f"{provider}:{model}"
+                sub = data[
+                    (data["q_index"] == drill_qi)
+                    & (data["provider"] == provider)
+                    & (data["model_used"] == model)
+                ]
                 with col:
                     if sub.empty:
-                        st.markdown(f"### · {p}")
+                        st.markdown(f"### · {label}")
                         st.caption("no result")
                         continue
                     r = sub.iloc[0]
                     is_c = r["is_correct"]
                     badge = "✅" if is_c == 1 else ("❌" if is_c == 0 else "—")
-                    st.markdown(f"### {badge} {p}")
+                    st.markdown(f"### {badge} {label}")
                     st.caption(
-                        f"model={r['model_used']}  ·  "
                         f"{_fmt_duration(r['research_duration_seconds'])}"
                     )
                     st.markdown("**Extracted**")

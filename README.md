@@ -139,11 +139,13 @@ Pick any run from the table, see headline accuracy (`correct / graded`) and the 
 
 ### 3. Provider comparison
 
-Pick a comparison set (made via `compare.py` or by selecting multiple providers in the Launch tab). At the top: provider accuracy + average duration matrix, sorted by accuracy. Below: a per-question grid with one column per provider showing ✅/❌ and the extracted answer.
+Pick a comparison set (made via `compare.py` or by selecting multiple providers in the Launch tab). At the top: per-`(provider, model)` accuracy + average duration matrix, sorted by accuracy. Below: a per-question grid with one column per `provider:model` showing ✅/❌ and the extracted answer.
+
+Multiple models from the same provider (e.g. `tavily:mini` + `tavily:pro` in one set) get their own columns and rows; nothing collapses on the provider name.
 
 Filters:
 - **Filter** — `all`, `any disagreement`, `all correct`, `all wrong`.
-- **Tavily pivot** (when Tavily is in the set) — show only questions where Tavily is **uniquely right** or **uniquely wrong** vs every other provider. Overrides the left-hand filter.
+- **Tavily pivot** (when any Tavily entry is in the set) — show only questions where **every** Tavily entry got it right and **every** non-Tavily entry got it wrong (or vice versa). Overrides the left-hand filter.
 - **Search** — substring match on the question text.
 
 Click into one question to see every provider's full report, extracted answer, judge reasoning, and sources side by side.
