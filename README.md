@@ -332,6 +332,7 @@ Constraint: `UNIQUE(run_id, q_index)`. Re-running the same `q_index` within the 
 | `benchmarks/judge.py` | Anthropic judge with structured tool use. |
 | `benchmarks/storage.py` | SQLite schema, migrations, query helpers, insights persistence. |
 | `benchmarks/runner.py` | Orchestrates load → research → judge → store. |
+| `benchmarks/dimensions.py` | Shared per-benchmark dimension helpers + latest-wins matrix builder. Imported by Dashboard, Insights, and Export. |
 | `benchmarks/launcher.py` | Subprocess wrapper for UI-launched runs. |
 | `benchmarks/insights.py` | Two-stage LLM analysis pipeline (Haiku + Sonnet). |
 | `benchmarks/providers/` | One file per provider plus the `ResearchProvider` ABC. |

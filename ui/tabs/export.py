@@ -13,12 +13,10 @@ Joins in:
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 import streamlit as st
 
-from benchmarks import datasets, storage
+from benchmarks import datasets, dimensions, storage
 
 
 # ---------------------------------------------------------------------------
@@ -26,32 +24,16 @@ from benchmarks import datasets, storage
 # imports the other).
 # ---------------------------------------------------------------------------
 
-_SEALQA_SEAL0_TAGS_PATH = Path("docs/tags/sealqa_seal0.csv")
-
-
 @st.cache_data
 def _sealqa_seal0_tags() -> pd.DataFrame:
-    if not _SEALQA_SEAL0_TAGS_PATH.exists():
+    """Thin cache wrapper around dimensions.sealqa_tags. Restricted to
+    reasoning + retrieval; export drops `notes` since it's not a slice
+    dimension."""
+    tags = dimensions.sealqa_tags("sealqa_seal0")
+    keep = [c for c in ("q_index", "reasoning", "retrieval") if c in tags.columns]
+    if not keep:
         return pd.DataFrame(columns=["q_index", "reasoning", "retrieval"])
-    df = pd.read_csv(_SEALQA_SEAL0_TAGS_PATH)
-    keep = ["q_index", "reasoning", "retrieval"]
-    return df[[c for c in keep if c in df.columns]].copy()
-
-
-def _split_finsearchcomp_label(label: str) -> tuple[str, str]:
-    if not isinstance(label, str):
-        return ("?", "?")
-    if "(" in label and label.endswith(")"):
-        head, _, tail = label.rpartition("(")
-        region = tail[:-1]
-    else:
-        head, region = label, "?"
-    tier_map = {
-        "Time-Sensitive_Data_Fetching": "T1",
-        "Simple_Historical_Lookup": "T2",
-        "Complex_Historical_Investigation": "T3",
-    }
-    return (tier_map.get(head, head), region)
+    return tags[keep].copy()
 
 
 @st.cache_data
@@ -71,7 +53,9 @@ def _parquet_extras(benchmark: str, seed) -> pd.DataFrame:
                 keep.append(c)
     if benchmark == "finsearchcomp":
         if "label" in df.columns:
-            tiers_regions = df["label"].astype(str).apply(_split_finsearchcomp_label)
+            tiers_regions = df["label"].astype(str).apply(
+                dimensions.split_finsearchcomp_label
+            )
             df["fin_tier"] = [tr[0] for tr in tiers_regions]
             df["fin_region"] = [tr[1] for tr in tiers_regions]
             keep += ["fin_tier", "fin_region"]

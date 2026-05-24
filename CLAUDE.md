@@ -171,6 +171,7 @@ UI-launched runs use `subprocess.Popen(..., start_new_session=True, close_fds=Tr
 | Subprocess launcher for UI runs | `benchmarks/launcher.py` |
 | Run config dataclass | `benchmarks/config.py` |
 | Run orchestration (load → research → judge → store) | `benchmarks/runner.py` |
+| Shared dimension + matrix helpers (label parsing, latest-wins matrix) | `benchmarks/dimensions.py` |
 | Two-stage LLM insights pipeline | `benchmarks/insights.py` |
 | Streamlit dashboard entrypoint + Launch/Inspect/Compare/Tier tabs | `app.py` |
 | Dashboard analytics tab | `ui/tabs/dashboard.py` |

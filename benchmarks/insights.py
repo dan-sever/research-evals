@@ -27,7 +27,7 @@ import pandas as pd
 
 from anthropic import Anthropic
 
-from benchmarks import datasets, storage
+from benchmarks import datasets, dimensions, storage
 
 
 PROMPT_VERSION = "v2-2026-05"
@@ -38,44 +38,15 @@ SYNTHESIS_MODEL = "claude-sonnet-4-6"
 # Back-compat alias for older callers.
 DEFAULT_MODEL = SYNTHESIS_MODEL
 
-_TAGS_DIR = Path("docs/tags")
-
-
-def _tags_path(benchmark: str) -> Path:
-    return _TAGS_DIR / f"{benchmark}.csv"
-
-
 # ---------------------------------------------------------------------------
-# Matrix construction (mirrors the dashboard tab so insights see the same
-# data the user sees)
+# Matrix construction (delegates to benchmarks.dimensions so insights see
+# the same latest-wins data the dashboard does)
 # ---------------------------------------------------------------------------
 
 def _matrix(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
-    rows = storage.get_question_status(benchmark)
-    if not rows:
-        return pd.DataFrame()
-    df = pd.DataFrame(rows)
-    df = df[df["seed"].apply(lambda s: s == seed)].copy()
+    df = dimensions.latest_results_matrix(benchmark, seed)
     if df.empty:
         return df
-    df = df.drop_duplicates(
-        subset=["provider", "model", "q_index"], keep="last"
-    ).reset_index(drop=True)
-    spec = datasets.REGISTRY[benchmark]
-    dataset_df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if seed is not None:
-        dataset_df = dataset_df.sample(
-            frac=1, random_state=seed
-        ).reset_index(drop=True)
-    dataset_df = dataset_df.reset_index(drop=False).rename(
-        columns={"index": "q_index"}
-    )
-    dataset_df["question"] = dataset_df[spec.question_col].astype(str)
-    dataset_df["expected_answer"] = dataset_df[spec.answer_col].astype(str)
-    df = df.merge(
-        dataset_df[["q_index", "question", "expected_answer"]],
-        on="q_index", how="left", suffixes=("", "_ds"),
-    )
     df["provider_label"] = df["provider"] + ":" + df["model"]
     return df
 
@@ -306,38 +277,10 @@ def _example_row(
 # Per-benchmark payload builders
 # ---------------------------------------------------------------------------
 
-def _split_finsearchcomp_label(label: str) -> tuple[str, str]:
-    if not isinstance(label, str):
-        return ("?", "?")
-    if "(" in label and label.endswith(")"):
-        head, _, tail = label.rpartition("(")
-        region = tail[:-1]
-    else:
-        head, region = label, "?"
-    tier_map = {
-        "Time-Sensitive_Data_Fetching": "T1",
-        "Simple_Historical_Lookup": "T2",
-        "Complex_Historical_Investigation": "T3",
-    }
-    return (tier_map.get(head, head), region)
-
-
-def _finsearchcomp_dims(seed: Optional[int]) -> pd.DataFrame:
-    spec = datasets.REGISTRY["finsearchcomp"]
-    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if seed is not None:
-        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
-    tr = df["label"].astype(str).apply(_split_finsearchcomp_label)
-    df["tier"] = [t[0] for t in tr]
-    df["region"] = [t[1] for t in tr]
-    return df[["q_index", "tier", "region"]].copy()
-
-
 def _build_finsearchcomp_payload(
     matrix: pd.DataFrame, seed: Optional[int],
 ) -> dict:
-    dims = _finsearchcomp_dims(seed)
+    dims = dimensions.finsearchcomp_dims(seed)[["q_index", "tier", "region"]]
     return {
         "benchmark": "finsearchcomp",
         "dimension_descriptions": {
@@ -357,47 +300,14 @@ def _build_finsearchcomp_payload(
     }
 
 
-def _sealqa_tags(benchmark: str) -> pd.DataFrame:
-    """Per-benchmark taxonomy CSV at docs/tags/{benchmark}.csv. Currently
-    only sealqa_seal0 has one; the other seal variants return empty so the
-    panel gracefully omits the taxonomy slice."""
-    path = _tags_path(benchmark)
-    if not path.exists():
-        return pd.DataFrame(columns=["q_index", "reasoning", "retrieval"])
-    df = pd.read_csv(path)
-    keep = [c for c in ("q_index", "reasoning", "retrieval", "notes") if c in df.columns]
-    return df[keep].copy()
-
-
-def _sealqa_native_dims(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
-    """Read native parquet columns (topic, freshness, question_types) at
-    the active seed. `question_types` may be missing on longseal — caller
-    checks for the column rather than assuming it's present."""
-    spec = datasets.REGISTRY[benchmark]
-    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if seed is not None:
-        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
-    keep = ["q_index"]
-    for c in ("topic", "freshness", "question_types"):
-        if c in df.columns:
-            keep.append(c)
-    out = df[keep].copy()
-    if "question_types" in out.columns:
-        out["question_types"] = out["question_types"].apply(
-            lambda v: list(v) if v is not None and not isinstance(v, float) else []
-        )
-    return out
-
-
 def _build_sealqa_payload(
     matrix: pd.DataFrame, seed: Optional[int], benchmark: str = "sealqa_seal0",
 ) -> dict:
     """Generalized SealQA payload. Taxonomy tags only join when the
     benchmark has a tags CSV AND the seed is blank (the CSV is anchored
     to natural order). Other SealQA variants reuse this with no tags."""
-    native = _sealqa_native_dims(benchmark, seed)
-    tags = _sealqa_tags(benchmark) if seed is None else pd.DataFrame()
+    native = dimensions.sealqa_native_dims(benchmark, seed)
+    tags = dimensions.sealqa_tags(benchmark) if seed is None else pd.DataFrame()
     # Merge native + tags into a single dims frame so we can crosstab.
     dims = native.copy()
     if not tags.empty:

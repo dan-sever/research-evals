@@ -10,7 +10,7 @@ The big modularization (#11) is intentionally last so all the small refactors la
 - [X] **2. Log pruning at startup** — keep last N logs in `logs/`, prune the rest. Called once on app boot. **DONE**
 - [X] **3. Inspector `Graded` metric** — surface graded count in the metric grid, not just the tooltip. One-line UI tweak. **DONE**
 - [X] **4. Wire `sealqa_seal_hard` and `sealqa_longseal` into Dashboard + Insights** — generalize the `_sealqa_seal0_*` helpers to accept a benchmark parameter, register all three variants. Taxonomy CSV still only applies to seal0. **DONE**
-- [x] **5. Deduplicate dimension/matrix helpers** — pull repeated helpers (`_split_finsearchcomp_label`, `_sealqa_seal0_tags`, `_sealqa_seal0_native_dims`, `_finsearchcomp_dims`, latest-wins matrix builder) into `benchmarks/dimensions.py`. Three files lose copy-paste; behavior unchanged.
+- [X] **5. Deduplicate dimension/matrix helpers** — pulled into `benchmarks/dimensions.py`. Dashboard, Insights, and Export all import the shared module instead of carrying their own copies. Behavior unchanged. **DONE**
 - [x] **6. Cache `get_question_status`** — small `@st.cache_data` wrapper (10s TTL) so Launch + Tier tabs don't re-query SQLite on every widget interaction.
 - [x] **7. Cost preview in $** — add rough per-call cost lookup, surface estimated $ alongside the runs/research/judge counts in the Launch tab.
 - [x] **8. Compare tab bug: multiple Tavily models collapse** — `qi_to_correctness` keys by `provider` not `(provider, model)`. Fix so `tavily:mini` + `tavily:pro` in one comparison set both show. Tavily pivot logic also updated.

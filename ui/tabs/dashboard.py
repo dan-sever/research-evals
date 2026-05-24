@@ -16,129 +16,38 @@ Adding more benchmarks: write a panel function and dispatch in render().
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 import streamlit as st
 
-from benchmarks import datasets, storage
+from benchmarks import datasets, dimensions, storage
 from ui import dashboard_charts as dc
 
 # ---------------------------------------------------------------------------
 # Cached data helpers
 # ---------------------------------------------------------------------------
 
+# Thin @st.cache_data wrappers around the pure helpers in
+# benchmarks/dimensions.py. The shared module stays Streamlit-free so it
+# can also be imported by benchmarks.insights and CLI tools.
+
 @st.cache_data
 def _benchmark_results_matrix(benchmark: str, seed) -> pd.DataFrame:
-    """One row per (provider, model, q_index) for `benchmark` at `seed`,
-    keeping the most recent run per question. Columns include provider,
-    model, q_index, question, expected_answer, is_correct, extracted_answer,
-    research_duration_seconds, error, run_id."""
-    rows = storage.get_question_status(benchmark)
-    if not rows:
-        return pd.DataFrame()
-    df = pd.DataFrame(rows)
-    df = df[df["seed"].apply(lambda s: s == seed)].copy()
-    if df.empty:
-        return df
-    # get_question_status() sorts by run_id ASC, so keep="last" picks the
-    # most recent answer per (provider, model, q_index).
-    df = df.drop_duplicates(
-        subset=["provider", "model", "q_index"], keep="last"
-    ).reset_index(drop=True)
-
-    # Pull question/expected_answer from the dataset itself so they're
-    # available even when a particular run's results lacked them.
-    spec = datasets.REGISTRY[benchmark]
-    dataset_df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if seed is not None:
-        dataset_df = dataset_df.sample(
-            frac=1, random_state=seed
-        ).reset_index(drop=True)
-    dataset_df = dataset_df.reset_index(drop=False).rename(
-        columns={"index": "q_index"}
-    )
-    dataset_df["question"] = dataset_df[spec.question_col].astype(str)
-    dataset_df["expected_answer"] = dataset_df[spec.answer_col].astype(str)
-    df = df.merge(
-        dataset_df[["q_index", "question", "expected_answer"]],
-        on="q_index", how="left", suffixes=("", "_ds"),
-    )
-    return df
-
-
-def _split_finsearchcomp_label(label: str) -> tuple[str, str]:
-    """`Time-Sensitive_Data_Fetching(Greater China)` -> ('T1', 'Greater China').
-    Tier numbering follows the dataset's own prompt_id prefixes."""
-    if not isinstance(label, str):
-        return ("?", "?")
-    if "(" in label and label.endswith(")"):
-        head, _, tail = label.rpartition("(")
-        region = tail[:-1]
-    else:
-        head, region = label, "?"
-    tier_map = {
-        "Time-Sensitive_Data_Fetching": "T1",
-        "Simple_Historical_Lookup": "T2",
-        "Complex_Historical_Investigation": "T3",
-    }
-    return (tier_map.get(head, head), region)
+    return dimensions.latest_results_matrix(benchmark, seed)
 
 
 @st.cache_data
 def _finsearchcomp_dims(seed) -> pd.DataFrame:
-    """q_index -> (tier, region, label, prompt_id) at the given seed."""
-    spec = datasets.REGISTRY["finsearchcomp"]
-    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if seed is not None:
-        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
-    tiers_regions = df["label"].astype(str).apply(_split_finsearchcomp_label)
-    df["tier"] = [tr[0] for tr in tiers_regions]
-    df["region"] = [tr[1] for tr in tiers_regions]
-    df["prompt_id"] = df.get("prompt_id", pd.Series(dtype=str)).astype(str)
-    return df[["q_index", "tier", "region", "label", "prompt_id"]].copy()
-
-
-_TAGS_DIR = Path("docs/tags")
+    return dimensions.finsearchcomp_dims(seed)
 
 
 @st.cache_data
 def _sealqa_tags(benchmark: str) -> pd.DataFrame:
-    """Taxonomy CSV at docs/tags/{benchmark}.csv. Anchored to the parquet's
-    natural order. Currently only sealqa_seal0 ships one; the other seal
-    variants return empty so the panel gracefully omits taxonomy slices."""
-    path = _TAGS_DIR / f"{benchmark}.csv"
-    if not path.exists():
-        return pd.DataFrame(
-            columns=["q_index", "reasoning", "retrieval", "notes"]
-        )
-    df = pd.read_csv(path)
-    keep = ["q_index", "reasoning", "retrieval", "notes"]
-    return df[[c for c in keep if c in df.columns]].copy()
+    return dimensions.sealqa_tags(benchmark)
 
 
 @st.cache_data
 def _sealqa_native_dims(benchmark: str, seed) -> pd.DataFrame:
-    """q_index -> (topic, freshness, question_types) at the given seed,
-    pulled from the parquet itself. `question_types` is kept as a list so
-    callers can explode it for per-tag slicing. Missing columns are
-    silently skipped — longseal lacks `question_types`, for example."""
-    spec = datasets.REGISTRY[benchmark]
-    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
-    if seed is not None:
-        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
-    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
-    keep = ["q_index"]
-    for c in ("topic", "freshness", "question_types"):
-        if c in df.columns:
-            keep.append(c)
-    out = df[keep].copy()
-    if "question_types" in out.columns:
-        out["question_types"] = out["question_types"].apply(
-            lambda v: list(v) if v is not None and not isinstance(v, float) else []
-        )
-    return out
+    return dimensions.sealqa_native_dims(benchmark, seed)
 
 
 @st.cache_data
