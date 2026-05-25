@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider parallel --benchmark deepsearchqa --model base --workers 8 --judge-model claude-haiku-4-5 --q-indices 50,51,54,56,57,61,70,71,72,75 --comparison-set a83d61f4-a648-40a2-b4fc-e2a84fb68713
+Run 221: provider=parallel model=base | deepsearchqa | n=10 | workers=8
+parallel:base:   0%|          | 0/10 [00:00<?, ?it/s]parallel:base:  10%|█         | 1/10 [01:29<13:22, 89.21s/it]parallel:base:  20%|██        | 2/10 [03:43<15:25, 115.65s/it]parallel:base:  30%|███       | 3/10 [03:56<08:01, 68.75s/it] parallel:base:  40%|████      | 4/10 [04:05<04:31, 45.33s/it]parallel:base:  50%|█████     | 5/10 [05:05<04:12, 50.53s/it]parallel:base:  60%|██████    | 6/10 [05:09<02:18, 34.61s/it]parallel:base:  70%|███████   | 7/10 [05:33<01:33, 31.22s/it]parallel:base:  80%|████████  | 8/10 [05:47<00:51, 25.60s/it]parallel:base:  90%|█████████ | 9/10 [06:00<00:21, 21.82s/it]parallel:base: 100%|██████████| 10/10 [08:15<00:00, 56.61s/it]parallel:base: 100%|██████████| 10/10 [08:15<00:00, 49.50s/it]
+
+Run 221 done (parallel/base). Correct 3/10 (30.0%).

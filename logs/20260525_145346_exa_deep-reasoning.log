@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark deepsearchqa --model deep-reasoning --workers 8 --judge-model claude-haiku-4-5 --q-indices 568,572,573,595,600,646,652,657,660,669 --comparison-set c9420549-46c1-42fc-b99c-a8a28967f4a5
+Run 202: provider=exa model=deep-reasoning | deepsearchqa | n=10 | workers=8
+exa:deep-reasoning:   0%|          | 0/10 [00:00<?, ?it/s]exa:deep-reasoning:  10%|█         | 1/10 [00:00<00:04,  2.22it/s]exa:deep-reasoning:  30%|███       | 3/10 [00:00<00:01,  4.49it/s]exa:deep-reasoning:  40%|████      | 4/10 [00:16<00:34,  5.71s/it]exa:deep-reasoning:  50%|█████     | 5/10 [00:29<00:40,  8.02s/it]exa:deep-reasoning:  60%|██████    | 6/10 [00:44<00:40, 10.15s/it]exa:deep-reasoning:  70%|███████   | 7/10 [01:00<00:35, 11.97s/it]exa:deep-reasoning:  80%|████████  | 8/10 [01:11<00:23, 11.82s/it]exa:deep-reasoning:  90%|█████████ | 9/10 [01:15<00:09,  9.48s/it]exa:deep-reasoning: 100%|██████████| 10/10 [01:18<00:00,  7.32s/it]exa:deep-reasoning: 100%|██████████| 10/10 [01:18<00:00,  7.82s/it]
+
+Run 202 done (exa/deep-reasoning). Correct 3/10 (30.0%).

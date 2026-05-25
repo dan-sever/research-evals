@@ -37,6 +37,10 @@ def load_dataset_df(name: str, seed) -> pd.DataFrame:
     if "prompt_id" in df.columns:
         df["prompt_id"] = df["prompt_id"].astype(str)
         cols.insert(1, "prompt_id")
+    for extra in ("problem_category", "answer_type"):
+        if extra in df.columns:
+            df[extra] = df[extra].astype(str)
+            cols.append(extra)
     return df[cols].copy()
 
 

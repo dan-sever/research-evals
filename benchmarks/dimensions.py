@@ -101,6 +101,26 @@ def sealqa_native_dims(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
     return out
 
 
+# --- DeepSearchQA dims ------------------------------------------------------
+
+def deepsearchqa_native_dims(seed: Optional[int]) -> pd.DataFrame:
+    """q_index -> (problem_category, answer_type) at the given seed.
+
+    Both columns ship in the parquet, so no taxonomy CSV is needed. Missing
+    columns are silently skipped (same shape as `sealqa_native_dims`)."""
+    spec = datasets.REGISTRY["deepsearchqa"]
+    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
+    if seed is not None:
+        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
+    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
+    keep = ["q_index"]
+    for c in ("problem_category", "answer_type"):
+        if c in df.columns:
+            df[c] = df[c].astype(str)
+            keep.append(c)
+    return df[keep].copy()
+
+
 # --- Latest-run-wins matrix -------------------------------------------------
 
 def latest_results_matrix(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
@@ -137,8 +157,13 @@ def latest_results_matrix(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
     dataset_df = dataset_df.reset_index(drop=False).rename(
         columns={"index": "q_index"}
     )
-    dataset_df["question"] = dataset_df[spec.question_col].astype(str)
-    dataset_df["expected_answer"] = dataset_df[spec.answer_col].astype(str)
+    # `fillna("")` before `astype(str)` because pandas's `.astype(str)` on an
+    # object-dtype Series silently preserves float('nan') values (the dtype
+    # label lies). deepsearchqa has 4 questions with null answers and that
+    # NaN was sneaking into downstream code that did `(val or "")[:240]`,
+    # which raises "'float' object is not subscriptable".
+    dataset_df["question"] = dataset_df[spec.question_col].fillna("").astype(str)
+    dataset_df["expected_answer"] = dataset_df[spec.answer_col].fillna("").astype(str)
     df = df.merge(
         dataset_df[["q_index", "question", "expected_answer"]],
         on="q_index", how="left", suffixes=("", "_ds"),

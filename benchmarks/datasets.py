@@ -56,6 +56,13 @@ REGISTRY: dict[str, BenchmarkSpec] = {
         answer_col="response_reference",
         extra_cols=("prompt_id", "label", "time", "ground_truth"),
     ),
+    "deepsearchqa": BenchmarkSpec(
+        name="deepsearchqa",
+        parquet="deepsearchqa.parquet",
+        question_col="problem",
+        answer_col="answer",
+        extra_cols=("problem_category", "answer_type"),
+    ),
 }
 
 

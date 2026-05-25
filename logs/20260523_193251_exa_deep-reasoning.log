@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark finsearchcomp --model deep-reasoning --workers 5 --judge-model claude-haiku-4-5 --q-indices 100,101,106,108,110
-Run 95: provider=exa model=deep-reasoning | finsearchcomp | n=5 | workers=5
-exa:deep-reasoning:   0%|          | 0/5 [00:00<?, ?it/s]exa:deep-reasoning:  20%|██        | 1/5 [00:13<00:52, 13.12s/it]exa:deep-reasoning:  60%|██████    | 3/5 [00:27<00:17,  8.85s/it]exa:deep-reasoning:  80%|████████  | 4/5 [00:29<00:06,  6.34s/it]exa:deep-reasoning: 100%|██████████| 5/5 [01:21<00:00, 21.47s/it]exa:deep-reasoning: 100%|██████████| 5/5 [01:21<00:00, 16.30s/it]
-
-Run 95 done (exa/deep-reasoning). Correct 4/5 (80.0%).

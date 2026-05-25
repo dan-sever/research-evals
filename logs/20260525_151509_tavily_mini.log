@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider tavily --benchmark deepsearchqa --model mini --workers 8 --judge-model claude-haiku-4-5 --q-indices 1,50,51,56,72,182,238 --comparison-set 039ccbf2-1359-4c94-9e6c-0b65c34c4391
+Run 222: provider=tavily model=mini | deepsearchqa | n=7 | workers=8
+tavily:mini:   0%|          | 0/7 [00:00<?, ?it/s]tavily:mini:  14%|█▍        | 1/7 [00:22<02:17, 22.91s/it]tavily:mini:  29%|██▊       | 2/7 [00:34<01:22, 16.45s/it]tavily:mini:  43%|████▎     | 3/7 [00:39<00:43, 10.85s/it]tavily:mini:  57%|█████▋    | 4/7 [00:50<00:33, 11.03s/it]tavily:mini:  71%|███████▏  | 5/7 [00:52<00:15,  7.85s/it]tavily:mini:  86%|████████▌ | 6/7 [00:52<00:05,  5.25s/it]tavily:mini: 100%|██████████| 7/7 [01:05<00:00,  7.73s/it]tavily:mini: 100%|██████████| 7/7 [01:05<00:00,  9.37s/it]
+
+Run 222 done (tavily/mini). Correct 2/7 (28.6%).

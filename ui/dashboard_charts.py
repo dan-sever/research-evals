@@ -5,9 +5,10 @@ Every chart in here uses one of two color treatments:
 - Two-color (``is_tavily`` boolean): Tavily blue vs neutral gray. Used in
   the headline ranked bar and the latency scatter, where the only signal
   the reader needs is "where's Tavily".
-- Tavily-first palette: Tavily blue, then a gray gradient for the rest of
-  the providers. Used in grouped bar charts where you want to tell
-  competitors apart while still keeping Tavily visually dominant.
+- Tavily-first palette: ``tavily:pro`` blue, ``tavily:mini`` light blue,
+  every competitor a single shared gray. Used in grouped bar charts where
+  the focus is Tavily mini vs pro vs the field, not telling competitors
+  apart from each other.
 
 All builders return ``alt.Chart`` objects (or tuples for the disagreement
 helper). Callers use ``st.altair_chart(chart, use_container_width=True)``.
@@ -19,11 +20,11 @@ import pandas as pd
 
 # --- Color tokens -----------------------------------------------------------
 
-TAVILY_COLOR = "#1f6feb"           # Tavily blue
-TAVILY_LIGHT = "#7aa7ff"           # second Tavily shade (mini vs pro split)
-NEUTRAL_DARK = "#374151"           # competitors, darkest
+TAVILY_COLOR = "#1f6feb"           # Tavily pro (deep blue)
+TAVILY_LIGHT = "#9ec0ff"           # Tavily mini (light blue)
+NEUTRAL_DARK = "#374151"
 NEUTRAL_MID = "#6b7280"
-NEUTRAL_LIGHT = "#9ca3af"
+NEUTRAL_LIGHT = "#9ca3af"           # single shared gray for every non-Tavily bar
 NEUTRAL_PALE = "#cbd5e1"
 NEUTRAL_PALETTE = [NEUTRAL_DARK, NEUTRAL_MID, NEUTRAL_LIGHT, NEUTRAL_PALE]
 
@@ -49,20 +50,23 @@ def tavily_first(labels: list[str]) -> list[str]:
 
 
 def color_scale_for(labels: list[str]) -> alt.Scale:
-    """Categorical color scale: Tavily entries get blues, competitors get
-    a gray gradient. Order matches ``tavily_first(labels)``."""
+    """Categorical color scale: ``tavily:pro`` deep blue, ``tavily:mini``
+    light blue, any other Tavily variant a pale blue, every competitor the
+    same gray. Order matches ``tavily_first(labels)``."""
     order = tavily_first(labels)
-    blues = [TAVILY_COLOR, TAVILY_LIGHT, "#a5c2ff", "#cfdcff"]
-    grays = NEUTRAL_PALETTE
+    fallback_blues = ["#a5c2ff", "#cfdcff"]
     palette: list[str] = []
-    bi = gi = 0
+    fb = 0
     for label in order:
-        if label.startswith("tavily:"):
-            palette.append(blues[bi % len(blues)])
-            bi += 1
+        if label == "tavily:pro":
+            palette.append(TAVILY_COLOR)
+        elif label == "tavily:mini":
+            palette.append(TAVILY_LIGHT)
+        elif label.startswith("tavily:"):
+            palette.append(fallback_blues[fb % len(fallback_blues)])
+            fb += 1
         else:
-            palette.append(grays[gi % len(grays)])
-            gi += 1
+            palette.append(NEUTRAL_LIGHT)
     return alt.Scale(domain=order, range=palette)
 
 
@@ -166,7 +170,9 @@ def headline_ranked_bar(matrix: pd.DataFrame) -> alt.Chart | None:
         text="bar_label:N",
     )
     chart = (bars + text).properties(
-        height=max(60 + 32 * len(summary), 160),
+        # 44px per row vs the 24px bar = 20px breathing room between bars
+        # so adjacent gray competitor bars don't read as one solid block.
+        height=max(60 + 44 * len(summary), 180),
         title=alt.TitleParams(
             f"Accuracy by provider:model (best on top, "
             f"hiding graded n < {MIN_N_DISPLAY}; errors excluded from denominator)",
@@ -525,7 +531,7 @@ def error_vs_wrong_bar(matrix: pd.DataFrame) -> alt.Chart | None:
     bucket_rank = {b: i for i, b in enumerate(bucket_order)}
     counts["bucket_rank"] = counts["bucket"].map(bucket_rank)
 
-    chart = alt.Chart(counts).mark_bar().encode(
+    chart = alt.Chart(counts).mark_bar(size=22).encode(
         y=alt.Y("provider_label:N", sort=order, title=None,
                 axis=alt.Axis(labelLimit=240)),
         x=alt.X("n:Q", stack="normalize", title="share of questions",
@@ -542,7 +548,8 @@ def error_vs_wrong_bar(matrix: pd.DataFrame) -> alt.Chart | None:
             alt.Tooltip("n:Q", title="n"),
         ],
     ).properties(
-        height=max(40 + 26 * len(order), 120),
+        # 36px per row vs the 22px bar = 14px gap so rows separate cleanly.
+        height=max(40 + 36 * len(order), 140),
         title=alt.TitleParams(
             "Correct vs wrong vs errored (share of judged + errored rows)",
             anchor="start",

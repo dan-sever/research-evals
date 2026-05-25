@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark deepsearchqa --model deep --workers 8 --judge-model claude-haiku-4-5 --q-indices 1,63,110,169,193,203,213,247,309,345 --comparison-set f4500394-b566-4e36-b307-d9ac01b95ee4
+Run 207: provider=exa model=deep | deepsearchqa | n=10 | workers=8
+exa:deep:   0%|          | 0/10 [00:00<?, ?it/s]exa:deep:  10%|█         | 1/10 [00:00<00:06,  1.32it/s]exa:deep:  30%|███       | 3/10 [00:01<00:02,  2.99it/s]exa:deep:  40%|████      | 4/10 [00:06<00:13,  2.21s/it]exa:deep:  50%|█████     | 5/10 [00:07<00:07,  1.54s/it]exa:deep:  60%|██████    | 6/10 [00:08<00:05,  1.40s/it]exa:deep:  70%|███████   | 7/10 [00:09<00:03,  1.29s/it]exa:deep:  80%|████████  | 8/10 [00:11<00:03,  1.58s/it]exa:deep: 100%|██████████| 10/10 [00:12<00:00,  1.17s/it]exa:deep: 100%|██████████| 10/10 [00:12<00:00,  1.29s/it]
+
+Run 207 done (exa/deep). Correct 4/10 (40.0%).

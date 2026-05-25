@@ -11,6 +11,11 @@ Scope v2:
   easy-missed scaffolding; taxonomy slices from docs/tags/sealqa_seal0.csv
   (only when seed is blank, since the CSV is anchored to natural order);
   native-column slices (topic, question_types).
+- deepsearchqa: headline + native-column slices (problem_category,
+  answer_type) + mini-vs-pro + latency + error-vs-wrong + easy-missed.
+  No taxonomy CSV needed; both dims ship in the parquet so slices work
+  at any seed. Coverage heatmap is intentionally omitted because
+  problem_category has 17 values with a long tail.
 
 Adding more benchmarks: write a panel function and dispatch in render().
 """
@@ -31,7 +36,10 @@ from ui import dashboard_charts as dc
 # benchmarks/dimensions.py. The shared module stays Streamlit-free so it
 # can also be imported by benchmarks.insights and CLI tools.
 
-@st.cache_data
+# 10s TTL matches `ui_cache.question_status` so the matrix and the seed
+# picker stay in sync. Without a TTL, the matrix would be frozen for the
+# whole Streamlit session and new runs wouldn't show until manual reload.
+@st.cache_data(ttl=10)
 def _benchmark_results_matrix(benchmark: str, seed) -> pd.DataFrame:
     return dimensions.latest_results_matrix(benchmark, seed)
 
@@ -49,6 +57,11 @@ def _sealqa_tags(benchmark: str) -> pd.DataFrame:
 @st.cache_data
 def _sealqa_native_dims(benchmark: str, seed) -> pd.DataFrame:
     return dimensions.sealqa_native_dims(benchmark, seed)
+
+
+@st.cache_data
+def _deepsearchqa_dims(seed) -> pd.DataFrame:
+    return dimensions.deepsearchqa_native_dims(seed)
 
 
 @st.cache_data
@@ -315,6 +328,54 @@ def _render_sealqa_panel(
     _render_easy_missed(matrix, dims_lookup=dims_for_tag, dim_cols=tag_cols)
 
 
+def _render_deepsearchqa_panel(matrix: pd.DataFrame, dims: pd.DataFrame) -> None:
+    if matrix.empty:
+        st.info("No deepsearchqa runs yet at this seed.")
+        return
+    matrix = _drop_low_n_models(matrix, dc.MIN_N_DISPLAY)
+    if matrix.empty:
+        st.info(
+            f"No deepsearchqa models with ≥{dc.MIN_N_DISPLAY} graded runs yet."
+        )
+        return
+
+    dim_cols = [c for c in ("problem_category", "answer_type") if c in dims.columns]
+
+    if dims.empty or not dim_cols:
+        st.caption("_dataset is missing problem_category / answer_type columns._")
+    else:
+        st.markdown("### By dataset-native columns")
+        for col, title in [
+            ("problem_category", "By problem_category"),
+            ("answer_type", "By answer_type"),
+        ]:
+            if col not in dims.columns:
+                continue
+            order = sorted(dims[col].dropna().astype(str).unique().tolist())
+            slice_df = dc.slice_accuracy(matrix, dims, col, dim_order=order)
+            _altair(
+                dc.grouped_accuracy_bar(slice_df, col, order, title),
+                key=f"deepsearchqa_native_{col}",
+            )
+
+    # No coverage heatmap: problem_category has 17 distinct values with a
+    # long tail (Linguistics=1, Biology=2, etc.) so the grid is too sparse
+    # and the long labels collide. The grouped bar above already covers it.
+
+    st.markdown("### Tavily mini vs pro")
+    _render_mini_vs_pro(matrix, dims_lookup=dims, dim_cols=dim_cols)
+
+    st.markdown("### Latency")
+    _altair(dc.latency_box(matrix), key="deepsearchqa_latency_box")
+    _altair(dc.latency_accuracy_scatter(matrix), key="deepsearchqa_latency_scatter")
+
+    st.markdown("### Error vs wrong-answer split")
+    _altair(dc.error_vs_wrong_bar(matrix), key="deepsearchqa_error_vs_wrong")
+
+    st.markdown("### Easy questions Tavily missed")
+    _render_easy_missed(matrix, dims_lookup=dims, dim_cols=dim_cols)
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -329,6 +390,7 @@ def render() -> None:
 
     benchmarks = [
         "finsearchcomp", "sealqa_seal0", "sealqa_seal_hard", "sealqa_longseal",
+        "deepsearchqa",
     ]
     bench = st.segmented_control(
         "Benchmark",
@@ -381,3 +443,5 @@ def render() -> None:
             seed,
             bench,
         )
+    elif bench == "deepsearchqa":
+        _render_deepsearchqa_panel(matrix, _deepsearchqa_dims(seed))

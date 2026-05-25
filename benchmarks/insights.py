@@ -350,6 +350,44 @@ def _build_sealqa_payload(
     return payload
 
 
+def _build_deepsearchqa_payload(
+    matrix: pd.DataFrame, seed: Optional[int],
+) -> dict:
+    """DeepSearchQA payload. Both dims ship in the parquet so there's no
+    taxonomy CSV; slices work at any seed."""
+    dims = dimensions.deepsearchqa_native_dims(seed)
+    return {
+        "benchmark": "deepsearchqa",
+        "dimension_descriptions": {
+            "problem_category": (
+                "Subject area of the question. 17 distinct values with a "
+                "long tail; top buckets are Politics & Government, "
+                "Finance & Economics, Geography, Education, Health, "
+                "Science. Sparse buckets (Linguistics, Biology, "
+                "Current Events) have n < 5 — do not anchor findings "
+                "on them."
+            ),
+            "answer_type": (
+                "Whether the canonical answer is a single value "
+                "('Single Answer', ~316 questions) or a collection of "
+                "values that all need to be retrieved ('Set Answer', "
+                "~584 questions). 'Set Answer' is typically harder "
+                "because partial recall counts as wrong."
+            ),
+        },
+        "overall": _overall_table(matrix),
+        "by_problem_category": _slice_table(matrix, dims, "problem_category"),
+        "by_answer_type": _slice_table(matrix, dims, "answer_type"),
+        "problem_category_x_answer_type": _cross_table(
+            matrix, dims, "problem_category", "answer_type",
+        ),
+        "wrong_examples": _wrong_examples(
+            matrix, dims, ["problem_category", "answer_type"],
+            WRONG_EXAMPLE_BUDGET,
+        ),
+    }
+
+
 def _sealqa_payload_for(name: str) -> Callable[[pd.DataFrame, Optional[int]], dict]:
     """Bind `_build_sealqa_payload` to a specific benchmark name so the
     registry signature stays `(matrix, seed) -> dict`."""
@@ -364,6 +402,7 @@ BENCHMARK_PAYLOADS: dict[str, Callable[[pd.DataFrame, Optional[int]], dict]] = {
     "sealqa_seal0": _sealqa_payload_for("sealqa_seal0"),
     "sealqa_seal_hard": _sealqa_payload_for("sealqa_seal_hard"),
     "sealqa_longseal": _sealqa_payload_for("sealqa_longseal"),
+    "deepsearchqa": _build_deepsearchqa_payload,
 }
 
 
@@ -447,7 +486,8 @@ def _enrich_wrong_examples(
             if k in ("q_index", "question", "expected_answer",
                      "tavily_attempts", "competitor_winners",
                      "n_competitors_right", "tier", "region",
-                     "topic", "freshness", "reasoning", "retrieval")
+                     "topic", "freshness", "reasoning", "retrieval",
+                     "problem_category", "answer_type")
         })
     user_msg = (
         "Characterize each of the following Tavily failures.\n\n"

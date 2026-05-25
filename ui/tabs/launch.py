@@ -139,6 +139,15 @@ def render() -> None:
         hidden = before - len(ds_df)
         if hidden:
             st.caption(f"Hiding {hidden} non-English question(s).")
+
+    # Distribution summary for benchmarks that ship category/type metadata
+    # (currently deepsearchqa). Helps the user balance their cherry-pick.
+    meta_cols = [c for c in ("problem_category", "answer_type") if c in ds_df.columns]
+    for col in meta_cols:
+        vc = ds_df[col].value_counts()
+        parts = [f"{k} ({v})" for k, v in vc.items()]
+        st.caption(f"**{col}**: " + " · ".join(parts))
+
     # Truncate long strings for display
     ds_df["question"] = ds_df["question"].str.slice(0, 140)
     ds_df["expected_answer"] = ds_df["expected_answer"].str.slice(0, 80)
@@ -246,6 +255,24 @@ def render() -> None:
             "Prompt ID", width=220, pinned=True,
             help="Source dataset's prompt identifier (e.g. "
                  "`(T2)Simple_Historical_Lookup_001`).",
+        )
+    # Insert deepsearchqa metadata columns right after q_index/prompt_id so
+    # they sit next to the row identifier when picking. Pinned so they stay
+    # visible while scrolling through coverage columns on the right.
+    next_meta_pos = 2 if "prompt_id" in ds_df.columns else 1
+    if "problem_category" in ds_df.columns:
+        table_cols.insert(next_meta_pos, "problem_category")
+        column_config["problem_category"] = st.column_config.TextColumn(
+            "Category", width=180, pinned=True,
+            help="problem_category from the source dataset — use the "
+                 "distribution caption above the table to balance picks.",
+        )
+        next_meta_pos += 1
+    if "answer_type" in ds_df.columns:
+        table_cols.insert(next_meta_pos, "answer_type")
+        column_config["answer_type"] = st.column_config.TextColumn(
+            "Ans type", width=120, pinned=True,
+            help="answer_type from the source dataset.",
         )
     coverage_col_width = 220 if show_details else 130
     for p, m in all_combos:

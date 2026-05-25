@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark deepsearchqa --model deep-reasoning --workers 8 --judge-model claude-haiku-4-5 --q-indices 622,623,642,644,666,667,668,669,674,694,696,707 --comparison-set 08346c03-310b-4093-b8fd-2b647255fff7
+Run 215: provider=exa model=deep-reasoning | deepsearchqa | n=12 | workers=8
+exa:deep-reasoning:   0%|          | 0/12 [00:00<?, ?it/s]exa:deep-reasoning:   8%|▊         | 1/12 [00:00<00:06,  1.65it/s]exa:deep-reasoning:  33%|███▎      | 4/12 [00:00<00:01,  4.93it/s]exa:deep-reasoning:  50%|█████     | 6/12 [00:24<00:31,  5.23s/it]exa:deep-reasoning:  58%|█████▊    | 7/12 [00:26<00:22,  4.53s/it]exa:deep-reasoning:  67%|██████▋   | 8/12 [00:31<00:17,  4.48s/it]exa:deep-reasoning:  75%|███████▌  | 9/12 [00:36<00:14,  4.69s/it]exa:deep-reasoning:  83%|████████▎ | 10/12 [00:38<00:08,  4.11s/it]exa:deep-reasoning:  92%|█████████▏| 11/12 [00:40<00:03,  3.32s/it]exa:deep-reasoning: 100%|██████████| 12/12 [01:37<00:00, 18.79s/it]exa:deep-reasoning: 100%|██████████| 12/12 [01:37<00:00,  8.11s/it]
+
+Run 215 done (exa/deep-reasoning). Correct 5/12 (41.7%).
