@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider tavily --benchmark finsearchcomp --model pro --workers 5 --judge-model claude-haiku-4-5 --q-indices 219,222,304,320,330,332,337,348,367,375
-Run 112: provider=tavily model=pro | finsearchcomp | n=10 | workers=5
-tavily:pro:   0%|          | 0/10 [00:00<?, ?it/s]tavily:pro:  10%|█         | 1/10 [02:10<19:36, 130.75s/it]tavily:pro:  20%|██        | 2/10 [02:26<08:23, 62.98s/it] tavily:pro:  30%|███       | 3/10 [02:45<05:02, 43.20s/it]tavily:pro:  40%|████      | 4/10 [03:18<03:53, 38.99s/it]tavily:pro:  50%|█████     | 5/10 [03:44<02:50, 34.14s/it]tavily:pro:  60%|██████    | 6/10 [04:48<02:58, 44.58s/it]tavily:pro:  70%|███████   | 7/10 [04:58<01:39, 33.01s/it]tavily:pro:  80%|████████  | 8/10 [05:24<01:01, 30.94s/it]tavily:pro:  90%|█████████ | 9/10 [06:31<00:42, 42.32s/it]tavily:pro: 100%|██████████| 10/10 [06:45<00:00, 33.31s/it]tavily:pro: 100%|██████████| 10/10 [06:45<00:00, 40.50s/it]
-
-Run 112 done (tavily/pro). Correct 1/10 (10.0%).

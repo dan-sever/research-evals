@@ -353,10 +353,17 @@ def _build_sealqa_payload(
 def _build_deepsearchqa_payload(
     matrix: pd.DataFrame, seed: Optional[int],
 ) -> dict:
-    """DeepSearchQA payload. Both dims ship in the parquet so there's no
-    taxonomy CSV; slices work at any seed."""
-    dims = dimensions.deepsearchqa_native_dims(seed)
-    return {
+    """DeepSearchQA payload. Primary lens is the reasoning / retrieval
+    taxonomy from `docs/tags/deepsearchqa.csv` (anchored to natural order,
+    so only joins when seed is None). Problem_category from the parquet
+    stays as a subject-area dim."""
+    native = dimensions.deepsearchqa_native_dims(seed)
+    tags = dimensions.taxonomy_tags("deepsearchqa") if seed is None else pd.DataFrame()
+    dims = native.copy()
+    if not tags.empty:
+        dims = dims.merge(tags, on="q_index", how="left")
+
+    payload: dict = {
         "benchmark": "deepsearchqa",
         "dimension_descriptions": {
             "problem_category": (
@@ -367,25 +374,32 @@ def _build_deepsearchqa_payload(
                 "Current Events) have n < 5 — do not anchor findings "
                 "on them."
             ),
-            "answer_type": (
-                "Whether the canonical answer is a single value "
-                "('Single Answer', ~316 questions) or a collection of "
-                "values that all need to be retrieved ('Set Answer', "
-                "~584 questions). 'Set Answer' is typically harder "
-                "because partial recall counts as wrong."
-            ),
         },
         "overall": _overall_table(matrix),
         "by_problem_category": _slice_table(matrix, dims, "problem_category"),
-        "by_answer_type": _slice_table(matrix, dims, "answer_type"),
-        "problem_category_x_answer_type": _cross_table(
-            matrix, dims, "problem_category", "answer_type",
-        ),
-        "wrong_examples": _wrong_examples(
-            matrix, dims, ["problem_category", "answer_type"],
-            WRONG_EXAMPLE_BUDGET,
-        ),
     }
+    if not tags.empty:
+        payload["dimension_descriptions"]["reasoning"] = (
+            "Reasoning hops: single-hop (one fact lookup), multi-hop "
+            "(chain 2+ facts or filter+aggregate a list), comparative "
+            "(weigh named entities), unanswerable (wrong premise). "
+            "Tagged by Haiku over the answered questions."
+        )
+        payload["dimension_descriptions"]["retrieval"] = (
+            "Retrieval difficulty: common, specialized, fresh, "
+            "tricky-phrasing. Same Haiku tagging pass."
+        )
+        payload["by_reasoning"] = _slice_table(matrix, dims, "reasoning")
+        payload["by_retrieval"] = _slice_table(matrix, dims, "retrieval")
+        payload["reasoning_x_retrieval"] = _cross_table(
+            matrix, dims, "reasoning", "retrieval",
+        )
+    example_dims = [c for c in ("reasoning", "retrieval", "problem_category")
+                    if c in dims.columns]
+    payload["wrong_examples"] = _wrong_examples(
+        matrix, dims, example_dims, WRONG_EXAMPLE_BUDGET,
+    )
+    return payload
 
 
 def _sealqa_payload_for(name: str) -> Callable[[pd.DataFrame, Optional[int]], dict]:
@@ -487,7 +501,7 @@ def _enrich_wrong_examples(
                      "tavily_attempts", "competitor_winners",
                      "n_competitors_right", "tier", "region",
                      "topic", "freshness", "reasoning", "retrieval",
-                     "problem_category", "answer_type")
+                     "problem_category")
         })
     user_msg = (
         "Characterize each of the following Tavily failures.\n\n"
@@ -601,6 +615,154 @@ INSIGHTS_TOOL = {
 
 class InsightsError(RuntimeError):
     pass
+
+
+# ---------------------------------------------------------------------------
+# Cross-benchmark overview (reads the latest per-benchmark insights and
+# synthesizes a short Tavily-position summary across all of them)
+# ---------------------------------------------------------------------------
+
+OVERVIEW_BENCHMARK_KEY = "__overview__"
+OVERVIEW_PROMPT_VERSION = "overview-v1-2026-05"
+
+OVERVIEW_SYSTEM = """You synthesize Tavily Research's position across multiple deep-research benchmarks.
+
+You'll receive a JSON list. Each item is one benchmark with:
+- `benchmark`: name (finsearchcomp, sealqa_seal0, sealqa_seal_hard, sealqa_longseal, deepsearchqa).
+- `latest_insight`: the per-benchmark report already generated for that benchmark — `headline` plus ranked findings with `claim`, `evidence`, `examples`, `action`, `kind` (gap / win / infra).
+- `overall`: per (provider:model) accuracy, error count, p50/p95 latency from the latest-wins matrix at seed=blank.
+
+Your job: produce a *very short* cross-benchmark summary for the PM of Tavily Research. Focus areas, in priority order:
+1. **Multi-hop vs single-hop / deep inference.** Where does Tavily's edge concentrate? Where does it break? Cite numbers across benchmarks (e.g., sealqa multi-hop vs single-hop, finsearchcomp T3 complex investigation vs T2 historical lookup).
+2. **Factual historical lookup vs synthesis-heavy / fresh data.** Where does Tavily lead? Where does it trail competitors?
+3. **Concrete strengths and gaps** with cross-benchmark numbers (Tavily pro vs the best non-Tavily; mini vs pro internal gap).
+
+Output discipline:
+- One `headline`, max 25 words, one sentence.
+- 4–5 `points`. Each `claim` ≤ 2 sentences. Each `evidence` ≤ 1 line, must contain concrete numbers and reference 2+ benchmarks when the pattern recurs.
+- Use `kind`: `strength` (Tavily clearly leads), `gap` (Tavily clearly trails), `theme` (recurring cross-benchmark pattern, neutral or mixed).
+- Pull numbers verbatim from `overall` and `latest_insight.insights[*].evidence`. Do not invent stats.
+- Tone: senior PM writing to peers. Direct, no hedging, no filler, no preamble or sign-off.
+- Skip latency/infra unless materially load-bearing for the positioning story.
+
+Return record_overview. Nothing else."""
+
+OVERVIEW_TOOL = {
+    "name": "record_overview",
+    "description": "Record a cross-benchmark synthesis of Tavily's deep-research position.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "headline": {
+                "type": "string",
+                "description": "One sentence, ≤ 25 words, stating Tavily's overall deep-research position across the benchmarks.",
+            },
+            "points": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 6,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "claim": {
+                            "type": "string",
+                            "description": "Cross-benchmark observation, ≤ 2 sentences.",
+                        },
+                        "evidence": {
+                            "type": "string",
+                            "description": "Concrete numbers tied to ≥ 2 benchmarks when the pattern recurs. One line.",
+                        },
+                        "kind": {
+                            "type": "string",
+                            "enum": ["strength", "gap", "theme"],
+                        },
+                    },
+                    "required": ["claim", "evidence", "kind"],
+                },
+            },
+        },
+        "required": ["headline", "points"],
+    },
+}
+
+
+def generate_overview(
+    api_key: Optional[str] = None,
+    synthesis_model: str = SYNTHESIS_MODEL,
+) -> dict:
+    """Read the latest per-benchmark insight + overall accuracy table for
+    every registered benchmark at seed=None, then ask Sonnet for a tight
+    cross-benchmark synthesis. Persists with `benchmark=__overview__`."""
+    api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise InsightsError("ANTHROPIC_API_KEY missing — set it in .env.")
+
+    benchmark_blocks: list[dict] = []
+    missing: list[str] = []
+    for bench in BENCHMARK_PAYLOADS:
+        latest = storage.get_latest_insight(bench, None)
+        if not latest:
+            missing.append(bench)
+            continue
+        try:
+            content = json.loads(latest["content_json"])
+        except Exception:
+            missing.append(bench)
+            continue
+        # Drop _meta to keep payload tight; the synthesis model only needs
+        # the headline + insights + overall.
+        content.pop("_meta", None)
+        matrix = _drop_low_n(_matrix(bench, None))
+        benchmark_blocks.append({
+            "benchmark": bench,
+            "latest_insight": content,
+            "overall": _overall_table(matrix),
+            "source_generated_at": latest.get("generated_at"),
+        })
+
+    if not benchmark_blocks:
+        raise InsightsError(
+            "No per-benchmark insights exist yet. Generate one for each "
+            "benchmark first, then come back to the overview."
+        )
+
+    client = Anthropic(api_key=api_key)
+    user_msg = (
+        "Here are the latest per-benchmark insights and overall accuracy "
+        "tables.\n\n"
+        f"```json\n{json.dumps(benchmark_blocks, ensure_ascii=False)}\n```\n\n"
+        "Return record_overview."
+    )
+    msg = client.messages.create(
+        model=synthesis_model,
+        max_tokens=2048,
+        system=OVERVIEW_SYSTEM,
+        tools=[OVERVIEW_TOOL],
+        tool_choice={"type": "tool", "name": "record_overview"},
+        messages=[{"role": "user", "content": user_msg}],
+    )
+    for block in msg.content:
+        if getattr(block, "type", None) == "tool_use" and \
+                block.name == "record_overview":
+            content = dict(block.input)
+            content["_meta"] = {
+                "benchmarks_covered": [b["benchmark"] for b in benchmark_blocks],
+                "benchmarks_missing_insight": missing,
+                "synthesis_model": synthesis_model,
+                "tokens": {
+                    "input": getattr(msg.usage, "input_tokens", None),
+                    "output": getattr(msg.usage, "output_tokens", None),
+                },
+            }
+            storage.save_insight(
+                benchmark=OVERVIEW_BENCHMARK_KEY,
+                seed=None,
+                model=synthesis_model,
+                prompt_version=OVERVIEW_PROMPT_VERSION,
+                content=content,
+            )
+            return content
+    raise InsightsError(f"Overview model did not return tool call. Raw: {msg}")
 
 
 def generate(

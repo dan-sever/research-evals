@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider perplexity --benchmark sealqa_seal0 --model sonar-reasoning-pro --workers 5 --judge-model claude-haiku-4-5 --q-indices 3,4,5,6,7,8 --comparison-set 816d74c1-de5c-4504-bbb2-42c133c33aa5
-Run 102: provider=perplexity model=sonar-reasoning-pro | sealqa_seal0 | n=6 | workers=5
-perplexity:sonar-reasoning-pro:   0%|          | 0/6 [00:00<?, ?it/s]perplexity:sonar-reasoning-pro:  17%|█▋        | 1/6 [00:05<00:27,  5.52s/it]perplexity:sonar-reasoning-pro:  33%|███▎      | 2/6 [00:07<00:12,  3.21s/it]perplexity:sonar-reasoning-pro:  50%|█████     | 3/6 [00:12<00:12,  4.23s/it]perplexity:sonar-reasoning-pro:  67%|██████▋   | 4/6 [00:15<00:07,  3.55s/it]perplexity:sonar-reasoning-pro:  83%|████████▎ | 5/6 [00:20<00:04,  4.10s/it]perplexity:sonar-reasoning-pro: 100%|██████████| 6/6 [00:31<00:00,  6.41s/it]perplexity:sonar-reasoning-pro: 100%|██████████| 6/6 [00:31<00:00,  5.17s/it]
-
-Run 102 done (perplexity/sonar-reasoning-pro). Correct 2/6 (33.3%).

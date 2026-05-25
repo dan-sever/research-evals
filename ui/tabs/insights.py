@@ -24,6 +24,12 @@ KIND_BADGE = {
     "infra": ("🟡", "infra"),
 }
 
+OVERVIEW_KIND_BADGE = {
+    "strength": ("🟢", "strength"),
+    "gap": ("🔴", "gap"),
+    "theme": ("🔵", "theme"),
+}
+
 
 def _format_local(iso: str) -> str:
     try:
@@ -76,6 +82,79 @@ def _render_history_diff(rows: list[Optional[dict]]) -> None:
             _render_content(content)
 
 
+def _render_overview_content(content: dict) -> None:
+    headline = content.get("headline") or "(no headline)"
+    st.markdown(f"#### {headline}")
+    for i, pt in enumerate(content.get("points", []), 1):
+        emoji, _ = OVERVIEW_KIND_BADGE.get(pt.get("kind", "theme"), ("•", ""))
+        claim = pt.get("claim", "").strip()
+        evidence = pt.get("evidence", "").strip()
+        st.markdown(f"{emoji} **{claim}**")
+        if evidence:
+            st.markdown(f"<small>{evidence}</small>", unsafe_allow_html=True)
+    meta = content.get("_meta") or {}
+    covered = meta.get("benchmarks_covered") or []
+    missing = meta.get("benchmarks_missing_insight") or []
+    parts = []
+    if covered:
+        parts.append(f"synthesized from: {', '.join(covered)}")
+    if missing:
+        parts.append(
+            f"no per-benchmark insight yet for: {', '.join(missing)} — "
+            "generate those for a fuller picture"
+        )
+    if parts:
+        st.caption(" · ".join(parts))
+
+
+def _render_overview_section() -> None:
+    latest = storage.get_latest_insight(
+        insights_mod.OVERVIEW_BENCHMARK_KEY, None,
+    )
+    cols = st.columns([3, 1])
+    with cols[0]:
+        if latest:
+            st.caption(
+                f"Last synthesized {_format_local(latest['generated_at'])}  ·  "
+                f"model: `{latest['model']}`  ·  "
+                f"prompt: `{latest['prompt_version']}`"
+            )
+        else:
+            st.caption(
+                "No overview yet. Generate per-benchmark insights below first, "
+                "then click **Synthesize**."
+            )
+    with cols[1]:
+        regenerate = st.button(
+            "Synthesize", type="primary", key="insights_overview_regen",
+            width="stretch",
+        )
+
+    if regenerate:
+        with st.spinner("Synthesizing across benchmarks..."):
+            try:
+                insights_mod.generate_overview()
+                st.success("Done.")
+                latest = storage.get_latest_insight(
+                    insights_mod.OVERVIEW_BENCHMARK_KEY, None,
+                )
+            except insights_mod.InsightsError as e:
+                st.error(str(e))
+                return
+            except Exception as e:
+                st.error(f"Unexpected error: {e}")
+                return
+
+    if not latest:
+        return
+    try:
+        content = json.loads(latest["content_json"])
+    except Exception:
+        st.error("Stored overview is not valid JSON.")
+        return
+    _render_overview_content(content)
+
+
 def _seed_picker(benchmark: str) -> Optional[int]:
     status_rows = ui_cache.question_status(benchmark)
     seeds = sorted({s["seed"] for s in status_rows},
@@ -106,6 +185,14 @@ def render() -> None:
         "accuracy tables + ~30 wrong-answer examples and surfaces "
         "dimension combinations where Tavily systematically wins or loses."
     )
+
+    # Cross-benchmark synthesis sits above the per-benchmark picker so the
+    # PM-level summary is the first thing visible. It reads the latest
+    # per-benchmark insight at seed=None for every registered benchmark.
+    st.markdown("### Overview across benchmarks")
+    _render_overview_section()
+    st.divider()
+    st.markdown("### Per-benchmark deep dive")
 
     benchmarks = [
         "finsearchcomp", "sealqa_seal0", "sealqa_seal_hard", "sealqa_longseal",

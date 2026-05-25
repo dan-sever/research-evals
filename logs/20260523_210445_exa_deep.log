@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark sealqa_seal0 --model deep --workers 5 --judge-model claude-haiku-4-5 --q-indices 64,67,71,76,79,80,84
-Run 115: provider=exa model=deep | sealqa_seal0 | n=7 | workers=5
-exa:deep:   0%|          | 0/7 [00:00<?, ?it/s]exa:deep:  14%|█▍        | 1/7 [00:05<00:31,  5.25s/it]exa:deep:  43%|████▎     | 3/7 [00:06<00:06,  1.65s/it]exa:deep:  57%|█████▋    | 4/7 [00:08<00:05,  1.85s/it]exa:deep:  71%|███████▏  | 5/7 [00:09<00:03,  1.63s/it]exa:deep:  86%|████████▌ | 6/7 [00:10<00:01,  1.40s/it]exa:deep: 100%|██████████| 7/7 [00:20<00:00,  4.02s/it]exa:deep: 100%|██████████| 7/7 [00:20<00:00,  2.87s/it]
-
-Run 115 done (exa/deep). Correct 1/7 (14.3%).

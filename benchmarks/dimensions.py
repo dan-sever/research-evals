@@ -66,14 +66,22 @@ def finsearchcomp_dims(seed: Optional[int]) -> pd.DataFrame:
 
 def sealqa_tags(benchmark: str) -> pd.DataFrame:
     """Taxonomy CSV at docs/tags/{benchmark}.csv. Anchored to the parquet's
-    natural order. Currently only sealqa_seal0 ships one; the other seal
-    variants return empty so callers gracefully omit taxonomy slices."""
+    natural order. Currently sealqa_seal0 ships a full CSV; deepsearchqa
+    ships a partial CSV covering the questions that have been answered
+    (regenerate with `python tools/classify_questions.py deepsearchqa`).
+    Benchmarks without a CSV return empty so callers gracefully omit
+    taxonomy slices."""
     path = TAGS_DIR / f"{benchmark}.csv"
     if not path.exists():
         return pd.DataFrame(columns=["q_index", "reasoning", "retrieval", "notes"])
     df = pd.read_csv(path)
     keep = [c for c in ("q_index", "reasoning", "retrieval", "notes") if c in df.columns]
     return df[keep].copy()
+
+
+# Generic alias — sealqa_tags is already benchmark-parameterized; the name
+# stuck because sealqa was the first user. New callers should prefer this.
+taxonomy_tags = sealqa_tags
 
 
 def sealqa_native_dims(benchmark: str, seed: Optional[int]) -> pd.DataFrame:

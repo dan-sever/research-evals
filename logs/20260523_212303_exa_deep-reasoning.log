@@ -1,5 +1,0 @@
-$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa --benchmark sealqa_seal0 --model deep-reasoning --workers 5 --judge-model claude-haiku-4-5 --q-indices 12,66,99
-Run 119: provider=exa model=deep-reasoning | sealqa_seal0 | n=3 | workers=5
-exa:deep-reasoning:   0%|          | 0/3 [00:00<?, ?it/s]exa:deep-reasoning:  33%|███▎      | 1/3 [00:07<00:15,  7.83s/it]exa:deep-reasoning:  67%|██████▋   | 2/3 [00:16<00:08,  8.51s/it]exa:deep-reasoning: 100%|██████████| 3/3 [01:20<00:00, 33.75s/it]exa:deep-reasoning: 100%|██████████| 3/3 [01:20<00:00, 26.87s/it]
-
-Run 119 done (exa/deep-reasoning). Correct 2/3 (66.7%).
