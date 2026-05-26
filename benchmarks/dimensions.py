@@ -66,16 +66,23 @@ def finsearchcomp_dims(seed: Optional[int]) -> pd.DataFrame:
 
 def sealqa_tags(benchmark: str) -> pd.DataFrame:
     """Taxonomy CSV at docs/tags/{benchmark}.csv. Anchored to the parquet's
-    natural order. Currently sealqa_seal0 ships a full CSV; deepsearchqa
-    ships a partial CSV covering the questions that have been answered
-    (regenerate with `python tools/classify_questions.py deepsearchqa`).
-    Benchmarks without a CSV return empty so callers gracefully omit
-    taxonomy slices."""
+    natural order. SealQA / DeepSearchQA carry `reasoning` + `retrieval`
+    (Schemes A & B); finance benchmarks (`financebench`, `financeqa`) carry
+    `query_type` (Scheme C). All columns are optional — callers pick which
+    dimension to slice on. Benchmarks without a CSV return empty so callers
+    gracefully omit taxonomy slices.
+
+    Regenerate the finance CSVs via
+        python tools/classify_finance_questions.py {financebench|financeqa}
+    and SealQA-style CSVs via
+        python tools/classify_questions.py {benchmark}.
+    """
     path = TAGS_DIR / f"{benchmark}.csv"
+    candidate = ("q_index", "reasoning", "retrieval", "query_type", "notes")
     if not path.exists():
-        return pd.DataFrame(columns=["q_index", "reasoning", "retrieval", "notes"])
+        return pd.DataFrame(columns=list(candidate))
     df = pd.read_csv(path)
-    keep = [c for c in ("q_index", "reasoning", "retrieval", "notes") if c in df.columns]
+    keep = [c for c in candidate if c in df.columns]
     return df[keep].copy()
 
 
@@ -110,6 +117,34 @@ def sealqa_native_dims(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
 
 
 # --- DeepSearchQA dims ------------------------------------------------------
+
+def finance_native_dims(benchmark: str, seed: Optional[int]) -> pd.DataFrame:
+    """q_index -> finance-native columns at the given seed.
+
+    Pulls the columns that each finance parquet ships with:
+      - financebench: question_type, question_reasoning, gics_sector, doc_type, doc_period, company
+      - financeqa:    question_type, company
+
+    Missing columns are silently skipped so the helper is robust to either
+    benchmark. Same shape as `sealqa_native_dims` — `q_index` plus whatever
+    extras the parquet carries — so callers can pass it straight to
+    `dc.slice_accuracy(matrix, native, col, ...)`.
+    """
+    spec = datasets.REGISTRY[benchmark]
+    df = pd.read_parquet(datasets.DATA_DIR / spec.parquet)
+    if seed is not None:
+        df = df.sample(frac=1, random_state=seed).reset_index(drop=True)
+    df = df.reset_index(drop=False).rename(columns={"index": "q_index"})
+    keep = ["q_index"]
+    for c in (
+        "question_type", "question_reasoning", "gics_sector",
+        "doc_type", "doc_period", "company",
+    ):
+        if c in df.columns:
+            df[c] = df[c].astype(str)
+            keep.append(c)
+    return df[keep].copy()
+
 
 def deepsearchqa_native_dims(seed: Optional[int]) -> pd.DataFrame:
     """q_index -> (problem_category, answer_type) at the given seed.

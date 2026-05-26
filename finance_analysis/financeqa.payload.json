@@ -1,0 +1,2915 @@
+{
+  "benchmark": "financeqa",
+  "n_questions": 70,
+  "overall": [
+    {
+      "provider_label": "exa_search:auto",
+      "n_total": 70,
+      "n_graded": 70,
+      "correct": 17,
+      "accuracy_pct": 24.3,
+      "n_errored": 0,
+      "p50_latency_s": 4.5,
+      "p95_latency_s": 6.6
+    },
+    {
+      "provider_label": "tavily_search:advanced",
+      "n_total": 70,
+      "n_graded": 70,
+      "correct": 17,
+      "accuracy_pct": 24.3,
+      "n_errored": 0,
+      "p50_latency_s": 5.6,
+      "p95_latency_s": 7.9
+    },
+    {
+      "provider_label": "tavily_search:basic",
+      "n_total": 70,
+      "n_graded": 70,
+      "correct": 10,
+      "accuracy_pct": 14.3,
+      "n_errored": 0,
+      "p50_latency_s": 3.4,
+      "p95_latency_s": 5.0
+    }
+  ],
+  "by_question_type": [
+    {
+      "dim": "question_type",
+      "value": "assumption",
+      "provider_label": "exa_search:auto",
+      "n": 25,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "question_type",
+      "value": "assumption",
+      "provider_label": "tavily_search:advanced",
+      "n": 25,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "question_type",
+      "value": "assumption",
+      "provider_label": "tavily_search:basic",
+      "n": 25,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "question_type",
+      "value": "basic",
+      "provider_label": "exa_search:auto",
+      "n": 31,
+      "correct": 8,
+      "accuracy_pct": 25.8
+    },
+    {
+      "dim": "question_type",
+      "value": "basic",
+      "provider_label": "tavily_search:advanced",
+      "n": 31,
+      "correct": 8,
+      "accuracy_pct": 25.8
+    },
+    {
+      "dim": "question_type",
+      "value": "basic",
+      "provider_label": "tavily_search:basic",
+      "n": 31,
+      "correct": 4,
+      "accuracy_pct": 12.9
+    },
+    {
+      "dim": "question_type",
+      "value": "conceptual",
+      "provider_label": "exa_search:auto",
+      "n": 14,
+      "correct": 9,
+      "accuracy_pct": 64.3
+    },
+    {
+      "dim": "question_type",
+      "value": "conceptual",
+      "provider_label": "tavily_search:advanced",
+      "n": 14,
+      "correct": 9,
+      "accuracy_pct": 64.3
+    },
+    {
+      "dim": "question_type",
+      "value": "conceptual",
+      "provider_label": "tavily_search:basic",
+      "n": 14,
+      "correct": 6,
+      "accuracy_pct": 42.9
+    }
+  ],
+  "by_company": [
+    {
+      "dim": "company",
+      "value": "Costco",
+      "provider_label": "exa_search:auto",
+      "n": 56,
+      "correct": 8,
+      "accuracy_pct": 14.3
+    },
+    {
+      "dim": "company",
+      "value": "Costco",
+      "provider_label": "tavily_search:advanced",
+      "n": 56,
+      "correct": 8,
+      "accuracy_pct": 14.3
+    },
+    {
+      "dim": "company",
+      "value": "Costco",
+      "provider_label": "tavily_search:basic",
+      "n": 56,
+      "correct": 4,
+      "accuracy_pct": 7.1
+    }
+  ],
+  "by_query_type": [
+    {
+      "dim": "query_type",
+      "value": "calculation",
+      "provider_label": "exa_search:auto",
+      "n": 49,
+      "correct": 9,
+      "accuracy_pct": 18.4
+    },
+    {
+      "dim": "query_type",
+      "value": "calculation",
+      "provider_label": "tavily_search:advanced",
+      "n": 49,
+      "correct": 8,
+      "accuracy_pct": 16.3
+    },
+    {
+      "dim": "query_type",
+      "value": "calculation",
+      "provider_label": "tavily_search:basic",
+      "n": 49,
+      "correct": 7,
+      "accuracy_pct": 14.3
+    },
+    {
+      "dim": "query_type",
+      "value": "comparative",
+      "provider_label": "exa_search:auto",
+      "n": 2,
+      "correct": 1,
+      "accuracy_pct": 50.0
+    },
+    {
+      "dim": "query_type",
+      "value": "comparative",
+      "provider_label": "tavily_search:advanced",
+      "n": 2,
+      "correct": 1,
+      "accuracy_pct": 50.0
+    },
+    {
+      "dim": "query_type",
+      "value": "comparative",
+      "provider_label": "tavily_search:basic",
+      "n": 2,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "query_type",
+      "value": "conceptual",
+      "provider_label": "exa_search:auto",
+      "n": 7,
+      "correct": 4,
+      "accuracy_pct": 57.1
+    },
+    {
+      "dim": "query_type",
+      "value": "conceptual",
+      "provider_label": "tavily_search:advanced",
+      "n": 7,
+      "correct": 4,
+      "accuracy_pct": 57.1
+    },
+    {
+      "dim": "query_type",
+      "value": "conceptual",
+      "provider_label": "tavily_search:basic",
+      "n": 7,
+      "correct": 2,
+      "accuracy_pct": 28.6
+    },
+    {
+      "dim": "query_type",
+      "value": "direct-lookup",
+      "provider_label": "exa_search:auto",
+      "n": 12,
+      "correct": 3,
+      "accuracy_pct": 25.0
+    },
+    {
+      "dim": "query_type",
+      "value": "direct-lookup",
+      "provider_label": "tavily_search:advanced",
+      "n": 12,
+      "correct": 4,
+      "accuracy_pct": 33.3
+    },
+    {
+      "dim": "query_type",
+      "value": "direct-lookup",
+      "provider_label": "tavily_search:basic",
+      "n": 12,
+      "correct": 1,
+      "accuracy_pct": 8.3
+    }
+  ],
+  "by_notes": [
+    {
+      "dim": "notes",
+      "value": "2% of revenue or cash, whichever minimum",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "2% of revenue or cash, whichever minimum",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "2% of revenue or cash, whichever minimum",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Asset turnover ratio requires revenue and total assets math",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Asset turnover ratio requires revenue and total assets math",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Asset turnover ratio requires revenue and total assets math",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Asset write-down three-statement tax impact treatment",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Asset write-down three-statement tax impact treatment",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Asset write-down three-statement tax impact treatment",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "COGS divided by average inventory",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "COGS divided by average inventory",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "COGS divided by average inventory",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Change in lease assets 2023-2024",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Change in lease assets 2023-2024",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Change in lease assets 2023-2024",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Change in net operating LT 2023-2024",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Change in net operating LT 2023-2024",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Change in net operating LT 2023-2024",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Classify operating long-term liabilities",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Classify operating long-term liabilities",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Classify operating long-term liabilities",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Classify operating vs non-operating LT assets",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Classify operating vs non-operating LT assets",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Classify operating vs non-operating LT assets",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Debt over total firm value",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Debt over total firm value",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Debt over total firm value",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Debt tranche pricing when total debt exceeds enterprise value",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Debt tranche pricing when total debt exceeds enterprise value",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Debt tranche pricing when total debt exceeds enterprise value",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Depreciation increase three-statement tax shield effect",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Depreciation increase three-statement tax shield effect",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Depreciation increase three-statement tax shield effect",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "EBIT divided by interest expense",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "EBIT divided by interest expense",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "EBIT divided by interest expense",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "EBITDA margin implied from revenue and EBITDA multiples",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "EBITDA margin implied from revenue and EBITDA multiples",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "EBITDA margin implied from revenue and EBITDA multiples",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise Value over adjusted EBITDA",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise Value over adjusted EBITDA",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise Value over adjusted EBITDA",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise value impact from cash dividend payment judgment",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise value impact from cash dividend payment judgment",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise value impact from cash dividend payment judgment",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise value impact of equity raise then dividend distribution",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise value impact of equity raise then dividend distribution",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Enterprise value impact of equity raise then dividend distribution",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 ROU lease asset estimate",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 ROU lease asset estimate",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 ROU lease asset estimate",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 invested capital with goodwill",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 invested capital with goodwill",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 invested capital with goodwill",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 operating LT assets net liabilities",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 operating LT assets net liabilities",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2023 operating LT assets net liabilities",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 ROU lease asset estimate",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 ROU lease asset estimate",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 ROU lease asset estimate",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 adjusted EBIT from reconciliation",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 adjusted EBIT from reconciliation",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 adjusted EBIT from reconciliation",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 adjusted EBITDA stated or reconciled",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 adjusted EBITDA stated or reconciled",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 adjusted EBITDA stated or reconciled",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 cash balance sheet extract",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 cash balance sheet extract",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 cash balance sheet extract",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 customer retention rate disclosure",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 customer retention rate disclosure",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 customer retention rate disclosure",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 interest expense from P&L",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 interest expense from P&L",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 interest expense from P&L",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 member churn number reported",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 member churn number reported",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 member churn number reported",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 new members joined count",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 new members joined count",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 new members joined count",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 operating lease liability",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 operating lease liability",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 operating lease liability",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 shareholders equity from balance",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 shareholders equity from balance",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 shareholders equity from balance",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 unadjusted EBITDA stated in report",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 unadjusted EBITDA stated in report",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "FY2024 unadjusted EBITDA stated in report",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Geographic segmentation comparison of same metric across regions",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Geographic segmentation comparison of same metric across regions",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Geographic segmentation comparison of same metric across regions",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "LBO MOIC IRR LFCF yield with flat EBITDA and capex",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "LBO MOIC IRR LFCF yield with flat EBITDA and capex",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "LBO MOIC IRR LFCF yield with flat EBITDA and capex",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Levered beta adjusted for capital structure",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Levered beta adjusted for capital structure",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Levered beta adjusted for capital structure",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Market equity plus net debt calculation",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Market equity plus net debt calculation",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Market equity plus net debt calculation",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Market value debt to equity ratio",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Market value debt to equity ratio",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Market value debt to equity ratio",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Membership pricing to match current contribution profit level",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Membership pricing to match current contribution profit level",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Membership pricing to match current contribution profit level",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net Income divided by fully diluted shares",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net Income divided by fully diluted shares",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net Income divided by fully diluted shares",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income difference from interest expense tax shield effect",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income difference from interest expense tax shield effect",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income difference from interest expense tax shield effect",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income divided by average equity",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income divided by average equity",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income divided by average equity",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income divided by average total assets",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income divided by average total assets",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Net income divided by average total assets",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "OWC 2024 minus OWC 2023 delta",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "OWC 2024 minus OWC 2023 delta",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "OWC 2024 minus OWC 2023 delta",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Op margin 2024 vs 2023 period comparison",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Op margin 2024 vs 2023 period comparison",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Op margin 2024 vs 2023 period comparison",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating DTA net of DTL balance",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating DTA net of DTL balance",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating DTA net of DTL balance",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating DTA net of DTL prior year",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating DTA net of DTL prior year",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating DTA net of DTL prior year",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating Profit from revenue and COGS",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating Profit from revenue and COGS",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating Profit from revenue and COGS",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating Profit margin as ratio of revenue",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating Profit margin as ratio of revenue",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating Profit margin as ratio of revenue",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating assets less current liabilities",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating assets less current liabilities",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating assets less current liabilities",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating current assets minus liabilities",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating current assets minus liabilities",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating current assets minus liabilities",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating income after tax adjustments",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating income after tax adjustments",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating income after tax adjustments",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating profit change with volume increase fixed variable split",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating profit change with volume increase fixed variable split",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Operating profit change with volume increase fixed variable split",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Other LT assets unaccounted for line",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Other LT assets unaccounted for line",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Other LT assets unaccounted for line",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "P/E multiple change post-leveraged share buyback impact",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "P/E multiple change post-leveraged share buyback impact",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "P/E multiple change post-leveraged share buyback impact",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Present value discounting of future cash flow",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Present value discounting of future cash flow",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Present value discounting of future cash flow",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Receivables divided by daily revenue",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Receivables divided by daily revenue",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Receivables divided by daily revenue",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Revenue divided by user count",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Revenue divided by user count",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Revenue divided by user count",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Risk-free rate plus beta times market premium",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Risk-free rate plus beta times market premium",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Risk-free rate plus beta times market premium",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Sales per square foot requires dividing sales by total square footage",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Sales per square foot requires dividing sales by total square footage",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Sales per square foot requires dividing sales by total square footage",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Sales per store metric requires dividing total sales by store count",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Sales per store metric requires dividing total sales by store count",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Sales per store metric requires dividing total sales by store count",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Same-store sales growth metric disclosure",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Same-store sales growth metric disclosure",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Same-store sales growth metric disclosure",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Segment revenue per store geography",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Segment revenue per store geography",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Segment revenue per store geography",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Statutory tax rate from tax footnote",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Statutory tax rate from tax footnote",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Statutory tax rate from tax footnote",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Stock price divided by Basic EPS",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Stock price divided by Basic EPS",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Stock price divided by Basic EPS",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Stock price divided by Diluted EPS",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Stock price divided by Diluted EPS",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Stock price divided by Diluted EPS",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Tax expense over pre-tax income",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Tax expense over pre-tax income",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Tax expense over pre-tax income",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Three-statement impact asset purchase cash transaction",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Three-statement impact asset purchase cash transaction",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Three-statement impact asset purchase cash transaction",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "Total cash minus operating cash reserve",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Total cash minus operating cash reserve",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Total cash minus operating cash reserve",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Total debt minus cash and equivalents",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Total debt minus cash and equivalents",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Total debt minus cash and equivalents",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "WACC cost of capital relationship with debt level judgment",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "WACC cost of capital relationship with debt level judgment",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "WACC cost of capital relationship with debt level judgment",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Weighted average cost of debt and equity",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Weighted average cost of debt and equity",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "Weighted average cost of debt and equity",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "unadjusted EBITDA divided by revenue",
+      "provider_label": "exa_search:auto",
+      "n": 1,
+      "correct": 1,
+      "accuracy_pct": 100.0
+    },
+    {
+      "dim": "notes",
+      "value": "unadjusted EBITDA divided by revenue",
+      "provider_label": "tavily_search:advanced",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    {
+      "dim": "notes",
+      "value": "unadjusted EBITDA divided by revenue",
+      "provider_label": "tavily_search:basic",
+      "n": 1,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    }
+  ],
+  "losses": [
+    {
+      "q_index": 5,
+      "question": "Compute the unadjusted EBITDA Margin for 2024. ",
+      "expected_answer": "4.53%",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "4.53%",
+          "research_content_excerpt": "Based on the search results, Costco's unadjusted EBITDA Margin for fiscal year 2024 (ending September 1, 2024) was **4.53%** [1]. This can be calculated from the data showing 2024 EBITDA of $11.522 billion [8] divided by total revenue of $254.453 billion [1][3].",
+          "judge_reasoning": "The agent extracted 4.53% for Costco's unadjusted EBITDA Margin for 2024, which matches the expected answer exactly and is supported by the calculation shown ($11.522B EBITDA / $254.453B revenue)."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "4.5%",
+          "research_content_excerpt": "Based on the provided search results, Costco's unadjusted EBITDA Margin for 2024 was **4.5%** [2]. This represents an increase of 3.7% compared to the previous year [2].",
+          "judge_reasoning": "The agent extracted 4.5%, but the expected answer is 4.53%. While these are very close, they represent different underlying values (4.50% vs 4.53%) and the discrepancy exceeds typical rounding precision differences for …"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "5.49%",
+          "research_content_excerpt": "Based on the provided search results, I can calculate Costco's unadjusted EBITDA margin for fiscal 2024 (ended September 1, 2024):\n\nFrom the data [1] and [3]:\n- Total Revenue for 2024: $254,453 million\n- Operating Income (EBIT): $11,543 million [1]\n- Depreciation and Amortization: $2,426 million [2]\n\n**EBITDA = $11,543 + $2,426 = $13,969 million**\n\n**Unadjusted EBITDA Margin = $13,969 ÷ $254,453 = 5.49%**",
+          "judge_reasoning": "The agent calculated 5.49% but the expected answer is 4.53%, a discrepancy of 96 basis points that indicates either different inputs or calculation methodology were used."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "unadjusted EBITDA divided by revenue",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "calculation_error",
+      "diagnosis": "Tavily basic extracted 4.5% instead of 4.53%, and advanced extracted 5.49% instead of 4.53%. Both diverged from the correct calculation of $11.522B / $254.453B.",
+      "source_type_needed": "FY2024 consolidated income statement and balance sheet: EBITDA line and revenue line"
+    },
+    {
+      "q_index": 7,
+      "question": "What is the Operating Profit Margin in the year ending 2024?",
+      "expected_answer": "3.65%",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "Based on the search results, I cannot find the specific Operating Profit Margin for Costco for the year ending 2024 in the provided excerpts. While result [3] mentions that \"Operating profit margin displayed a general upward trend, rising from 3.33% in 2020 to 3.85% in 2025,\" it does not explicitly state the 2024 figure. The other sources provide revenue and net income data for fiscal 2024 but do not include the calculated operating profit margin percentage.",
+          "judge_reasoning": "The agent's report explicitly states it cannot find the specific Operating Profit Margin for the year ending 2024, so no answer was extracted, but the expected answer is 3.65%."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "3.65%",
+          "research_content_excerpt": "Based on the search results, Costco's Operating Profit Margin for the year ending September 1, 2024 was **3.65%** [2]. This can be calculated from the financial data showing operating income of $9.285 billion on total revenue of $254.453 billion [1].",
+          "judge_reasoning": "The agent extracted 3.65% for the operating profit margin, which matches the expected answer exactly."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "3.65%",
+          "research_content_excerpt": "Based on the search results, Costco's Operating Profit Margin for the year ending 2024 (fiscal year ended September 1, 2024) was approximately **3.65-3.72%**, depending on the source.\n\nMore specifically:\n- [1] reports 3.83% for 2024\n- [2] reports 3.72% for the period ending September 1, 2024\n- [4] states the operating margin is currently 3.65%\n\nThe variation reflects different measurement methodologies, but all sources indicate Costco's 2024 operating profit margin was in the range of **3.65% to 3.83%**.",
+          "judge_reasoning": "The report explicitly cites 3.65% as one of the reported figures from source [4] and aligns with the expected answer of 3.65%."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Operating Profit margin as ratio of revenue",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "missing_filing_access",
+      "diagnosis": "Tavily basic reported 'cannot find' specific Operating Profit Margin for year ending 2024, while EXA and advanced both found 3.65% from available source materials.",
+      "source_type_needed": "FY2024 consolidated income statement: Operating Income line item and revenue"
+    },
+    {
+      "q_index": 8,
+      "question": "Is Operating Profit Margin greater in 2024 compared to 2023?",
+      "expected_answer": "Yes",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "Yes",
+          "research_content_excerpt": "Yes, Costco's Operating Profit Margin was greater in 2024 compared to 2023. According to the data provided, the Operating Margin was 3.83% in 2024 compared to 3.50% in 2023 [1], representing an increase of 0.33 percentage points or 9.28% growth [1].",
+          "judge_reasoning": "The agent clearly states that Operating Profit Margin increased from 3.50% in 2023 to 3.83% in 2024, directly answering \"Yes\" which matches the expected answer."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "Based on the provided search results, I cannot find specific operating profit margin figures for both 2024 and 2023 to make a direct comparison. While [4] provides Costco's fiscal 2024 results (ended September 1, 2024) showing net sales of $249.6 billion and net income of $7.367 billion, it does not explicitly state the operating profit margin for either year. The search results contain general margin data and historical trends, but lack the precise 2024 vs. 2023 operating margin comparison needed to answer this question definitively.",
+          "judge_reasoning": "The agent's report explicitly states it cannot find the specific operating profit margin figures for 2024 and 2023 needed to answer the question, so no definitive answer was provided."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "Yes",
+          "research_content_excerpt": "Yes, Costco's operating profit margin was greater in 2024 compared to 2023. According to the search results, the operating profit margin was 3.65% in 2024 and 3.51% in 2023 [9], representing an increase of approximately 14 basis points year-over-year [5].",
+          "judge_reasoning": "The agent's extracted answer of \"Yes\" directly matches the expected answer. The report provides specific margin data (3.65% in 2024 vs 3.51% in 2023) that supports the affirmative conclusion."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "comparative",
+      "notes": "Op margin 2024 vs 2023 period comparison",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "retrieval_gap",
+      "diagnosis": "Tavily basic stated it 'cannot find the specific operating profit margin figures for 2024 and 2023' needed for comparison, failing to support 'Yes' answer even though data was available.",
+      "source_type_needed": "FY2024 and FY2023 10-K operating income and revenue comparison"
+    },
+    {
+      "q_index": 9,
+      "question": "Calculate Operating Profit for 2024.",
+      "expected_answer": "$9,285 (in millions)",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "$9,285 million",
+          "research_content_excerpt": "# Costco Operating Profit for 2024\n\nCostco's operating income for fiscal year 2024 (ended September 1, 2024) was **$9,285 million ($9.285 billion)** [2][5]. This represented a 14.43% increase from 2023's operating income of $8.114 billion [5].",
+          "judge_reasoning": "The agent extracted Costco's operating income for fiscal year 2024 as $9,285 million, which exactly matches the expected answer."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "$9,285 million",
+          "research_content_excerpt": "# Costco Operating Profit for 2024\n\nCostco's **Operating Income for fiscal year 2024 (52 weeks ended September 1, 2024) was $9.285 billion**, representing a 14.5% increase from $8.114 billion in fiscal year 2023 [2][8].\n\nThis operating income was calculated as Total Revenue of $254.453 billion minus Merchandise Costs of $222.358 billion and Selling, General and Administrative expenses of $22.810 billion [2].",
+          "judge_reasoning": "The report states Costco's Operating Income for fiscal year 2024 was $9.285 billion, which equals $9,285 million, matching the expected answer exactly."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The provided search excerpts do not contain Costco's specific Operating Profit figure for fiscal year 2024. While excerpt [1] reports that Costco had net sales of $249.6 billion and net income of $7.367 billion for the 52-week fiscal year ended September 1, 2024, the operating profit itself is not stated in these results. To obtain this figure, you would need to consult Costco's complete financial statements or SEC filings.",
+          "judge_reasoning": "The agent's report explicitly states that the operating profit figure was not found in the search excerpts and declines to provide an answer, while the expected answer is $9,285 million."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Operating Profit from revenue and COGS",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "missing_filing_access",
+      "diagnosis": "Tavily basic 'explicitly states that the operating profit figure was not found in the search excerpts' and declined to answer, while competitors extracted $9,285 million correctly.",
+      "source_type_needed": "FY2024 consolidated income statement: Operating Income line"
+    },
+    {
+      "q_index": 66,
+      "question": "What is the Customer (Logo) Retention Rate in 2024?",
+      "expected_answer": "90.50%",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "90.5% globally",
+          "research_content_excerpt": "Based on the search results, Costco's customer retention rate (membership renewal rate) in 2024 was **92.9% in the U.S. and Canada, and 90.5% globally** [1][2]. These rates represent exceptionally strong customer loyalty, with the company maintaining this high retention despite raising membership prices for the first time in seven years [3].",
+          "judge_reasoning": "The report explicitly states the global customer retention rate for 2024 was 90.5%, which matches the expected answer of 90.50%."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "90.5%",
+          "research_content_excerpt": "Based on the provided search results, Costco's **membership renewal rate in 2024 was approximately 90%** in the U.S. and Canada, with a global renewal rate of 90.5% [3]. More specifically, according to Costco's fiscal 2024 annual report, the company reported strong membership retention metrics, though the exact 2024 figure cited is around 90% [1][6].\n\nNote: The search results discuss *membership renewal rates* rather than a traditional \"customer logo retention rate\" as used in SaaS metrics, since Costco operates on a membership-based model rather than a subscription software business.",
+          "judge_reasoning": "The agent extracted 90.5% as the global retention/renewal rate from Costco's 2024 data, which matches the expected answer of 90.50% exactly."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "92.3%",
+          "research_content_excerpt": "Based on the search results, Costco's membership renewal rate (which is the closest metric to \"Customer Retention Rate\") in 2024 is **92.3% in the US and Canada, and 89.8% worldwide** [8]. Additionally, sources indicate that **91% of Executive members renew their memberships annually** [9], and overall membership renewal rates exceed **92%** [6].\n\nNote: The search results do not contain a specific metric called \"Logo Retention Rate\" for Costco in 2024—that term is typically used for SaaS businesses [5].",
+          "judge_reasoning": "The agent reported 92.3% for US/Canada membership renewal rate, but the expected answer is 90.50%, which don't match. The agent also noted the terminology mismatch (Logo Retention Rate vs membership renewal) but didn't …"
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "direct-lookup",
+      "notes": "FY2024 customer retention rate disclosure",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "wrong_metric_definition",
+      "diagnosis": "Tavily basic reported 92.3% (US/Canada membership renewal rate) instead of 90.50% (global customer retention rate). Agent noted terminology mismatch but selected wrong metric anyway.",
+      "source_type_needed": "FY2024 10-K disclosure: global customer retention or renewal rate metric"
+    },
+    {
+      "q_index": 69,
+      "question": "What was Costco Sames Store Sales growth?",
+      "expected_answer": "5%",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "5.2% to 6.8%",
+          "research_content_excerpt": "# Costco Same Store Sales Growth\n\nCostco's comparable sales (same store sales) growth varied by period in 2026:\n\n- **April 2026**: 11.6% total comparable sales growth for the 4-week period [5]\n- **Q2 2026 (12 weeks ended February 15, 2026)**: 7.9% comparable sales growth for the total company [8]\n- **Year-to-date (35 weeks)**: 6.8% comparable sales growth (adjusted) through early May 2026 [10]\n\nWhen excluding fuel and foreign exchange impacts, the adjusted comparable sales growth was lower—ranging from 5.2% to 6.8% depending on the period [8].",
+          "judge_reasoning": "The report shows adjusted comparable sales growth ranging from 5.2% to 6.8%, which encompasses the expected answer of 5%. The 5% falls within this reported range as a reasonable rounded figure or specific period measure…"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "5.9% (U.S.) / 7.4% (total) / 5.8% (fiscal 2025)",
+          "research_content_excerpt": "Costco's same-store sales growth has varied by period:\n\n- **Q2 Fiscal 2026**: 7% same-store sales growth [1]\n- **Most recent quarter (fiscal 2026 Q2)**: Total comparable sales grew 7.4%, with U.S. comparable sales at 5.9%, Canada at 10.1%, and international at 13% [3]\n- **Fiscal 2025 full year**: Total company comparable sales were 5.8% for the 48-week period [6]\n\nThe most recent data shows comparable sales growth of approximately 6.4-7.4% depending on whether adjustments for gasoline prices and foreign exchange are included [2][5].",
+          "judge_reasoning": "The report shows U.S. comparable sales at 5.9%, which closely matches the expected answer of 5%. The slight difference could be due to rounding or different measurement periods, but the underlying value is essentially c…"
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "7%",
+          "research_content_excerpt": "# Costco Same Store Sales Growth\n\nBased on the search results, Costco's same store sales growth varies by reporting period:\n\n- **Q2 2026**: 7% same store sales growth [1]\n- **Q2 (another period)**: 6.8% compared to expected 6.4% [2]\n- **Fourth Quarter**: 6.4% same store sales growth [3]\n\nThe most recent complete figure cited is **7% for Q2 2026** [1].",
+          "judge_reasoning": "The agent extracted 7% (Q2 2026) as the most recent figure, but the expected answer is 5%, which doesn't match any of the reported figures (7%, 6.8%, 6.4%). The question lacks temporal specificity, making it ambiguous w…"
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "direct-lookup",
+      "notes": "Same-store sales growth metric disclosure",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "ambiguous_question",
+      "diagnosis": "Tavily basic extracted 7% (Q2 2026) but expected answer is 5%. Absence of temporal specificity in question led agent to pick most recent quarter (7%, 6.8%, 6.4%) rather than period matching expected 5%.",
+      "source_type_needed": "Costco comparable sales growth for specified fiscal period ending 2024"
+    },
+    {
+      "q_index": 92,
+      "question": "Consider a firm with a market cap of 800 million and net income of 80 million that takes on 100 million in debt to buy back shares. How does this transaction influence its P/E multiple (increase, decrease or no change)?",
+      "expected_answer": "Decrease",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "Increase",
+          "research_content_excerpt": "The P/E multiple will **increase** [1]. When the firm takes on $100 million in debt to finance the buyback, it incurs additional interest expense, which reduces net income and therefore increases the P/E ratio (price divided by lower earnings) [1]. Additionally, the increased debt-to-capitalization ratio increases financial leverage, which makes the firm appear cheaper on valuation metrics like P/E [5].",
+          "judge_reasoning": "The agent extracted answer is 'Increase' but the correct answer is 'Decrease'. The agent's reasoning is flawed - it incorrectly states that lower earnings lead to a higher P/E ratio, when in fact lower earnings divided …"
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "Decrease",
+          "research_content_excerpt": "Based on the provided excerpts, the P/E multiple will **decrease**.\n\nWhen a firm finances a share buyback with debt, the increased leverage raises the equity cost of capital and risk profile of the stock. [1] states that \"the increase in debt ratios should increase the riskiness of the stock and lower the price earnings ratio.\" [3] provides a specific example showing \"Price-to-earnings (P/E) declines from 12.0 to 10.8 due to share repurchases\" because \"market value decreases...while net income is unchanged.\" The P/E decline reflects the market adjusting for increased financial risk, not true …",
+          "judge_reasoning": "The agent correctly identified that the P/E multiple will decrease when a firm takes on debt for share buybacks, citing increased financial risk and leverage as the mechanism."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "Decrease",
+          "research_content_excerpt": "The P/E multiple would **decrease** [4].\n\nWhen a company takes on debt to finance a buyback, while EPS may initially increase due to fewer shares outstanding, the P/E ratio declines because the company's equity value falls [4]. The added interest expense from the debt reduces earnings, and more importantly, the increased financial leverage and risk raise the discount rate (WACC), which compresses the valuation multiple [1]. As stated in the sources, \"the change of EPS and P/E is a purely mechanical effect that is not linked to fundamental value creation,\" with the P/E ratio dropping as the in…",
+          "judge_reasoning": "The agent correctly identified that the P/E multiple decreases when a firm takes on debt for buybacks, explaining that while EPS may increase mechanically, the increased financial leverage and risk raise the discount ra…"
+        }
+      ],
+      "question_type": "conceptual",
+      "query_type": "calculation",
+      "notes": "P/E multiple change post-leveraged share buyback impact",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "calculation_error",
+      "diagnosis": "Tavily basic incorrectly concluded 'Increase' with reasoning that 'lower earnings lead to higher P/E ratio,' when the correct answer is 'Decrease' due to increased leverage and financial risk from debt-financed buyback.",
+      "source_type_needed": "Conceptual finance knowledge: P/E multiple dynamics under leveraged share repurchase"
+    },
+    {
+      "q_index": 122,
+      "question": "Suppose a firm pays out a $15 dividend. How does this impact the firm's enterprise value (increase, decrease, or no change)?",
+      "expected_answer": "No change",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "No change",
+          "research_content_excerpt": "# Impact of $15 Dividend on Enterprise Value\n\nA dividend payment has **no change** on enterprise value in theory, though it does decrease equity value.\n\nWhen a firm pays a $15 dividend, cash decreases by $15, which mechanically decreases equity value by $15 [2]. However, enterprise value is calculated as: EV = Equity Value + Debt - Cash [1][5]. Since the dividend reduces both cash (which decreases EV) and equity value (which increases EV) by the same amount, these effects offset each other [1]. According to the Modigliani-Miller theorem, \"financing events do NOT affect Enterprise Value\" becau…",
+          "judge_reasoning": "The agent correctly identifies that a dividend payment has no impact on enterprise value, as the decrease in cash is offset by the corresponding decrease in equity value, consistent with Modigliani-Miller theory."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "decreases",
+          "research_content_excerpt": "Based on the provided search results, I cannot find a direct answer to this specific question. While the excerpts discuss how dividend *policy* may affect firm value over time [4], they do not address how a single $15 dividend payout impacts enterprise value in the mechanical sense.\n\nThe key issue is that enterprise value is calculated as market capitalization plus debt minus cash [9]. A dividend payment reduces the firm's cash, which would theoretically *decrease* enterprise value by that amount, but the search results do not explicitly confirm this relationship for a one-time dividend.",
+          "judge_reasoning": "The agent concluded that a dividend payment decreases enterprise value by reducing cash, but the correct answer is that enterprise value experiences no change due to the offsetting effect on both equity value and net de…"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "No change",
+          "research_content_excerpt": "Paying a $15 dividend has **no change** on the firm's enterprise value.\n\nWhen a dividend is paid, equity value decreases by $15 (reducing shareholders' equity), but cash also decreases by $15. Since Enterprise Value = Equity Value + Debt - Cash, these two changes offset each other, leaving enterprise value unchanged [1][2]. As explained, dividend payments are financing decisions that don't affect the value of the company's operating assets [1].",
+          "judge_reasoning": "The agent correctly identifies that dividend payout has no change on enterprise value, matching the expected answer exactly. The reasoning provided (that equity decreases by dividend amount but so does cash, offsetting …"
+        }
+      ],
+      "question_type": "conceptual",
+      "query_type": "conceptual",
+      "notes": "Enterprise value impact from cash dividend payment judgment",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "calculation_error",
+      "diagnosis": "Tavily basic concluded dividend payment 'decreases' enterprise value by reducing cash, missing the offsetting effect where equity value also decreases, yielding no net change.",
+      "source_type_needed": "Conceptual finance knowledge: Modigliani-Miller dividend irrelevance theory and enterprise value mechanics"
+    },
+    {
+      "q_index": 137,
+      "question": "How does a 100-dollar asset write-down at a 20% tax rate affect each financial statement?",
+      "expected_answer": "On the income statement, pre-tax income goes down by 100, and net income is down by 80. On the cash flow statement, net income is down by 80, but you add back 100 because it was a non-cash expense, so cash is up by 20. On the balance sheet…",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "Income Statement: pre-tax income down $100, net income down $80. Balance Sheet: assets down $100 (specifically PP&E down $100). Cash Flow Statement: net income down $80, add back $100 non-cash expens…",
+          "research_content_excerpt": "A $100 asset write-down at a 20% tax rate affects the financial statements as follows:\n\n**Income Statement:** Pre-tax income decreases by $100 (recorded as a loss/expense) [2]. After the tax benefit of $20 (20% × $100), net income decreases by $80 [1].\n\n**Balance Sheet:** Assets decrease by $100 [2].\n\n**Cash Flow Statement:** The $100 write-down is added back in operating cash flow since it's a non-cash charge [2], and cash increases by $20 due to the tax savings from reduced taxable income [2].",
+          "judge_reasoning": "The agent's report correctly identifies the impact on all three financial statements: income statement (pre-tax income -$100, net income -$80), balance sheet (assets down $100, equity down $80 after tax effect), and cas…"
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 1,
+          "extracted_answer": "Income statement: pre-tax income down $100, net income down $80. Balance sheet: assets down $100, retained earnings down $80. Cash flow statement: net income down $80, add back $100 non-cash expense,…",
+          "research_content_excerpt": "# Impact of a $100 Asset Write-Down at 20% Tax Rate\n\nBased on the search results, here's how a $100 asset write-down affects each financial statement:\n\n**Income Statement:** The write-down reduces pre-tax income by $100. With a 20% tax rate, the tax benefit is $20, so net income decreases by $80 [1][2].\n\n**Balance Sheet:** Total assets decrease by $100 (the asset's carrying value is reduced), while retained earnings decrease by $80 (the after-tax loss), keeping both sides balanced [1][2].\n\n**Cash Flow Statement:** Net income decreases by $80, but the $100 write-down is added back as a non-cas…",
+          "judge_reasoning": "The agent's answer correctly identifies all three statements' impacts: income statement shows $100 pre-tax and $80 net income decrease, balance sheet shows $100 asset decrease and $80 retained earnings decrease, and cas…"
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "Based on the provided search results, I cannot find specific information that directly addresses how a $100 asset write-down at a 20% tax rate affects each of the three financial statements.\n\nWhile the search results mention that asset write-downs decrease earnings [5] and impact financial statements [2][3], they do not provide the detailed calculation for a $100 write-down at a 20% tax rate across the income statement, balance sheet, and cash flow statement. The closest example discusses a debt write-down with a 30% tax rate [1], but does not specifically address an asset write-down scenario…",
+          "judge_reasoning": "The agent's report contains no extracted answer - it explicitly states it cannot find information to answer the question and declines to provide an answer."
+        }
+      ],
+      "question_type": "conceptual",
+      "query_type": "conceptual",
+      "notes": "Asset write-down three-statement tax impact treatment",
+      "bucket": "tavily_wrong_competitors_right",
+      "n_competitors_right": 1,
+      "failure_mode": "missing_filing_access",
+      "diagnosis": "Tavily basic 'explicitly states it cannot find information to answer the question' and declined answer, while competitors correctly traced $100 write-down impacts across all three statements with tax adjustment.",
+      "source_type_needed": "Conceptual finance knowledge: three-statement impact of non-cash asset write-down at 20% tax rate"
+    }
+  ],
+  "wins": [
+    {
+      "q_index": 23,
+      "question": "What is the marginal tax rate in 2024?",
+      "expected_answer": "24.00%",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 1,
+          "extracted_answer": "24.40%",
+          "research_content_excerpt": "The search results do not contain information about Costco's marginal tax rate specifically. \n\nThe results show that Costco's **effective tax rate for fiscal year 2024 (ended September 1, 2024) was 24.40%**, with a statutory tax rate of 21.00% [1]. However, this is the company's effective tax rate, not a \"marginal tax rate\" in the traditional sense. The other search results discuss federal individual income tax brackets and marginal rates, which are not applicable to Costco as a corporation.",
+          "judge_reasoning": "The report identifies Costco's effective tax rate for fiscal 2024 as 24.40%, which is very close to the expected answer of 24.00%. The slight difference may reflect rounding or precision differences in reporting sources."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The search results do not contain information about Costco's marginal tax rate in 2024. The results include general federal income tax bracket information for individuals and Costco's effective tax rate as a corporation (24.7%), but do not address Costco's specific marginal tax rate for 2024.",
+          "judge_reasoning": "The agent's report explicitly states it could not find information about the marginal tax rate for 2024, mentioning only an effective tax rate of 24.7% but declining to extract a final answer. This appears to be a case …"
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The search results do not contain information about Costco's marginal tax rate in 2024. The excerpts only provide Costco's **effective tax rate** for 2024, which was 24.4% [1], not the marginal tax rate. These are different metrics—the effective tax rate is the average rate paid on all income, while the marginal tax rate refers to the rate on the next dollar of income earned.",
+          "judge_reasoning": "The agent's report explicitly states it does not contain information about the marginal tax rate in 2024 and only provides the effective tax rate (24.4%), so no answer was extracted. The expected answer is 24.00%, which…"
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "direct-lookup",
+      "notes": "Statutory tax rate from tax footnote",
+      "bucket": "tavily_right_competitors_wrong",
+      "n_competitors_wrong": 1,
+      "success_factor": "direct_filing_extract",
+      "diagnosis": "Tavily advanced extracted 24.40%, very close to expected 24.00%, while EXA and basic failed to find or extract the marginal tax rate at all.",
+      "source_type_needed": "FY2024 tax footnote: statutory or marginal tax rate disclosure"
+    },
+    {
+      "q_index": 65,
+      "question": "Calculate ROE for 2024.",
+      "expected_answer": "30.27%",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "31.19%",
+          "research_content_excerpt": "# Costco ROE for 2024\n\nBased on the search results, **Costco's ROE (Return on Equity) for fiscal year 2024 (ended September 1, 2024) was 31.19%** [2][6][7].\n\nThis can be calculated from: Net Income of $7.367 billion divided by Total Stockholders' Equity of $23.622 billion, equaling 31.19% [7][8].",
+          "judge_reasoning": "The agent reported Costco's ROE as 31.19%, but the expected answer is 30.27%, representing a mismatch in the calculated value despite using the correct ROE formula."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 1,
+          "extracted_answer": "30.3%",
+          "research_content_excerpt": "Based on the search results, **Costco's ROE for 2024 was 30.3%** [2]. This represented an increase of 9.9% compared to the previous year [2].",
+          "judge_reasoning": "The agent's extracted answer of 30.3% matches the expected answer of 30.27% within reasonable precision - both represent the same underlying value with only minor rounding differences."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "28.45%",
+          "research_content_excerpt": "# Costco ROE for 2024\n\nBased on the search results, **Costco's ROE for fiscal year 2024 (ended September 1, 2024) was approximately 28.45%** [1]. This can be calculated using the fiscal year 2024 net income of $7.367 billion and average shareholders' equity of approximately $23.89 billion [1][4].\n\nAlternatively, looking at trailing twelve-month (TTM) data as of February 29, 2024, the ROE was 28.45%, with TTM net income of $6.79 billion and shareholders' equity of $23.89 billion [1].",
+          "judge_reasoning": "The agent extracted 28.45% for Costco's 2024 ROE, but the expected answer is 30.27%, a meaningful difference of ~1.8 percentage points that indicates the agent either used different financial figures or calculation meth…"
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Net income divided by average equity",
+      "bucket": "tavily_right_competitors_wrong",
+      "n_competitors_wrong": 1,
+      "success_factor": "direct_filing_extract",
+      "diagnosis": "Tavily basic extracted 30.3%, matching expected 30.27% within rounding precision, while EXA got 31.19% and advanced calculated 28.45%.",
+      "source_type_needed": "FY2024 consolidated financial statements: Net Income and average stockholders' equity"
+    },
+    {
+      "q_index": 80,
+      "question": "Calculate Asset Turnover for 2024.",
+      "expected_answer": "3.67x",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "3.57",
+          "research_content_excerpt": "# Costco Asset Turnover for 2024\n\nCostco's Asset Turnover for fiscal year 2024 (ending September 1, 2024) was **3.57** [1]. This was calculated as Net Sales of $249,625 million divided by Total Assets of $69,831 million [1].",
+          "judge_reasoning": "The agent extracted 3.57x as the asset turnover, but the expected answer is 3.67x; these are materially different values (0.10x difference, ~2.7% variance), indicating the calculation or data used may be incorrect."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "3.57x",
+          "research_content_excerpt": "# Costco Asset Turnover for 2024\n\nCostco's Asset Turnover ratio for fiscal 2024 (ended September 1, 2024) was **3.57** [1]. This is calculated as Net Sales divided by Total Assets. The ratio shows how efficiently Costco generated $3.57 in revenue for every dollar of assets employed, representing an improvement from 3.45 in 2023 [1].",
+          "judge_reasoning": "The agent extracted 3.57x from Costco's 2024 report, but the expected answer is 3.67x—these represent different underlying values and do not match on the fundamental fact."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 1,
+          "extracted_answer": "3.7x",
+          "research_content_excerpt": "Based on the search results, **Costco's Asset Turnover for 2024 was 3.7x** [1]. This represents a 0.7% increase from the previous year [1]. Asset turnover is calculated by dividing net sales by average total assets, and this ratio indicates that Costco generated $3.70 in sales for every dollar of assets employed during fiscal year 2024.",
+          "judge_reasoning": "The agent reported 3.7x which matches the expected answer of 3.67x when rounded to one decimal place; both represent the same underlying asset turnover value with minor rounding differences."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Asset turnover ratio requires revenue and total assets math",
+      "bucket": "tavily_right_competitors_wrong",
+      "n_competitors_wrong": 1,
+      "success_factor": "direct_filing_extract",
+      "diagnosis": "Tavily basic reported 3.7x, matching expected 3.67x within one decimal rounding, while EXA and advanced both extracted 3.57x, representing materially different values.",
+      "source_type_needed": "FY2024 consolidated income statement (revenue) and balance sheet (total assets)"
+    }
+  ],
+  "joint_hards": [
+    {
+      "q_index": 1,
+      "question": "What is unadjusted EBITDA for the year ending in 2024?",
+      "expected_answer": "$11,522 (in millions)",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "$12.81 billion",
+          "research_content_excerpt": "Based on the search results, Costco's unadjusted EBITDA for the year ending September 1, 2024 was **$12.81 billion** [1]. This figure is also consistent with the EBIT of $10.38 billion plus depreciation and amortization of $2.426 billion shown in the cash flow statements [3].",
+          "judge_reasoning": "The agent reported $12.81 billion ($12,810 million) but the expected answer is $11,522 million - these are substantially different values and do not match on the underlying fact."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "$9.74 billion",
+          "research_content_excerpt": "Based on the search results, Costco's unadjusted EBITDA for the fiscal year ending September 1, 2024 was **$9.74 billion** [3]. This can be derived from the financial data showing operating income of $9.285 billion plus depreciation and amortization of approximately $0.455 billion for the 52-week fiscal year ended September 1, 2024 [9].",
+          "judge_reasoning": "The agent reports $9.74 billion ($9,740 million) but the expected answer is $11,522 million, a significant difference of approximately $1.8 billion that indicates the agent found data for the wrong company (Costco) rath…"
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The search results do not contain Costco's unadjusted EBITDA figure for fiscal year 2024 (ending September 1, 2024). While one source mentions EBITDA of $12.81B for fiscal 2025, the specific unadjusted EBITDA for fiscal 2024 is not provided in these excerpts.",
+          "judge_reasoning": "The agent's report explicitly states that the specific unadjusted EBITDA for fiscal 2024 is not provided in the search results, so no answer was extracted, yet the expected answer is $11,522 million."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "direct-lookup",
+      "notes": "FY2024 unadjusted EBITDA stated in report",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "Advanced reported $12.81B, basic found nothing, EXA reported $9.74B. All three failed to extract correct $11.522B unadjusted EBITDA from available statement data.",
+      "source_type_needed": "FY2024 non-GAAP reconciliation: unadjusted EBITDA bridge or consolidated income statement"
+    },
+    {
+      "q_index": 2,
+      "question": "What is adjusted EBITDA for the year ending in 2024?",
+      "expected_answer": "$11,969 (in millions)",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The provided search results do not contain Costco's adjusted EBITDA figure for the fiscal year ending September 1, 2024. While the excerpts include standard EBITDA data [9] showing approximately $7.67 billion in EBITDA for that period, they do not specify an \"adjusted EBITDA\" figure. The financial statements and earnings reports focus on operating income ($9.285 billion) and net income ($7.367 billion) rather than adjusted EBITDA metrics.",
+          "judge_reasoning": "The agent's report explicitly states that the adjusted EBITDA figure for 2024 was not found in the search results, leaving no final answer to extract. The expected answer is $11,969 million, but the agent failed to prov…"
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "$12.81 billion",
+          "research_content_excerpt": "Based on the search results, Costco's **adjusted EBITDA for fiscal year 2024 (ended September 1, 2024) was $12.81 billion** [3]. \n\nHowever, it should be noted that the search results refer to this as \"Normalized EBITDA\" rather than \"adjusted EBITDA\" in some sources [2], though these appear to be the same metric showing Costco's EBITDA of approximately $12.8 billion for the fiscal year ending in 2024.",
+          "judge_reasoning": "The agent reported $12.81 billion while the expected answer is $11,969 million ($11.969 billion). These values do not match—there is approximately a $840 million discrepancy between the two figures."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The search results do not contain information about Costco's adjusted EBITDA for the year ending in 2024. While the excerpts show standard EBITDA figures (such as $12.81B in one source [3]), they do not specifically reference an \"adjusted EBITDA\" figure for fiscal year 2024 ending September 1, 2024. To find this metric, you would need to consult Costco's official earnings releases or SEC filings that specifically reconcile adjusted EBITDA.",
+          "judge_reasoning": "The research report explicitly states it does not contain the adjusted EBITDA information and provides no final answer to extract, whereas the expected answer is $11,969 million."
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "direct-lookup",
+      "notes": "FY2024 adjusted EBITDA stated or reconciled",
+      "bucket": "all_wrong",
+      "failure_mode": "retrieval_gap",
+      "diagnosis": "EXA found no answer, basic extracted $12.81B, advanced found nothing. All three failed to locate adjusted EBITDA of $11.969B from reconciliation or disclosure.",
+      "source_type_needed": "FY2024 non-GAAP reconciliation: adjusted EBITDA line item"
+    },
+    {
+      "q_index": 4,
+      "question": "What is adjusted EBIT for the year ending in 2024?",
+      "expected_answer": "$9,396 (in millions)",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The search results provided do not contain information about adjusted EBIT for the year ending in 2024. The results include adjusted EBITDA figures for various companies (such as Talen Energy's $770 million and Timken's $844.8 million), but do not specifically provide adjusted EBIT data for 2024. To answer your question accurately, I would need search results that specifically report adjusted EBIT figures.",
+          "judge_reasoning": "The agent's report explicitly states it cannot find adjusted EBIT for 2024 in the search results, providing no answer when the expected answer is $9,396 million."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "$856 million",
+          "research_content_excerpt": "Based on the search results, **Finning International's adjusted EBIT for the year ending 2024 was $856 million**, representing 8.5% of net revenue [1]. This was lower compared to $942 million (9.9% of net revenue) in 2023, driven by lower earnings in Canada and South America, partially offset by increases in the UK & Ireland segment [1].",
+          "judge_reasoning": "The agent extracted $856 million for Finning International's adjusted EBIT in 2024, but the expected answer is $9,396 million, indicating the agent found data for the wrong company."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The search results contain adjusted EBIT figures for multiple different companies for 2024, but without knowing which specific company you're asking about, I cannot provide a definitive answer.\n\nThe results include adjusted EBIT for 2024 from several companies:\n- **General Motors**: $14.9 billion [5]\n- **SIG**: €550.5 million [2]\n- **Olam Group**: S$1,989.0 million [3]\n- **Volvo**: SEK 9.3 billion [6]\n\nCould you please specify which company's adjusted EBIT for 2024 you're looking for?",
+          "judge_reasoning": "The agent provided multiple possible adjusted EBIT values for different companies but no definitive answer matching the expected $9,396 million. The report acknowledges ambiguity and requests clarification rather than p…"
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "direct-lookup",
+      "notes": "FY2024 adjusted EBIT from reconciliation",
+      "bucket": "all_wrong",
+      "failure_mode": "wrong_entity",
+      "diagnosis": "Advanced extracted $856M for Finning International instead of Costco's $9.396B adjusted EBIT; basic found nothing; EXA returned multiple ambiguous values without clarity.",
+      "source_type_needed": "FY2024 non-GAAP reconciliation: adjusted EBIT for Costco"
+    },
+    {
+      "q_index": 10,
+      "question": "What is the P/E ratio for 2024 using Basic EPS?",
+      "expected_answer": "56.66x",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "53.5",
+          "research_content_excerpt": "Based on the search results, Costco's P/E ratio for 2024 using Basic EPS was **53.5** [1]. This can be calculated using the 2024 Basic EPS of $16.59 [3][8] and the corresponding P/E ratio shown in the historical data table [1].",
+          "judge_reasoning": "The agent reported 53.5x but the expected answer is 56.66x, which is a material difference in the P/E ratio calculation (approximately 5.6% variance)."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "53.79",
+          "research_content_excerpt": "Based on the search results, Costco's P/E ratio for 2024 using Basic EPS is **53.79** [1]. This represents a 40.15% increase from the 2023 P/E ratio of 38.38, with a stock price of $892.38 and Basic EPS of $16.59 [1].",
+          "judge_reasoning": "The agent extracted a P/E ratio of 53.79, but the expected answer is 56.66x. While both are in the same ballpark and use the same methodology (Basic EPS), they do not match - the difference is approximately 5%, which ex…"
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "53.79",
+          "research_content_excerpt": "Based on the search results provided, Costco's P/E ratio for 2024 is **53.79** [1]. However, the search excerpts do not specifically distinguish whether this figure uses Basic EPS or another EPS calculation method, so I cannot confirm with certainty that this is calculated using Basic EPS specifically.",
+          "judge_reasoning": "The agent extracted 53.79 as the P/E ratio, but the expected answer is 56.66x. These are materially different values and do not match on the underlying fact."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Stock price divided by Basic EPS",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "All three agents extracted P/E ratios between 53.5x–53.79x, but expected answer is 56.66x. Suggests systematic error in stock price or Basic EPS input to calculation.",
+      "source_type_needed": "FY2024 consolidated income statement: Basic EPS; current market price"
+    },
+    {
+      "q_index": 11,
+      "question": "What is the P/E ratio for 2024 using Diluted EPS?",
+      "expected_answer": "56.86x",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "53.79",
+          "research_content_excerpt": "# Costco 2024 P/E Ratio\n\nBased on the provided search results, Costco's P/E ratio for 2024 using Diluted EPS was **53.79** [3]. This was calculated using the 2024 diluted EPS of $16.56 [1] [9] and a stock price of $892.38 [3].",
+          "judge_reasoning": "The agent extracted 53.79 as the P/E ratio, but the expected answer is 56.86x. While the agent did provide a numerical answer for the 2024 P/E ratio using Diluted EPS, the value does not match the ground truth."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "53.5",
+          "research_content_excerpt": "Based on the provided search results, Costco's P/E ratio for 2024 was **53.5** [2]. This is calculated using the diluted EPS of $16.56 for fiscal year 2024 [1][8].",
+          "judge_reasoning": "The agent extracted 53.5x as the P/E ratio, but the expected answer is 56.86x. These are materially different values that do not match on the underlying fact."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "53.79 or 55.2x",
+          "research_content_excerpt": "Based on the search results, Costco's P/E ratio for 2024 using diluted EPS is **53.79** [2] or **55.2x** [1], depending on the source and calculation methodology. These figures represent the trailing twelve-month (TTM) P/E ratio calculated by dividing the stock price by diluted earnings per share.",
+          "judge_reasoning": "The agent reported two P/E ratios (53.79 and 55.2x), neither of which matches the expected answer of 56.86x. The values are in the same ballpark but represent a factual mismatch with the ground truth."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Stock price divided by Diluted EPS",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "All three extracted P/E ratios of 53.5x–55.2x, but expected answer is 56.86x using Diluted EPS. Consistent gap suggests error in Diluted EPS or stock price input.",
+      "source_type_needed": "FY2024 consolidated income statement: Diluted EPS; current market price"
+    },
+    {
+      "q_index": 12,
+      "question": "What is the Diluted EPS of Costco? Manually calculate fully diluted shares outstanding.",
+      "expected_answer": "$16.53",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "$4.58",
+          "research_content_excerpt": "# Costco Diluted EPS and Fully Diluted Shares\n\n**Diluted EPS (Most Recent):** Costco's diluted EPS for Q1 2026 (12 weeks ended February 15, 2026) was **$4.58** [1].\n\n**Fully Diluted Shares Calculation:**\nBased on the provided data, the fully diluted shares are calculated as follows [1]:\n- Weighted average basic shares: 443,946 thousand\n- Add: RSUs (dilutive effect): 474 thousand\n- **Fully diluted shares outstanding: 444,420 thousand (or ~444.42 million shares)**\n\nThis can be verified: Net Income of $2,035 million ÷ 444,420 thousand diluted shares = $4.58 per share [1].",
+          "judge_reasoning": "The agent reported Q1 2026 diluted EPS of $4.58, but the expected answer is $16.53, which appears to be an annual or different reporting period figure. The extracted answer does not match the expected value."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "$18.21",
+          "research_content_excerpt": "Based on the search results, **Costco's Diluted EPS for fiscal year 2025 is $18.21** [3].\n\nTo calculate fully diluted shares outstanding:\n- **Net Income**: $8,099 million [3]\n- **Diluted EPS**: $18.21 [3]\n- **Fully Diluted Shares** = Net Income ÷ Diluted EPS\n- **Fully Diluted Shares** = $8,099M ÷ $18.21 = **444.80 million shares** [1]\n\nThis aligns with the reported weighted-average shares outstanding (diluted) of 444.80M [1], which represents basic shares of 443.99M plus approximately 0.81M dilutive securities (stock options, RSUs, and other convertible instruments).",
+          "judge_reasoning": "The agent reported Costco's Diluted EPS as $18.21 for fiscal year 2025, but the expected answer is $16.53. These are materially different values and do not match."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The provided search results do not contain Costco's specific Diluted EPS figure or the detailed information needed to manually calculate fully diluted shares outstanding. \n\nWhile [1] mentions that Costco (COST) has a diluted average of 444 million shares outstanding as of February 2026, the search results lack Costco's net income figure and a breakdown of dilutive securities (stock options, warrants, convertible securities) needed to calculate Diluted EPS using the formula: Diluted EPS = (Net Income – Preferred Dividends) ÷ Weighted Average Diluted Shares Outstanding [2].",
+          "judge_reasoning": "The research report explicitly states it lacks the necessary data to calculate Diluted EPS and does not provide any final answer, whereas the expected answer is $16.53."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Net Income divided by fully diluted shares",
+      "bucket": "all_wrong",
+      "failure_mode": "wrong_period",
+      "diagnosis": "Advanced reported FY2025 Diluted EPS of $18.21, EXA reported Q1 2026 of $4.58, basic found nothing. All missed FY2024 Diluted EPS of $16.53 or failed manual calculation.",
+      "source_type_needed": "FY2024 consolidated income statement: Net Income and Diluted weighted-average shares outstanding"
+    },
+    {
+      "q_index": 13,
+      "question": "Determine the EV/EBITDA ratio for 2024. Make sure to adjust for EBITDA and use the market value of equity to estimate enterprise value. Make sure to hand calculated fully diluted shares outstanding. Assume the only non-operating asset is excess cash.",
+      "expected_answer": "35.44x",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "34.3x",
+          "research_content_excerpt": "# Costco EV/EBITDA Ratio for 2024\n\nBased on the provided search results, here is the hand-calculated EV/EBITDA ratio for Costco's fiscal year 2024 (ended September 1, 2024):\n\n**Enterprise Value Calculation:**\n- Market Value of Equity: $402,798 million [1]\n- Add: Total Debt (current + long-term): $75M + $78M + $5,713M + $1,401M = $7,267 million [1]\n- Less: Excess Cash & Equivalents: $14,161M + $1,123M = $15,284 million [1]\n- **Enterprise Value: $402,798 + $7,267 - $15,284 = $394,781 million**\n\n**EBITDA for 2024:**\n- EBITDA: $11,522 million [5]\n\n**Fully Diluted Shares:**\n- Weighted average dilu…",
+          "judge_reasoning": "The agent calculated 34.3x but the expected answer is 35.44x; while close, the difference is material and suggests potential errors in EBITDA adjustment or fully diluted shares calculation rather than mere rounding."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "# Costco EV/EBITDA Ratio for 2024\n\nBased on the fiscal year 2024 data (ended September 1, 2024):\n\n**EV/EBITDA Calculation:**\n\n- **EBITDA 2024:** $11,522 million [6]\n- **Fully Diluted Shares Outstanding:** 444.579 million (from year-to-date data) [4]\n- **Stock Price:** Not provided in excerpts, preventing market cap calculation\n- **Total Debt:** $5,710 million [3]\n- **Excess Cash:** $9,906 million [2]\n- **Enterprise Value:** Market Cap + Debt - Excess Cash (cannot calculate without stock price)\n\n**Result:** The provided excerpts contain Costco's 2024 EBITDA ($11,522M) and fully diluted shares …",
+          "judge_reasoning": "The agent's report does not provide a final calculated EV/EBITDA ratio; it stops short and states the stock price is needed, failing to complete the analysis requested in the question."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "I cannot fully calculate Costco's 2024 EV/EBITDA ratio with the provided excerpts because key data is missing.\n\nWhat I can find:\n- **2024 EBITDA**: The search results show 2025 EBITDA of $12.81B [2], but do not provide 2024 EBITDA specifically\n- **Diluted shares**: Approximately 444 million diluted shares [10]\n- **Net income for fiscal 2024**: $7.367 billion [6]\n\nHowever, the excerpts do not contain:\n- Current stock price or market capitalization (needed to calculate equity value)\n- Total debt outstanding (needed for enterprise value)\n- Excess cash balance (to adjust enterprise value)\n- 2024 …",
+          "judge_reasoning": "The agent's report does not provide a final calculated answer - it states that key data is missing and that the calculation cannot be completed. The expected answer is 35.44x, but the agent extracted no numerical answer."
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Enterprise Value over adjusted EBITDA",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "EXA calculated 34.3x, advanced provided no final answer, basic found no answer. All failed to complete full EV/EBITDA with adjusted EBITDA, diluted shares, and excess cash treatment to reach 35.44x.",
+      "source_type_needed": "FY2024 non-GAAP reconciliation (adjusted EBITDA), market cap (diluted shares × price), balance sheet (cash and equivalents)"
+    },
+    {
+      "q_index": 14,
+      "question": "Calculate Enterprise Value for 2024 with the market value of equity. Make sure to hand calculated fully diluted shares outstanding. Assume the only non-operating asset is excess cash.",
+      "expected_answer": "$424,216 (in millions)",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "Based on the provided search excerpts, I cannot fully calculate Costco's 2024 Enterprise Value because the search results lack critical information:\n\n**What I found:**\n- Diluted shares outstanding for 2024: 444M shares [6]\n- Net income for fiscal year 2024: $7.367B [5]\n\n**What's missing:**\nThe search excerpts do not contain Costco's 2024 fiscal year-end stock price, total debt, or cash and equivalents—all of which are necessary to calculate Enterprise Value using the formula: EV = Market Cap + Total Debt - Cash [1]. Without these balance sheet and market price data, I cannot complete the calc…",
+          "judge_reasoning": "The agent failed to provide any numerical answer for Enterprise Value, instead stating that critical information was missing from search results. The expected answer is $424,216 million, but the agent returned no extrac…"
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "$398.3 billion",
+          "research_content_excerpt": "# Costco Enterprise Value Calculation for 2024\n\nBased on the fiscal year 2024 (ended September 1, 2024) data:\n\n**Fully Diluted Shares Outstanding:**\n- Basic shares: 443,914 thousand [6]\n- Add: RSU dilution: 845 thousand [6]\n- **Diluted shares: 444,759 thousand (or 444.759 million)** [6]\n\n**Market Value of Equity:**\nUsing the October 1, 2024 share count of 443,073,537 shares [1] and the historical table showing a share price of $909.10 as of September 1, 2024 [2]:\n- **Market Value of Equity: ~$402.8 billion** [2]\n\n**Enterprise Value Calculation:**\n- Market Value of Equity: $402.8 billion\n- Add…",
+          "judge_reasoning": "The agent calculated EV as $398.3 billion, but the expected answer is $424,216 million ($424.216 billion). The agent appears to have used the wrong share price or incorrect market cap calculation, resulting in a signifi…"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "$466.03 billion",
+          "research_content_excerpt": "# Costco 2024 Enterprise Value Calculation\n\nBased on the provided data, here's the hand-calculated Enterprise Value for Costco in 2024:\n\n**Step 1: Calculate Fully Diluted Shares Outstanding**\n- Diluted shares for fiscal year 2024: 444,977 thousand shares = **444.977 million shares** [9]\n\n**Step 2: Calculate Market Value of Equity**\n- 2024 Market capitalization: **$417.13 billion** [10]\n\n**Step 3: Gather Additional Data**\n- Cash and cash equivalents (Sept 1, 2024): $9,906 million [9]\n- Short-term investments (Sept 1, 2024): $1,238 million [9]\n- Total excess cash: **$11,144 million** [9]\n\n**Ste…",
+          "judge_reasoning": "The agent reported $466.03 billion (from Yahoo Finance), but the expected answer is $424,216 million ($424.216 billion). The agent failed to properly calculate EV with the required data - it stated the calculation could…"
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Market equity plus net debt calculation",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "EXA calculated $398.3B, advanced reported $466.03B, basic found nothing. All three diverged materially from expected $424.216B. Suggests errors in share price, diluted share count, or net debt calculation.",
+      "source_type_needed": "FY2024 balance sheet (total debt, cash/equivalents), market data (diluted shares outstanding and current stock price)"
+    },
+    {
+      "q_index": 17,
+      "question": "Estimate the Cost of Equity using the CAPM model for 2024.",
+      "expected_answer": "9.66%",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "6.60%",
+          "research_content_excerpt": "Based on the provided search results, **Costco's Cost of Equity for 2024 using the CAPM model is estimated at 6.60%** [1]. This is calculated using the formula: Cost of Equity = Risk-Free Rate (4.15%) + Adjusted Beta (0.42) × Equity Risk Premium (5.10%) + Risk Adjustments (0.25%) [1]. \n\nThe search results also indicate a range of 5.80% to 7.40% depending on different assumptions about input variables [1], and another source cites a cost of equity of 5.8% for DCF analysis purposes [8].",
+          "judge_reasoning": "The agent extracted 6.60% as the Cost of Equity using CAPM for 2024, but the expected answer is 9.66%. These values do not match despite being in the same general range."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "6.60% to 7.68%",
+          "research_content_excerpt": "# Costco Cost of Equity (CAPM) for 2024\n\nBased on the search results, **Costco's Cost of Equity using CAPM ranges from approximately 6.6% to 7.68%** for 2024:\n\n- **6.60%** - Selected estimate with beta of 0.42-0.46, risk-free rate of 3.9-4.4%, and market risk premium of 4.6-5.6% [2]\n\n- **7.68%** - Alternative estimate using beta of 0.78, risk-free rate of 4.42%, and equity risk premium of 4.18% [10]\n\nThe CAPM formula applied is: **Cost of Equity = Risk-Free Rate + (Beta × Market Risk Premium)** [10]. The variation in estimates reflects different assumptions about current market conditions, be…",
+          "judge_reasoning": "The agent's report estimates Costco's cost of equity between 6.60% and 7.68%, but the expected answer is 9.66%, which falls outside this range and appears to be a different calculation or company entirely."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "6.60%",
+          "research_content_excerpt": "Based on the search results, **Costco's Cost of Equity using the CAPM model for 2024 is approximately 6.60%** [2]. \n\nThis is calculated using the CAPM formula: Cost of Equity (6.60%) = Risk-Free Rate (4.15%) + Adjusted Beta (0.42) × Equity Risk Premium (5.10%) [2]. However, estimates vary slightly depending on the source, with another calculation showing 7.68% [10].",
+          "judge_reasoning": "The agent's extracted answer of 6.60% does not match the expected answer of 9.66%, representing a significant discrepancy of over 3 percentage points in a CAPM cost of equity calculation."
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Risk-free rate plus beta times market premium",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "All three extracted Cost of Equity between 6.60%–7.68%, but expected answer is 9.66%. Suggests systematic error in CAPM inputs: risk-free rate, beta, or market risk premium.",
+      "source_type_needed": "CAPM inputs: risk-free rate, Costco levered beta, market risk premium"
+    },
+    {
+      "q_index": 18,
+      "question": "Calculate WACC for 2024.",
+      "expected_answer": "9.56%",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "6.6-7.64%",
+          "research_content_excerpt": "Based on the search results, Costco's WACC for 2024 varies depending on the source:\n\n- **6.6%** according to valueinvesting.io [3], which uses a cost of equity of 6.60% and cost of debt of 4.25%\n- **7.64%** according to alphaspread.com [8], with a cost of equity of 7.68% and cost of debt of 4.71%\n- **9.11%** according to stockanalysis.com [5]\n\nThe variation reflects different methodologies and assumptions used in WACC calculations. The most commonly cited figure appears to be **6.6-7.64%** [3][8].",
+          "judge_reasoning": "The agent's report provides multiple WACC figures (6.6%, 7.64%, 9.11%) but none match the expected answer of 9.56%. The agent extracted a range of 6.6-7.64%, which does not match the ground truth value."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "7-8.6%",
+          "research_content_excerpt": "Based on the search results, Costco's WACC for 2024 varies slightly depending on the source and calculation methodology:\n\n- **8.61%** according to GuruFocus [6]\n- **7.64%** according to Alpha Spread [8]\n- **6.6%** according to Value Investing [4]\n\nThe variation depends on the specific inputs used (cost of equity, cost of debt, capital structure weights, and market conditions at the time of calculation). Without access to the detailed supporting calculations for a specific 2024 WACC figure, the most commonly cited estimate appears to be in the **7-8.6% range**.",
+          "judge_reasoning": "The agent reported a range of 7-8.6% but the expected answer is a specific value of 9.56%, which falls outside the reported range and does not match."
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "6.6%",
+          "research_content_excerpt": "# Costco WACC for 2024\n\nBased on the provided search results, **Costco's WACC for 2024 is 6.6%** [1]. This calculation uses a cost of equity of 6.60%, a cost of debt of 4.25%, and a tax rate of 24.65% [1].\n\nAlternatively, another source reports a WACC of 7.64% based on a cost of equity of 7.68% and cost of debt of 4.71% [7], though this may reflect different calculation methodologies or more recent data.",
+          "judge_reasoning": "The agent's primary answer of 6.6% does not match the expected answer of 9.56%. While the report mentions an alternative estimate of 7.64%, neither value matches the ground truth."
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Weighted average cost of debt and equity",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "All three extracted WACC in range 6.60%–8.6%, but expected answer is 9.56%. Systematic gap suggests errors in cost of equity, cost of debt, or D/E weighting.",
+      "source_type_needed": "WACC components: cost of equity (CAPM), after-tax cost of debt, market value debt and equity weights"
+    },
+    {
+      "q_index": 19,
+      "question": "What is market debt to equity ratio?",
+      "expected_answer": "2.73%",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "0.18",
+          "research_content_excerpt": "Based on the search results, Costco's debt to equity ratio is **0.18** as of the three months ending February 28, 2026 [1]. This represents the company's long-term debt divided by stockholders' equity, and indicates that Costco has relatively low financial leverage and a strong solvency position [1].",
+          "judge_reasoning": "The agent reported a debt to equity ratio of 0.18, but the expected answer is 2.73%, which are fundamentally different values that don't match even accounting for unit/format differences."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "0.18 to 0.26",
+          "research_content_excerpt": "Costco's debt to equity ratio is approximately **0.18 to 0.26**, depending on the calculation method and most recent period measured. [1][3] The most current figure from Q1 2026 shows a debt to equity ratio of $0.18, down 21.22% year-over-year. [1] This indicates Costco has low financial leverage, with total debt of approximately $5.9 billion and shareholder equity of around $32.1 billion. [6]",
+          "judge_reasoning": "The agent reported a debt to equity ratio of 0.18-0.26 (or 18-26% when expressed as percentage), but the expected answer is 2.73%, which represents a fundamentally different value that does not match even when accountin…"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "0.25",
+          "research_content_excerpt": "Based on the search results, **Costco's debt-to-equity ratio is approximately 0.25** as of August 31, 2025 [3]. This represents a standard debt-to-equity calculation dividing total debt by total stockholders' equity [1]. \n\nIt's worth noting that different sources may report slightly different ratios depending on whether they include operating lease liabilities; when including these, the ratio is 0.34 [3]. Costco's debt-to-equity ratio of 0.25 is notably low and 44% below its 10-year median of 0.45, indicating conservative financial leverage [4].",
+          "judge_reasoning": "The agent extracted Costco's debt-to-equity ratio as 0.25 (or 25%), but the expected answer is 2.73%, which is a fundamentally different value representing a different company or metric calculation."
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Market value debt to equity ratio",
+      "bucket": "all_wrong",
+      "failure_mode": "wrong_metric_definition",
+      "diagnosis": "All three extracted debt-to-equity as decimal (0.18–0.26) instead of percentage (2.73%). Agents reported the ratio correctly as a decimal but expected answer appears to require different calculation or unit convention.",
+      "source_type_needed": "FY2024 balance sheet: market value of debt and market value of equity"
+    },
+    {
+      "q_index": 20,
+      "question": "What is the Debt to Value in 2024?",
+      "expected_answer": "2.65%",
+      "attempts": [
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "0.31",
+          "research_content_excerpt": "Based on the search results, Costco's **Debt to Value** (Debt to Capital) ratio in 2024 was **0.31** [1] or **0.24** [2], depending on the source and whether operating lease liabilities are included. The most commonly cited figure is **0.31 for Debt to Total Capital** as of fiscal year 2024 [1].\n\nNote: The search results primarily show \"Debt to Capital\" and \"Debt to Equity\" ratios rather than a metric explicitly labeled \"Debt to Value,\" so these are the closest relevant metrics available.",
+          "judge_reasoning": "The agent extracted 0.31 as the Debt to Value ratio, but the expected answer is 2.65%, which is a fundamentally different metric or calculation. 0.31 is a decimal ratio while 2.65% suggests a percentage-based metric, an…"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "0.11",
+          "research_content_excerpt": "Based on the search results, Costco's **Debt to Assets ratio in 2024 (fiscal year ended September 1, 2024) was 0.11** [1]. \n\nIf you're looking for a different \"Debt to Value\" metric, the search results also show other debt ratios for 2024: Debt to Equity was 0.31 and Debt to Capital was 0.24 [1].",
+          "judge_reasoning": "The agent extracted Debt to Assets ratio (0.11) but the expected answer is Debt to Value (2.65%). These are different metrics - the agent did not provide the correct metric despite mentioning other ratios."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "2.3%",
+          "research_content_excerpt": "Based on the search results, Costco's **Debt to Capital ratio in 2024 was 2.3%**, which represented a 5-year low as of September 2024 [1]. This indicates that Costco maintains a very conservative capital structure with minimal debt relative to its total capital.",
+          "judge_reasoning": "The agent reported Debt to Capital ratio of 2.3%, but the expected answer is Debt to Value of 2.65% - these are different metrics with different values."
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Debt over total firm value",
+      "bucket": "all_wrong",
+      "failure_mode": "wrong_metric_definition",
+      "diagnosis": "EXA extracted 0.31, advanced extracted 0.11 (debt-to-assets instead), basic reported 2.3% (debt-to-capital). All reported different ratios; expected answer is Debt to Value at 2.65%.",
+      "source_type_needed": "FY2024 balance sheet: total debt and total firm value (market equity + net debt)"
+    },
+    {
+      "q_index": 27,
+      "question": "Calculate Operating Deferred Tax Asset, net of deferred tax liabilities in 2024",
+      "expected_answer": "-$535 (in millions)",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The provided search excerpts do not contain the specific numerical figures needed to calculate Costco's operating deferred tax asset net of deferred tax liabilities for 2024. While [1] indicates that Costco's 2024 Annual Report discusses deferred tax accounting, and [2] references components of deferred tax assets and liabilities, neither excerpt provides the actual balance sheet amounts required for this calculation. You would need to access Costco's 2024 10-K filing or annual report directly to find the specific deferred tax asset and liability figures.",
+          "judge_reasoning": "The research report did not provide any numerical answer - it explicitly states that the required figures are not available in the search excerpts and that the 10-K filing would need to be accessed directly."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "$832 million",
+          "research_content_excerpt": "Based on the search results provided, I can find information about Costco's deferred tax position in 2024. According to excerpt [3], which shows Costco's income tax analysis:\n\n**Operating Deferred Tax Asset, net of deferred tax liabilities in 2024 (as of September 1, 2024): Approximately $832 million** [3]\n\nThis figure represents the net deferred tax assets after accounting for deferred tax liabilities. The breakdown shows deferred tax assets of approximately $2,475 million reduced by a valuation allowance and deferred tax liabilities (including property and equipment, merchandise inventories…",
+          "judge_reasoning": "The agent extracted $832 million as the operating deferred tax asset net of liabilities, but the expected answer is -$535 million. These are significantly different values with opposite signs, indicating the agent provi…"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The provided search results do not contain specific information about Costco's operating deferred tax asset or deferred tax liabilities for 2024. While the search results include Costco's balance sheet and financial statements for fiscal year 2024 (ended September 1, 2024) [1][2], the actual deferred tax asset and liability line items are not displayed in the excerpts provided. To find this information, you would need to review Costco's complete 10-K filing or annual report, specifically the tax footnote section which details deferred tax assets and liabilities.",
+          "judge_reasoning": "The agent's report does not provide an answer to the question - it states that the information is not available in the search results and that the tax footnote section needs to be reviewed, rather than calculating or re…"
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Operating DTA net of DTL balance",
+      "bucket": "all_wrong",
+      "failure_mode": "missing_filing_access",
+      "diagnosis": "Basic found no answer, EXA extracted $832M (opposite sign from expected -$535M), advanced found no answer. All failed to locate or calculate net operating deferred tax asset/liability from tax footnote.",
+      "source_type_needed": "FY2024 10-K tax footnote: deferred tax assets and liabilities, net operating classification"
+    },
+    {
+      "q_index": 28,
+      "question": "Calculate Operating Deferred Tax Asset, net of deferred tax liabilities in 2023",
+      "expected_answer": "-$574 (in millions)",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "I cannot find specific information about Costco's operating deferred tax asset net of deferred tax liabilities for 2023 in the provided search results. While result [4] references Costco's 2023 SEC filing, it does not contain the actual deferred tax figures. To obtain this calculation, you would need to access Costco's Form 10-K for fiscal year 2023 (ended September 3, 2023) and review the income tax note in the financial statements, which typically details deferred tax assets and liabilities separately.",
+          "judge_reasoning": "The agent's report explicitly states it cannot find the specific deferred tax information needed and does not provide a numerical answer, whereas the expected answer is -$574 million."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "# Costco Operating Deferred Tax Asset, Net in 2023\n\nBased on the search results provided, I can see reference to deferred tax information but cannot locate the specific line item for \"Operating Deferred Tax Asset, net of deferred tax liabilities\" for fiscal year 2023 (ended September 3, 2023).\n\nHowever, [5] shows that Costco's **Net deferred tax assets (liabilities)** figure for September 3, 2023 can be calculated from the detailed components listed, though the exact net total figure is not clearly displayed in the excerpt provided.\n\nThe search results contain fragmented financial data and do…",
+          "judge_reasoning": "The research report did not extract or provide a specific numerical answer for the operating deferred tax asset net figure for 2023, stating instead that the exact net total figure was not clearly displayed and that the…"
+        },
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "The search results provided do not contain the specific operating deferred tax asset and deferred tax liability figures for Costco in 2023 needed to calculate the net amount. While the balance sheet excerpt from the fiscal year 2023 earnings report is included [1], it does not show the deferred tax line items. The tax footnote details that would typically contain this information are not included in these search results.\n\nTo find this information, you would need to review Costco's complete Form 10-K annual report for fiscal year 2023, specifically the income tax footnote (Note 11 or similar),…",
+          "judge_reasoning": "The agent's report did not provide any calculated answer for the operating deferred tax asset net of liabilities; it only stated that the information was not available in the search results, when the expected answer is …"
+        }
+      ],
+      "question_type": "basic",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Operating DTA net of DTL prior year",
+      "bucket": "all_wrong",
+      "failure_mode": "missing_filing_access",
+      "diagnosis": "Basic, EXA, and advanced all found no answer or stated information unavailable. All three failed to extract or calculate operating deferred tax asset net of liabilities for 2023.",
+      "source_type_needed": "FY2023 10-K tax footnote: deferred tax assets and liabilities, net operating classification"
+    },
+    {
+      "q_index": 31,
+      "question": "Calculate the Unlevered Beta for 2024.",
+      "expected_answer": "0.77",
+      "attempts": [
+        {
+          "provider_label": "tavily_search:advanced",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "I cannot calculate Costco's Unlevered Beta for 2024 from the provided search excerpts. The search results contain Costco's financial statements and balance sheet data for 2024, but they do not include the company's levered (equity) beta or the specific debt and equity values needed to unlever the beta using the standard formula:\n\n**Unlevered Beta = Levered Beta / [1 + (1 - Tax Rate) × (Debt / Equity)]**\n\nOne excerpt [5] mentions an \"Adjusted beta\" of 0.42-0.46 for WACC calculations, but this appears to be an already-adjusted figure rather than the raw levered beta needed for unlevering. To ca…",
+          "judge_reasoning": "The agent's research report explicitly states it cannot calculate the Unlevered Beta and provides no final answer, whereas the expected answer is 0.77."
+        },
+        {
+          "provider_label": "exa_search:auto",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "I cannot calculate Costco's unlevered beta for 2024 using the provided search excerpts. While the excerpts explain the unlevered beta formula—βu = βl ÷ [1 + (1 − t) × (D/E)] [4]—they do not provide the specific 2024 data needed for Costco, such as its 2024 levered beta, debt-to-equity ratio, and tax rate. One source mentions Costco has a beta of 0.91 [9], but this appears to be levered beta without the accompanying 2024 financial data required to unlever it.",
+          "judge_reasoning": "The agent's report explicitly states it cannot calculate the unlevered beta and provides no final answer, while the expected answer is 0.77."
+        },
+        {
+          "provider_label": "tavily_search:basic",
+          "is_correct": 0,
+          "extracted_answer": "",
+          "research_content_excerpt": "Based on the provided search results, I cannot calculate Costco's Unlevered Beta for 2024. While the results show Costco's **levered beta (5-year)** is **0.91** [2][3][5], they do not provide the necessary financial data (debt, equity values, and tax rate) needed to unlever this beta using the standard formula: Unlevered Beta = Levered Beta / [1 + (1 - Tax Rate) × (Debt / Equity)]. One excerpt mentions calculating unlevered beta [1] but does not provide the actual calculation or result.",
+          "judge_reasoning": "The agent's report explicitly states it cannot calculate the unlevered beta and provides no final answer, while the expected answer is 0.77."
+        }
+      ],
+      "question_type": "assumption",
+      "company": "Costco",
+      "query_type": "calculation",
+      "notes": "Levered beta adjusted for capital structure",
+      "bucket": "all_wrong",
+      "failure_mode": "calculation_error",
+      "diagnosis": "All three providers (advanced, EXA, basic) explicitly stated they cannot calculate unlevered beta and provided no answer. Expected answer is 0.77, requiring levered beta and capital structure adjustment.",
+      "source_type_needed": "Levered beta (from market data), market value debt, market value equity to unlever: beta_u = beta_l / [1 + (1-tax_rate)×D/E]"
+    }
+  ],
+  "failure_mode_counts": {
+    "calculation_error": 11,
+    "missing_filing_access": 5,
+    "retrieval_gap": 2,
+    "wrong_metric_definition": 3,
+    "ambiguous_question": 1,
+    "wrong_entity": 1,
+    "wrong_period": 1
+  },
+  "success_factor_counts": {
+    "direct_filing_extract": 3
+  }
+}

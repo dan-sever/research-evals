@@ -38,6 +38,25 @@ This is about the retrieval surface, not the reasoning. Even a perfect reasoner 
 
 ---
 
+## Scheme C — Financial query type
+
+**Question it answers:** "What kind of cognitive move does this atomic financial question require?"
+
+Used by the two 10-K-style benchmarks (`financebench`, `financeqa`). The original two schemes (reasoning, retrieval) were designed for open-web QA and don't separate failure modes cleanly when every question is "look up something in an SEC filing." This scheme replaces them for finance.
+
+The four categories are mutually exclusive — pick the dominant move. A question that *combines* a lookup and a small calculation should be tagged `calculation` (the harder move wins).
+
+| label | definition | example queries |
+| --- | --- | --- |
+| **direct-lookup** | The answer is a single value or fact stated verbatim in a financial document (10-K, 10-Q, earnings release). No math, no judgment, no comparison. | "What was the FY2018 capex amount for 3M?" / "What is Gross Profit for the year ending 2024?" |
+| **calculation** | Requires arithmetic over two or more retrieved values: ratios, margins, growth rates, deltas, sums. The agent must fetch the inputs and compute the output. | "What was Costco's gross margin in FY2024?" / "What is unadjusted EBITDA for FY2024?" / "What is the YoY revenue growth?" |
+| **comparative** | Relative judgment across two or more periods, segments, line items, or companies. The agent has to retrieve both sides and weigh them. | "Did 3M's operating margin improve from FY2021 to FY2022?" / "Which segment grew fastest?" |
+| **conceptual** | Requires finance or accounting interpretation, not just retrieval + math. The answer is a judgment, an attribution, or a classification. | "Is 3M a capital-intensive business?" / "What drove the operating margin change in FY2022?" / "How would you classify this debt covenant?" |
+
+The CSV column is `query_type`. Anchoring rule is the same as the other schemes: tags are pinned to the parquet's natural order, so any join must condition on `seed is None`.
+
+---
+
 ## Applying these to a new dataset
 
 When you add a benchmark (`BenchmarkSpec` in `benchmarks/datasets.py`):

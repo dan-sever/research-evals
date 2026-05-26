@@ -1,0 +1,149 @@
+q_index,query_type,notes,question
+0,direct-lookup,FY2024 Gross Profit direct extract from financials,What is Gross Profit in the year ending 2024?
+1,direct-lookup,FY2024 unadjusted EBITDA stated in report,What is unadjusted EBITDA for the year ending in 2024?
+2,direct-lookup,FY2024 adjusted EBITDA stated or reconciled,What is adjusted EBITDA for the year ending in 2024?
+3,direct-lookup,FY2024 unadjusted EBIT direct extract,What is unadjusted EBIT for the year ending in 2024?
+4,direct-lookup,FY2024 adjusted EBIT from reconciliation,What is adjusted EBIT for the year ending in 2024?
+5,calculation,unadjusted EBITDA divided by revenue,Compute the unadjusted EBITDA Margin for 2024. 
+6,calculation,adjusted EBITDA divided by revenue,Compute the adjusted EBITDA Margin for 2024. 
+7,calculation,Operating Profit margin as ratio of revenue,What is the Operating Profit Margin in the year ending 2024?
+8,comparative,Op margin 2024 vs 2023 period comparison,Is Operating Profit Margin greater in 2024 compared to 2023?
+9,calculation,Operating Profit from revenue and COGS,Calculate Operating Profit for 2024.
+10,calculation,Stock price divided by Basic EPS,What is the P/E ratio for 2024 using Basic EPS?
+11,calculation,Stock price divided by Diluted EPS,What is the P/E ratio for 2024 using Diluted EPS?
+12,calculation,Net Income divided by fully diluted shares,What is the Diluted EPS of Costco? Manually calculate fully diluted shares outstanding.
+13,calculation,Enterprise Value over adjusted EBITDA,Determine the EV/EBITDA ratio for 2024. Make sure to adjust for EBITDA and use the market value of equity to estimate enterprise value. Make sure to hand calculated fully diluted shares outstanding. Assume the only non-operating asset is excess cash.
+14,calculation,Market equity plus net debt calculation,Calculate Enterprise Value for 2024 with the market value of equity. Make sure to hand calculated fully diluted shares outstanding. Assume the only non-operating asset is excess cash.
+15,calculation,Enterprise Value minus net debt,What is the Equity Value in 2024? Assume Enterprise Value is 420 Billion and assume the only non-operating asset not factored into Enterprise Value is excess cash.
+16,calculation,Stock price times diluted shares outstanding,Compute the Market Value of Equity for 2024. Manually calculate fully diluted shares outstanding.
+17,calculation,Risk-free rate plus beta times market premium,Estimate the Cost of Equity using the CAPM model for 2024.
+18,calculation,Weighted average cost of debt and equity,Calculate WACC for 2024.
+19,calculation,Market value debt to equity ratio,What is market debt to equity ratio?
+20,calculation,Debt over total firm value,What is the Debt to Value in 2024?
+21,calculation,Equity over total firm value,What is the Equity to Value in 2024?
+22,calculation,Tax expense over pre-tax income,What is the effective tax rate in 2024?
+23,direct-lookup,Statutory tax rate from tax footnote,What is the marginal tax rate in 2024?
+24,calculation,Adjusted EBIT times marginal tax rate,What are the statutory / marginal taxes on adjusted EBIT?
+25,calculation,Operating taxes from tax reconciliation,What is the operating tax in 2024?
+26,calculation,Operating taxes less deferred tax change,What is the operating cash tax in 2024?
+27,calculation,Operating DTA net of DTL balance,"Calculate Operating Deferred Tax Asset, net of deferred tax liabilities in 2024"
+28,calculation,Operating DTA net of DTL prior year,"Calculate Operating Deferred Tax Asset, net of deferred tax liabilities in 2023"
+29,calculation,Operating cash tax divided by NOPAT,What is the operating cash tax rate in 2024?
+30,calculation,Basic shares plus in-the-money options,Determine the Fully Diluted Shares Outstanding in 2024.
+31,calculation,Levered beta adjusted for capital structure,Calculate the Unlevered Beta for 2024.
+32,calculation,Total debt plus lease obligations,Compute Debt for 2024. Include Debt Equivalents.
+33,direct-lookup,FY2024 cash balance sheet extract,How much cash and cash equivalents did Costco have at year end 2024?
+34,calculation,Total debt minus cash and equivalents,Compute Net Debt for 2024.
+35,direct-lookup,FY2024 shareholders equity from balance,What is the Book Value of Equity in 2024?
+36,calculation,NOPAT over average invested capital,Calculate ROIC for 2024.
+37,calculation,Operating assets less current liabilities,"Determine Invested Capital including Goodwill for 2024, using 2% of revenue as max potential operating cash."
+38,calculation,Invested capital excluding goodwill,"Determine Invested Capital excluding Goodwill for 2024, using 2% of revenue as max potential operating cash."
+39,calculation,FY2023 invested capital with goodwill,"Determine Invested Capital including Goodwill for 2023, using 2% of revenue as max potential operating cash."
+40,calculation,Average invested capital 2023-2024,Determine the Average Invested Capital (includes Goodwill) over 2023 and 2024.
+41,conceptual,Classify operating vs non-operating LT assets,What is the operating portion of long-term assets in 2024?
+42,conceptual,FY2023 operating portion long-term assets,What is the operating portion of long-term assets in 2023?
+43,calculation,Other LT assets unaccounted for line,"I see that there is a long-term assets line item. What is the portion of other long-term assets that's not accounted for, that we don't know what line item is is for, in 2024?"
+44,conceptual,Classify operating long-term liabilities,What is the operating portion of long-term liabilities in 2024?
+45,conceptual,FY2023 operating long-term liabilities,What is the operating portion of long-term liabilities in 2023?
+46,calculation,Operating LT assets net of LT liabilities,"What is the operating portion of long-term assets, net long-term liabilities in 2024?"
+47,calculation,FY2023 operating LT assets net liabilities,"What is the operating portion of long-term assets, net long-term liabilities in 2023?"
+48,calculation,Change in net operating LT 2023-2024,"What is the change in operating portion of long-term assets, net long-term liabilities from 2023 to 2024?"
+49,calculation,Unaccounted LT assets net of liabilities,"What is the portion of other long-term assets that's not accounted for in 2024, net of the portion of other long-term operating liabilities not accounted for?"
+50,calculation,Change in unaccounted net LT positions,"After separating other long-term assets, net of long-term liabilities to find what portion of that number is unaccounted for, can you measure the change between 2023 and 2024 for that operating metric?"
+51,calculation,Operating income after tax adjustments,Calculate NOPAT for 2024. Make sure to make adjustments for one-time changes.
+52,calculation,FY2023 ROU lease asset estimate,Estimate Variable Lease Assets in 2023
+53,calculation,FY2024 ROU lease asset estimate,Estimate Variable Lease Assets in 2024
+54,calculation,Change in lease assets 2023-2024,Estimate the change in variable lease assets from 2023 to 2024
+55,calculation,FY2024 operating lease liability,Estimate Variable Lease Liability in 2024
+56,calculation,"2% of revenue or cash, whichever minimum","What is operating cash for 2024? If there is no mention, assume it is the minimum of 2% of revenue and cash & cash equivalents."
+57,calculation,Total cash minus operating cash reserve,"What is excess cash in 2024, given that operating cash is calculated as the minimum between taking 2% of revenue and cash."
+58,calculation,Current assets less non-operating cash,"What is operating current assets in 2024, assuming that 2% of revenue is operating cash?"
+59,direct-lookup,Operating current liabilities from balance,What is operating current liability in 2024?
+60,calculation,Operating current assets minus liabilities,"What is Operating Working Capital for 2024, using 2% of revenue as max potential operating cash?"
+61,direct-lookup,FY2024 interest expense from P&L,What is 2024 Interest Expense?
+62,calculation,EBIT divided by interest expense,Calculate the EBIT Interest Coverage Ratio for 2024.
+63,calculation,EBITA divided by interest expense,Calculate the EBITA Interest Coverage Ratio for 2024.
+64,calculation,Net income divided by average total assets,Determine ROA for 2024.
+65,calculation,Net income divided by average equity,Calculate ROE for 2024.
+66,direct-lookup,FY2024 customer retention rate disclosure,What is the Customer (Logo) Retention Rate in 2024?
+67,calculation,Revenue divided by user count,Calculate ARPU (Average Revenue Per User) for 2024.
+68,direct-lookup,Segment revenue per store geography,What is revenue per store cut by geography in 2024?
+69,direct-lookup,Same-store sales growth metric disclosure,What was Costco Sames Store Sales growth?
+70,direct-lookup,FY2024 member churn number reported,How many members churned in 2024?
+71,direct-lookup,FY2024 new members joined count,How many new members joined in 2024?
+72,calculation,FY2023 operating working capital,"What's the operating working capital in 2023, using 2% of revenue as max potential operating cash?"
+73,calculation,OWC 2024 minus OWC 2023 delta,"What is the change in operating working capital from 2023 to 2024, using 2% of revenue as max potential operating cash?"
+74,calculation,NOPAT less capex and WC change,Compute UFCF (Unlevered Free Cash Flow) for 2024.
+75,calculation,UFCF less debt service and interest,Calculate levered free cash flow for 2024.
+76,calculation,Receivables divided by daily revenue,Calculate Accounts Receivables Days for 2024.
+77,calculation,Payables divided by daily COGS,Calculate Accounts Payables Days for 2024.
+78,calculation,COGS divided by average inventory,Calculate Inventory Turnover for 2024.
+79,calculation,Enterprise value divided by revenue,Determine the EV/Sales ratio for 2024.
+80,calculation,Asset turnover ratio requires revenue and total assets math,Calculate Asset Turnover for 2024.
+81,calculation,Sales per store metric requires dividing total sales by store count,What was Sales per store in 2024?
+82,calculation,Sales per square foot requires dividing sales by total square footage,What was Sales per sq ft in 2024?
+83,comparative,Geographic segmentation comparison of same metric across regions,What was Sales per sq ft cut by geography in 2024?
+84,calculation,Post-merger EPS accretion requires dilution math and earnings pooling,"Company X trades at $15 per share and has 80 shares outstanding, with $80 in net income. Company Y trades at $30 per share, has 15 shares outstanding, and earns $20 in net income. Company X acquires Company Y at no premium, paying 60% in new stock and 40% in cash. After the transaction, what is the percentage change in Company X's EPS?"
+85,calculation,Future value compounding with given discount rate and time,"You deposit $80 right now. After three years, your annual IRR is 10%. How much will your deposit be worth at the end of those three years?"
+86,calculation,Present value discounting of future cash flow,"Let's say you're going to receive $75 in 7 years, with a discount rate of 9%. What is its value today?"
+87,conceptual,Investment decision requires risk judgment beyond IRR numbers,"You have two potential investments, Company X and Company Y. Both companies are available at the same purchase price and both project a levered IRR of 25%. However, investing in Company X requires 4 turns of leverage while investing in Company Y requires 7 turns. Which company would you invest in and why?"
+88,calculation,Unlevered IRR derivation from leverage multiples and levered return,"You have two potential investments, Company X and Company Y. Both companies are available at the same purchase price and both project a levered IRR of 25%. However, investing in Company X requires 4 turns of leverage while investing in Company Y requires 7 turns. Which investment has a higher unlevered IRR?"
+89,calculation,Accretion dilution analysis post-merger EPS with mixed financing,"Suppose Company X trades at $10 per share, with a P/E ratio of 2x, and it has 300 shares outstanding. Company Y trades at $8 per share, with a P/E ratio of 2x, and has 120 shares outstanding. Company X plans to buy Company Y for $9 per share, funding half of the purchase with cash (raised through debt at a 6% cost of debt that matures over four years) and half with newly issued stock. The deal also incurs $15 in financing costs and $20 in transaction fees. Is this acquisition accretive or dilutive to Company X?"
+90,conceptual,Enterprise value impact of debt-financed buyback capital structure,"Suppose a company issues 100 million in debt and uses the proceeds to repurchase its own shares. What is the effect on the company's Enterprise Value (increase, decrease, or no change)?"
+91,conceptual,Equity value impact from debt-financed share repurchase judgment,"Suppose a company raises 25 million of debt and uses it to buy back shares from its shareholders. How does this transaction affect the firm's equity value (increase, decrease, or no change)?"
+92,calculation,P/E multiple change post-leveraged share buyback impact,"Consider a firm with a market cap of 800 million and net income of 80 million that takes on 100 million in debt to buy back shares. How does this transaction influence its P/E multiple (increase, decrease or no change)?"
+93,calculation,IRR reverse engineering requires EBITDA growth solving,"A firm generating 50 of EBITDA at a 20% EBITDA margin is bought at a 10x multiple, using 40% debt to finance the deal. If the company has 100 of cash at exit and is sold at a 10x multiple after five years, what annual revenue growth rate is needed to receive a 25% IRR?"
+94,conceptual,Gift card revenue recognition and deferred revenue cash treatment,"If a customer buys a $75 Starbucks gift card, what is the immediate impact on Starbucks' cash flow before the card is used (cash inflow, cash outflow, or no change)?"
+95,conceptual,Revenue recognition timing when gift card liability converted,"Suppose you buy a $75 Starbucks gift card, then spend the entire balance on drinks. What happens to Starbucks's cash flow at the moment you use that $75 (cash inflow, cash outflow, or no change)?"
+96,calculation,Stock accretion dilution calculation all-stock acquisition EPS,"Company X trades at $40 per share, owns 100 shares in total, and earns $200 of net income. Company Y trades at $30 per share, has 50 shares outstanding, and generates $50 in net income. X acquires Y entirely by issuing new shares. Is this deal accretive or dilutive to Company X?"
+97,comparative,Comparing cost of equity vs debt using multiple and rate data,"A firm has a P/E of 12x, a borrowing rate of 5%, and a D/E of 4x. Based on these figures, is the cost of equity or debt cheaper?"
+98,calculation,WACC formula rearrangement to solve for cost of equity,"A corporation's WACC is 9%, its after-tax cost of debt is 5%, and its debt-to-equity ratio is 60%. What is its cost of equity?"
+99,calculation,Enterprise value change from new debt and acquisition,"A firm has 200 million of equity, 100 million of debt, and 70 million of cash. The company raises a 30 million term loan to finance a 60 million acquisition. How is its enterprise value affected?"
+100,calculation,Equity value impact from new debt-financed acquisition,"A firm has 200 million of equity, 100 million of debt, and 70 million of cash. The company raises a 30 million term loan to finance a 60 million acquisition. How is its equity value affected?"
+101,conceptual,Enterprise value impact of equity raise then dividend distribution,Imagine a business raises 60 million in new equity and immediately pays that amount as a dividend. What is the impact on its enterprise value?
+102,conceptual,Equity value impact from equity raise and immediate dividend,A firm obtains raises 40 million in equity and immediately distributes it to its shareholders as a one-time dividend. How does this affect the firm's equity value?
+103,calculation,MOIC and IRR calculation for leveraged buyout with debt paydown,"A private equity group acquires a company with 200M of EBITDA at a 4x multiple, financing 50% with debt. In the fifth year, EBITDA has grown to 300M, and the firm exits at a 5x multiple. Across this period, 400M of debt was paid down, with no remaining surplus cash. What are the MOIC and the IRR of this investment?"
+104,calculation,Enterprise to equity value bridge with cash and debt tiers,"Suppose an enterprise value is 200 million, with 60 million in senior debt, 30 million in junior debt, and 10 million in cash. How would you determine the company's equity value?"
+105,calculation,EPS derivation from enterprise value and share count,"If a firm has an enterprise value of 2500, cash of 200, debt of 600, a 15x P/E ratio, and 50 shares outstanding, what is the firm's EPS?"
+106,conceptual,Enterprise value sensitivity to cost of debt change judgment,"Suppose a firm is worth 2.5 million. If its borrowing rate increases, how does the firm's enterprise value (increase, decrease, or no change)?"
+107,calculation,EBITDA margin implied from revenue and EBITDA multiples,Suppose a business trades at 3x revenue and 6x EBITDA. What would its EBITDA margin be?
+108,calculation,Stock accretion dilution all-equity acquisition EPS comparison,"Suppose Firm X has a share price of $60, a P/E of 12x, and 500 shares outstanding, while Firm Y trades at $30 per share, a P/E of 8x, and has 200 shares outstanding. If Firm X purchases Firm Y entirely with stock, will the deal increase or decrease Firm X's EPS?"
+109,calculation,EBITDA calculation from margin contribution and SG&A,"You operate a phone case business, charging $30 per case, with $14 of manufacturing costs per case, and SG&A at 12% of sales. If you sell 25 cases, what is your EBITDA?"
+110,calculation,Operating profit change with volume increase fixed variable split,"A firm records 120 million in total revenue and 90 million in operating costs, yielding 30 million in operating profit. Of these costs, 50 percent are fixed and 50 percent are variable. If volume rises by 15 percent, by how much does operating profit change?"
+111,calculation,LBO MOIC and IRR with margin growth debt paydown and D&A,"Suppose a company begins with revenue of 70 and EBITDA of 14. Over five years, it consistently maintains the same EBITDA margin while revenue rises by 10 each year. The business is bought at a 350 enterprise value, 60% funded through debt, and sold at a 450 enterprise value. Every year, depreciation and amortization is 3, capital expenditure is 3, the tax rate is 50 percent, there is no interest expense, and net working capital does not change. What are the MOIC and IRR?"
+112,calculation,EBITDA impact from price increase with no volume change,"You run a coffee mug shop charging $25 per mug. Your production cost per mug is $12, and you also pay a 15% overhead on the selling price. You plan to double your total revenue by increasing prices not volume. What will your EBITDA be after the price increase?"
+113,calculation,EBITDA impact from volume doubling with no price increase,"Suppose you run a business selling backpacks at $25 each and sell 20 backpacks. Producing each backpack costs $12, and your SG&A expenses are 12% of revenue. You want to double your total revenue solely by increasing volume, not by raising prices. What is your EBITDA after this increase?"
+114,calculation,Debt tranche pricing when total debt exceeds enterprise value,"A firm has two tranches of debt, each at 150M, for a total of 300M, while its enterprise value is 250M. What does each tranche trade at?"
+115,calculation,EPS accretion dilution cross-border multiple arbitrage deal,"Company X is currently valued at 5x EV/EBITDA and 5x P/E, while Company Y trades at 6x EV/EBITDA and 4x P/E. If X acquires Y, would the deal increase or decrease X's earnings per share?"
+116,calculation,LBO MOIC IRR LFCF yield with flat EBITDA and capex,"You acquire a firm for 80 million at a 10x EBITDA multiple, financed with 60% debt at a 5% interest rate. You hold the company for 5 years and exit at a 9x multiple, with zero EBITDA growth and 2 million of annual capital expenditure. For the 5-year hold, what is the MOIC, IRR, and the first-year LFCF yield?"
+117,calculation,LBO MOIC IRR without EBITDA growth flat multiple exit,"You purchase a company for 150M at a 15x EBITDA multiple, hold it for 5 years without EBITDA growth, then exit at a 15x multiple. The investment is bought at 50% LTV with 4% cost of debt. You also spend 2M on capital expenditures annually. What are the MOIC and IRR of the deal? Assume add debt is paid down at exit and you only have access to a basic calculator."
+118,calculation,Membership pricing to match current contribution profit level,"A soda company sells each beverage for $8 while spending $3 to produce each drink. They typically sell 900 drinks per month. If they switch to a membership plan offering 4 drinks a month, what should the monthly fee be to hold the same profit?"
+119,calculation,Unit sales needed to achieve target IRR reverse engineering,"A private equity group acquires a gadget-maker via LBO. The company sells 12 gadgets in its first year. How many gadgets must it sell in year 5 to reach a 25% IRR? The company starts with EBITDA of 60, is bought at a 9x multiple, and is exited at a 10x multiple after 5 years. The deal uses 25% debt financing. Annual non-gadget revenue is 120, the initial EBITDA margin is 25%, gadget prices rise by $4 in year 5, the final EBITDA margin is 25%, and the firm finishes the period with 350 in cash. Assume a 3x MOIC corresponds to a 25% IRR."
+120,calculation,LBO MOIC and IRR with debt paydown and cash generation,"A financial sponsor acquires a business with EBITDA of $24 and an 10x purchase multiple, financed with a 2:1 debt-to-equity structure. Five years later, the sponsor exits when EBITDA is $40 at the same 10x multiple. Over the holding period, $70 of debt is fully paid down through free cash flow. What are the MOIC and IRR on the sponsor's equity?"
+121,calculation,EPS impact from tax rate change and stock price adjustment,"A business has a P/E ratio of 12 and reports $4 in EPS, making its stock trade at $48. If the tax rate is lowered from 40% to 28%, what is the updated stock price assuming the same P/E ratio?"
+122,conceptual,Enterprise value impact from cash dividend payment judgment,"Suppose a firm pays out a $15 dividend. How does this impact the firm's enterprise value (increase, decrease, or no change)?"
+123,conceptual,Equity value impact from dividend distribution to shareholders,"If a firm disburses a $12 dividend to its shareholders, what happens to its Equity Value (increase, decrease, or no change)?"
+124,calculation,Expected value of debt with default probability scenarios,"Suppose you hold a $150 million senior note on a firm's debt. There is a 40% chance the firm defaults with no recovery, and a 60% chance that its enterprise value reaches $250 million (fully covering your note). What is the fair market price of this debt?"
+125,calculation,Breakeven interest rate for neutral acquisition deal EPS,A firm trading at a 20x P/E acquires a target at 10x P/E using 50% new shares and 50% debt. What interest rate on the borrowed funds would keep the deal neutral to earnings per share?
+126,calculation,EPS accretion dilution from multiple arbitrage stock deal,"If a business is trading at 15x its earnings and acquires a target valued at 7x earnings, does this transaction increase or decrease the acquirer's earnings per share?"
+127,calculation,Debt tranche pricing from enterprise value waterfall,"Imagine a firm valued at 600M, with 400M in senior secured notes and an additional 300M in junior secured notes. How would each note class be priced based on this valuation?"
+128,calculation,Profit sensitivity analysis volume price overhead scenarios,"A business earns $200 in sales per period, with a 25% gross margin. Which option boosts profit most: increasing unit sales by 16%, raising prices by 4%, or cutting overhead by $2?"
+129,comparative,Financial risk assessment comparing leverage levels at same IRR,"Suppose you have two investment opportunities, both offering a 22% levered IRR. Option X will be financed at 4x leverage, while Option Y will be financed at 7x leverage, and both require the same equity investment. Which investment has  greater financial risk?"
+130,conceptual,Interest expense and ROE impact from debt-financed acquisition,"If Company B funds an acquisition with debt, how could the resulting interest expenses and added income change its net earnings and shareholder returns (return on equity)?"
+131,conceptual,WACC cost of capital relationship with debt level judgment,"As a company takes on more debt, what happens to the company's WACC?"
+132,comparative,Cash flow statement impact debt vs equity capital structure,"Two similar firms have identical operations but different funding methods: Firm A raises 60% through equity and 40% via debt, whereas Firm B relies solely on equity. How does Firm A's debt financing affect its cash flow statement versus Firm B?"
+133,conceptual,Depreciation non-cash impact on discounted cash flow analysis,"If we increase annual depreciation by 25 dollars, what effect does this have on the discounted cash flow analysis?"
+134,calculation,Net debt implied from EV and P/E multiple divergence,"A manufacturing company has an EV/EBITDA multiple of 12x and a P/E ratio of 12x. From this information, how much net debt does this company have? "
+135,calculation,Net income difference from interest expense tax shield effect,"Imagine two comparable firms that earn identical operating income. Firm X is financed with 60% equity and 40% debt, while Firm Y is completely equity-funded. How does Firm X's interest expense on debt affect its net income relative to Firm Y's net income?"
+136,conceptual,Three-statement impact asset purchase cash transaction,A firm acquires a piece of machinery for 250 with cash. Demonstrate how this transaction affects the primary financial statements.
+137,conceptual,Asset write-down three-statement tax impact treatment,How does a 100-dollar asset write-down at a 20% tax rate affect each financial statement?
+138,calculation,Asset sale gain three-statement impact with tax effect,"Imagine a company disposes of an asset booked at 60 and receives 120 in proceeds. How would this transaction affect the three financial statements, assuming a 20% tax rate?"
+139,conceptual,Inventory purchase three-statement cash treatment,"A company spends 15 dollars in cash to purchase more inventory. Assuming a 35% income tax rate, how would this transaction influence the firm's financial statements?"
+140,calculation,Revenue three-statement impact mixed cash credit transaction,"A company records a $200 sale, receiving $100 in cash and $100 on credit. With a 35% tax rate, how do the income statement, balance sheet, and cash flow statement each change?"
+141,conceptual,Merger accounting three-statement impact and mechanics,Walk me through how the 3 statements are impacted by a merger.
+142,calculation,Inventory purchase financed by debt three-statement impact,How are the three statement are affected when a company buys $300 of inventory by issuing new debt?
+143,calculation,Depreciation increase three-statement tax shield effect,"Describe the outcome of a $100 increase in depreciation on the three financial statements, assuming an 12% tax rate."
+144,calculation,PIK debt interest three-statement balance sheet accrual impact,"The firm currently has 200 of PIK debt at an 10% interest rate and faces a 35% tax rate, how will this flow through the balance sheet, income statement, and cash flow statement?"
+145,calculation,Asset sale gain three-statement deferred tax impact,A business sells of an asset with a carrying value of 50 for 75. Assume a 25% tax rate. How does this affect the financial statements?
+146,calculation,Multi-transaction three-statement debt interest principal repayment,"A firm borrowed $300 in order to buy goods. It later sold those goods for $600, incurred $150 in operating expenses, paid 6% interest on the loan, and repaid 12% of the original principal. Assume a tax rate of 10% How are the income statement, balance sheet, and cash flow statement affected after this transaction?"
+147,calculation,P/E multiple change from debt-financed share repurchase impact,Company X buys back stock with debt. How does that impact the P/E ratio of the company?

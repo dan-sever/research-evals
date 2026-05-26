@@ -65,6 +65,11 @@ def _deepsearchqa_dims(seed) -> pd.DataFrame:
 
 
 @st.cache_data
+def _finance_native_dims(benchmark: str, seed) -> pd.DataFrame:
+    return dimensions.finance_native_dims(benchmark, seed)
+
+
+@st.cache_data
 def _dataset_size(name: str) -> int:
     spec = datasets.REGISTRY[name]
     import pyarrow.parquet as pq
@@ -409,6 +414,83 @@ def _render_deepsearchqa_panel(
     _render_easy_missed(matrix, dims_lookup=dims_lookup, dim_cols=dim_cols)
 
 
+def _render_finance_panel(
+    matrix: pd.DataFrame, tags: pd.DataFrame, native: pd.DataFrame,
+    seed, benchmark: str,
+) -> None:
+    """Slimmer dashboard for the two finance benchmarks.
+
+    Intentionally fewer panels than SealQA / DeepSearchQA — finance
+    benchmarks are smaller (~150 questions) and the search-tier
+    comparison doesn't have the mini-vs-pro pivot, so the bulk of
+    diagnostics live in the Finance Search tab. This view covers the
+    headline plus the slice breakdowns and the infra split.
+    """
+    if matrix.empty:
+        st.info(f"No {benchmark} runs yet at this seed.")
+        return
+    matrix = _drop_low_n_models(matrix, dc.MIN_N_DISPLAY)
+    if matrix.empty:
+        st.info(
+            f"No {benchmark} models with ≥{dc.MIN_N_DISPLAY} graded runs yet."
+        )
+        return
+
+    # Scheme C (query_type) is the primary lens. Anchored to natural order,
+    # so it only joins when seed is blank — same rule as SealQA / DeepSearchQA.
+    taxonomy_ok = (
+        seed is None and not tags.empty and "query_type" in tags.columns
+    )
+    if not tags.empty and seed is not None and "query_type" in tags.columns:
+        st.info(
+            f"Taxonomy tags in `docs/tags/{benchmark}.csv` are anchored to "
+            "the parquet's natural order. Switch to seed=blank to see the "
+            "query-type breakdown."
+        )
+
+    if taxonomy_ok:
+        st.markdown(f"### By query type (docs/tags/{benchmark}.csv)")
+        order = ["direct-lookup", "calculation", "comparative", "conceptual"]
+        present = set(tags["query_type"].astype(str).unique())
+        expected = [v for v in order if v in present]
+        slice_df = dc.slice_accuracy(matrix, tags, "query_type", dim_order=expected)
+        _missing_caption(slice_df, "query_type", expected)
+        _altair(
+            dc.grouped_accuracy_bar(
+                slice_df, "query_type", expected, "By query type (Scheme C)",
+            ),
+            key=f"{benchmark}_tax_query_type",
+        )
+
+    # Native columns are picked per benchmark — financebench is richer
+    # (question_type + question_reasoning + gics_sector), financeqa just
+    # ships question_type. Skip anything that isn't in the parquet.
+    native_slices: list[tuple[str, str]] = []
+    if "question_type" in native.columns:
+        native_slices.append(("question_type", "By question_type (dataset native)"))
+    if benchmark == "financebench":
+        if "question_reasoning" in native.columns:
+            native_slices.append(
+                ("question_reasoning", "By question_reasoning")
+            )
+        if "gics_sector" in native.columns:
+            native_slices.append(("gics_sector", "By GICS sector"))
+
+    for col, title in native_slices:
+        order = sorted(native[col].dropna().astype(str).unique().tolist())
+        slice_df = dc.slice_accuracy(matrix, native, col, dim_order=order)
+        _altair(
+            dc.grouped_accuracy_bar(slice_df, col, order, title),
+            key=f"{benchmark}_native_{col}",
+        )
+
+    st.markdown("### Latency")
+    _altair(dc.latency_box(matrix), key=f"{benchmark}_latency_box")
+
+    st.markdown("### Error vs wrong-answer split")
+    _altair(dc.error_vs_wrong_bar(matrix), key=f"{benchmark}_error_vs_wrong")
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -422,7 +504,8 @@ def render() -> None:
     )
 
     benchmarks = [
-        "finsearchcomp", "sealqa_seal0", "sealqa_seal_hard", "sealqa_longseal",
+        "finsearchcomp", "financebench", "financeqa",
+        "sealqa_seal0", "sealqa_seal_hard", "sealqa_longseal",
         "deepsearchqa",
     ]
     bench = st.segmented_control(
@@ -482,4 +565,12 @@ def render() -> None:
             _deepsearchqa_dims(seed),
             _sealqa_tags("deepsearchqa"),
             seed,
+        )
+    elif bench in ("financebench", "financeqa"):
+        _render_finance_panel(
+            matrix,
+            _sealqa_tags(bench),
+            _finance_native_dims(bench, seed),
+            seed,
+            bench,
         )

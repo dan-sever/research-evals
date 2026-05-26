@@ -119,12 +119,15 @@ Per-benchmark payload builders live in `BENCHMARK_PAYLOADS` (currently `finsearc
 
 ## Question taxonomy
 
-Two schemes documented in `docs/question_taxonomy.md`:
+Three schemes documented in `docs/question_taxonomy.md`:
 
 - **Scheme A (reasoning):** `single-hop`, `multi-hop`, `comparative`, `unanswerable`.
 - **Scheme B (retrieval):** `common`, `specialized`, `fresh`, `tricky-phrasing`.
+- **Scheme C (financial query type):** `direct-lookup`, `calculation`, `comparative`, `conceptual`. Used by `financebench` and `financeqa`. Schemes A & B don't separate failure modes cleanly when every question is a 10-K extract.
 
-Per-benchmark labels live in `docs/tags/{benchmark}.csv` with columns `q_index, reasoning, retrieval, notes, question`. Currently populated for `sealqa_seal0` (full coverage of all 110 questions) and `deepsearchqa` (partial coverage: only the q_indices that have been answered, generated via `python tools/classify_questions.py deepsearchqa`). Re-run that script after answering more questions to extend the CSV.
+Per-benchmark labels live in `docs/tags/{benchmark}.csv`. SealQA/DeepSearchQA carry `q_index, reasoning, retrieval, notes, question`; finance benchmarks carry `q_index, query_type, notes, question`. Currently populated for `sealqa_seal0` (full coverage of all 110 questions), `deepsearchqa` (partial — only answered q_indices, regen via `python tools/classify_questions.py deepsearchqa`), and both finance benchmarks (full coverage, regen via `python tools/classify_finance_questions.py {financebench|financeqa}`).
+
+`benchmarks.dimensions.taxonomy_tags(benchmark)` returns whichever subset of these columns the CSV ships with — callers branch on column presence rather than benchmark name.
 
 **Anchoring rule:** the tags CSV is anchored to the parquet's *natural order* (no seed). Every join that uses it must condition on `seed is None`. The Dashboard, Insights, and Export tabs all enforce this; if you wire taxonomy joins into a new view, do the same. With a non-None seed, `q_index` no longer matches the CSV's row indices.
 

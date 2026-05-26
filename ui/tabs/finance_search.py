@@ -26,7 +26,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from benchmarks import datasets, launcher, providers, storage
+from benchmarks import datasets, dimensions, launcher, providers, storage
 from benchmarks.config import load_env
 from ui import cache as ui_cache
 from ui import costs as ui_costs
@@ -613,7 +613,7 @@ def _render_head_to_head() -> None:
        "accuracy", "avg_duration", "run_id"]].reset_index(drop=True)
     st.dataframe(display_summary, width="stretch", hide_index=True)
 
-    # ----- Per-question matrix -----
+    # ----- Build per-question result frame (used by dashboard + matrix) -----
     all_results: list[pd.DataFrame] = []
     for r in set_runs:
         rows = storage.get_results(r["id"])
@@ -632,6 +632,9 @@ def _render_head_to_head() -> None:
         key=_combo_sort_key,
     )
     combo_labels = [f"{p}:{m}" for p, m in combos_in_set]
+
+    # ----- By query type (finance taxonomy, Scheme C) -----
+    _render_by_query_type(meta["benchmark"], meta.get("seed"), data)
 
     qi_to_question = (
         data.drop_duplicates("q_index").set_index("q_index")["question"].to_dict()
@@ -822,3 +825,174 @@ def _render_head_to_head() -> None:
                                 st.markdown(f"{i}. {title}")
                         else:
                             st.markdown(f"{i}. {s}")
+
+
+# Display order for query_type columns / chart x-axis. Mirrors Scheme C in
+# docs/question_taxonomy.md (direct-lookup -> calculation -> comparative ->
+# conceptual, roughly easy-to-hard for a retrieval system).
+_QUERY_TYPE_ORDER = ("direct-lookup", "calculation", "comparative", "conceptual")
+
+
+def _render_by_query_type(benchmark: str, seed, data: pd.DataFrame) -> None:
+    """Per-query-type accuracy view (Scheme C).
+
+    Joins per-question results with the tags CSV at
+    `docs/tags/{benchmark}.csv` on q_index. The tags CSV is anchored to
+    the parquet's *natural order* (no seed), so we only render this when
+    the comparison set ran at seed=None. Otherwise the q_index alignment
+    breaks silently and we'd show wrong numbers.
+    """
+    st.markdown("**By query type**")
+
+    tags = dimensions.taxonomy_tags(benchmark)
+    if "query_type" not in tags.columns or tags.empty:
+        st.caption(
+            f"No `query_type` tags for `{benchmark}`. Run "
+            f"`python tools/classify_finance_questions.py {benchmark}` "
+            "to generate them."
+        )
+        return
+    if seed is not None:
+        st.caption(
+            "Per-query-type slicing requires the comparison set to run at "
+            f"seed=None (this set used seed={seed}). The tags CSV is "
+            "anchored to the parquet's natural order."
+        )
+        return
+
+    merged = data.merge(
+        tags[["q_index", "query_type"]], on="q_index", how="left",
+    )
+    orphans = int(merged["query_type"].isna().sum())
+    if orphans:
+        st.caption(f"{orphans} result row(s) had no matching tag.")
+
+    # accuracy = correct / graded — same denominator rule as everywhere
+    # else in the app (CLAUDE.md rule 5). Errored rows fall out of both
+    # numerator and denominator.
+    grouped = (
+        merged.dropna(subset=["query_type"])
+        .groupby(["provider", "model_used", "query_type"])
+        .agg(
+            graded=("is_correct", lambda s: int(s.notna().sum())),
+            correct=("is_correct", lambda s: int((s == 1).sum())),
+        )
+        .reset_index()
+    )
+    if grouped.empty:
+        st.caption("No graded rows joined to a query type yet.")
+        return
+    grouped["accuracy"] = grouped.apply(
+        lambda r: (r["correct"] / r["graded"]) if r["graded"] else None,
+        axis=1,
+    )
+
+    # Pivot for the dense table view: rows = provider:model, cols = type.
+    pivot_rows: list[dict] = []
+    for (p, m), grp in grouped.groupby(["provider", "model_used"]):
+        row: dict = {"provider:model": f"{p}:{m}"}
+        # Overall (across all types in scope).
+        tot_graded = int(grp["graded"].sum())
+        tot_correct = int(grp["correct"].sum())
+        overall_pct = (tot_correct / tot_graded * 100) if tot_graded else 0
+        row["overall"] = (
+            f"{tot_correct}/{tot_graded} ({overall_pct:.0f}%)"
+            if tot_graded else "—"
+        )
+        for _, t in grp.iterrows():
+            qt = t["query_type"]
+            g = int(t["graded"])
+            c = int(t["correct"])
+            pct = (c / g * 100) if g else 0
+            row[qt] = f"{c}/{g} ({pct:.0f}%)" if g else "—"
+        pivot_rows.append(row)
+    pivot_df = pd.DataFrame(pivot_rows)
+    cols = ["provider:model", "overall"] + [
+        c for c in _QUERY_TYPE_ORDER if c in pivot_df.columns
+    ]
+    pivot_df = pivot_df[cols].sort_values("provider:model").reset_index(drop=True)
+    st.dataframe(pivot_df, width="stretch", hide_index=True)
+
+    # Grouped bar chart: one bar group per query_type, one bar per
+    # provider:model. Easy visual scan for "where does Tavily lose?".
+    chart_df = grouped[grouped["graded"] > 0].copy()
+    if not chart_df.empty:
+        import altair as alt
+        # Altair parses `field:type` shorthand, so a literal colon in a
+        # column name collides with the type marker. Use a different
+        # separator and use the column-spec form (no shorthand) for safety.
+        chart_df["provider_model"] = (
+            chart_df["provider"] + " · " + chart_df["model_used"]
+        )
+        chart = (
+            alt.Chart(chart_df)
+            .mark_bar()
+            .encode(
+                x=alt.X(
+                    "query_type",
+                    type="nominal",
+                    title=None,
+                    sort=list(_QUERY_TYPE_ORDER),
+                    axis=alt.Axis(labelAngle=-15),
+                ),
+                xOffset=alt.XOffset(
+                    "provider_model",
+                    type="nominal",
+                    sort=_combo_chart_sort(chart_df),
+                ),
+                y=alt.Y(
+                    "accuracy",
+                    type="quantitative",
+                    title="Accuracy",
+                    scale=alt.Scale(domain=[0, 1]),
+                    axis=alt.Axis(format="%"),
+                ),
+                color=alt.Color(
+                    "provider_model",
+                    type="nominal",
+                    title="provider · model",
+                    sort=_combo_chart_sort(chart_df),
+                ),
+                tooltip=[
+                    alt.Tooltip("provider_model", type="nominal",
+                                title="provider · model"),
+                    alt.Tooltip("query_type", type="nominal"),
+                    alt.Tooltip("correct", type="quantitative", title="correct"),
+                    alt.Tooltip("graded", type="quantitative", title="graded"),
+                    alt.Tooltip("accuracy", type="quantitative",
+                                title="accuracy", format=".0%"),
+                ],
+            )
+            .properties(height=260)
+        )
+        st.altair_chart(chart, width="stretch")
+
+    # Footer: type distribution of the questions actually in this set
+    # (not the whole benchmark) so the user knows how representative the
+    # per-type numbers are.
+    type_counts = (
+        merged.dropna(subset=["query_type"])
+        .drop_duplicates("q_index")["query_type"]
+        .value_counts()
+        .to_dict()
+    )
+    parts = [
+        f"{t} ({type_counts[t]})"
+        for t in _QUERY_TYPE_ORDER
+        if t in type_counts
+    ]
+    if parts:
+        st.caption("Questions in this set: " + " · ".join(parts))
+
+
+def _combo_chart_sort(df: pd.DataFrame) -> list[str]:
+    """Tavily first, then alphabetical — same order used for table columns.
+
+    Uses ` · ` as the separator (not `:`) because Altair parses literal
+    colons in column names as `field:type` shorthand.
+    """
+    combos = sorted(
+        {(p, m) for p, m in zip(df["provider"], df["model_used"])},
+        key=_combo_sort_key,
+    )
+    return [f"{p} · {m}" for p, m in combos]

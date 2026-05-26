@@ -42,10 +42,20 @@ def provider_label(provider: str, model: str) -> str:
     return f"{provider}:{model}"
 
 
+# Provider-label prefixes that count as "Tavily" for highlighting. Includes
+# the search-tier sibling (`tavily_search`) so the Finance Search dashboard
+# colors the hero blue without needing a separate styling path.
+_TAVILY_PREFIXES = ("tavily:", "tavily_search:")
+
+
+def _is_tavily_label(label: str) -> bool:
+    return label.startswith(_TAVILY_PREFIXES)
+
+
 def tavily_first(labels: list[str]) -> list[str]:
     """Tavily entries first, then everything else alphabetical."""
-    tavily = sorted(l for l in labels if l.startswith("tavily:"))
-    others = sorted(l for l in labels if not l.startswith("tavily:"))
+    tavily = sorted(l for l in labels if _is_tavily_label(l))
+    others = sorted(l for l in labels if not _is_tavily_label(l))
     return tavily + others
 
 
@@ -62,7 +72,7 @@ def color_scale_for(labels: list[str]) -> alt.Scale:
             palette.append(TAVILY_COLOR)
         elif label == "tavily:mini":
             palette.append(TAVILY_LIGHT)
-        elif label.startswith("tavily:"):
+        elif _is_tavily_label(label):
             palette.append(fallback_blues[fb % len(fallback_blues)])
             fb += 1
         else:
@@ -112,7 +122,7 @@ def provider_summary(matrix: pd.DataFrame) -> pd.DataFrame:
     out["accuracy"] = out.apply(
         lambda r: r["correct"] / r["n"] if r["n"] else None, axis=1
     )
-    out["is_tavily"] = out["provider"] == "tavily"
+    out["is_tavily"] = out["provider"].isin(("tavily", "tavily_search"))
     return out
 
 
@@ -193,7 +203,7 @@ def grouped_accuracy_bar(
         return None
     df = slice_df.copy()
     df["accuracy_pct"] = (df["accuracy"] * 100).round(1)
-    df["is_tavily"] = df["provider_label"].str.startswith("tavily:")
+    df["is_tavily"] = df["provider_label"].apply(_is_tavily_label)
     labels = df["provider_label"].unique().tolist()
     palette_scale = color_scale_for(labels)
 
@@ -375,7 +385,7 @@ def latency_box(matrix: pd.DataFrame) -> alt.Chart | None:
     )
     pct.columns = ["p5", "p25", "p50", "p75", "p95"]
     pct = pct.reset_index()
-    pct["is_tavily"] = pct["provider_label"].str.startswith("tavily:")
+    pct["is_tavily"] = pct["provider_label"].apply(_is_tavily_label)
     pct = pct.sort_values("p50").reset_index(drop=True)
     order = pct["provider_label"].tolist()
 

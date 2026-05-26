@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider parallel_search --benchmark financebench --model advanced --workers 5 --judge-model claude-haiku-4-5 --q-indices 0,1,2,3,4,5,6
+Run 295: provider=parallel_search model=advanced | financebench | n=7 | workers=5
+parallel_search:advanced:   0%|          | 0/7 [00:00<?, ?it/s]parallel_search:advanced:  14%|█▍        | 1/7 [00:05<00:33,  5.55s/it]parallel_search:advanced:  29%|██▊       | 2/7 [00:07<00:16,  3.28s/it]parallel_search:advanced:  43%|████▎     | 3/7 [00:08<00:09,  2.47s/it]parallel_search:advanced:  57%|█████▋    | 4/7 [00:08<00:04,  1.56s/it]parallel_search:advanced:  71%|███████▏  | 5/7 [00:09<00:02,  1.23s/it]parallel_search:advanced:  86%|████████▌ | 6/7 [00:11<00:01,  1.50s/it]parallel_search:advanced: 100%|██████████| 7/7 [00:13<00:00,  1.64s/it]parallel_search:advanced: 100%|██████████| 7/7 [00:13<00:00,  1.93s/it]
+
+Run 295 done (parallel_search/advanced). Correct 4/7 (57.1%).
