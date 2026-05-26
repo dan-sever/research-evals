@@ -50,9 +50,21 @@ def save_deepsearchqa():
     _save(lambda: load_dataset("google/deepsearchqa"), "deepsearchqa.parquet")
 
 
+def save_financeqa():
+    """FinanceQA — AfterQuery's finance QA benchmark. Requires `huggingface-cli login`."""
+    _save(lambda: load_dataset("AfterQuery/FinanceQA"), "financeqa.parquet")
+
+
+def save_financebench():
+    """FinanceBench — Patronus AI's open-book financial QA benchmark."""
+    _save(lambda: load_dataset("PatronusAI/financebench"), "financebench.parquet")
+
+
 if __name__ == "__main__":
     save_finsearchcomp()
     save_sealqa_seal0()
     save_sealqa_seal_hard()
     save_sealqa_longseal()
     save_deepsearchqa()
+    save_financeqa()
+    save_financebench()
