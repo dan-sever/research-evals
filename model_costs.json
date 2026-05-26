@@ -7,6 +7,12 @@
       "pro": 0.025,
       "auto": 0.015
     },
+    "tavily_search": {
+      "basic": 0.005,
+      "advanced": 0.008,
+      "fast": 0.003,
+      "ultra-fast": 0.002
+    },
     "perplexity": {
       "sonar-reasoning-pro": 0.015,
       "sonar-deep-research": 0.10
@@ -16,6 +22,12 @@
       "deep": 0.025,
       "deep-reasoning": 0.05
     },
+    "exa_search": {
+      "auto": 0.005,
+      "neural": 0.005,
+      "keyword": 0.003,
+      "fast": 0.003
+    },
     "parallel": {
       "lite": 0.005,
       "base": 0.01,
@@ -23,6 +35,10 @@
       "core-fast": 0.025,
       "pro": 0.10,
       "ultra": 0.20
+    },
+    "parallel_search": {
+      "basic": 0.004,
+      "advanced": 0.008
     }
   }
 }

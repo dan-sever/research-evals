@@ -71,6 +71,16 @@ Pure (Streamlit-free) helpers under `benchmarks/`: `dimensions.py` (label parsin
 - **EXA:** sync `/answer` endpoint. `citations` field.
 - **Parallel:** task-runner at `https://api.parallel.ai/v1/tasks/runs`. Endpoint shapes match public docs at time of writing but have not been verified against a live key. Expect to tweak `benchmarks/providers/parallel.py` on first real call.
 
+### Search-tier providers (Finance search tab)
+
+Three sibling providers — `tavily_search`, `exa_search`, `parallel_search` — wrap the regular `/search` endpoints (not the research endpoints). They are intentionally constrained to an apples-to-apples shape:
+
+1. Each hits its provider's `/search` and pulls **URL + title + snippet** only — no provider-side answer synthesis. Concretely: Tavily's `results[*].content`, EXA's `results[*].highlights` (fall back to `text` when empty), Parallel's `results[*].excerpts`.
+2. All three then call the **same** `benchmarks/providers/_synth.synthesize_answer` (Claude Haiku 4.5) with the same prompt to produce the gradeable answer. What we grade is the retrieval quality, not each vendor's LLM.
+3. `ANTHROPIC_API_KEY` is required for both the judge and the synthesizer — the Finance Search tab's pre-flight check enforces this.
+
+If you add a fourth search-tier provider, follow this contract or the comparison stops being honest. Do not turn on `include_answer` / `output_schema={"type":"text"}` / answer-mode flags on these endpoints, even when the vendor offers them.
+
 Models per provider are declared in `available_models` on each provider class. They surface automatically in the Launch tab and in `model_tiers.json` membership.
 
 ---

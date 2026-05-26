@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider tavily_search --benchmark financeqa --model basic --workers 5 --judge-model claude-haiku-4-5 --q-indices 7,19,27,28,43,55,60,61,67,83 --comparison-set 83e841ea-ae77-48de-ba00-35a1ff528878
+Run 275: provider=tavily_search model=basic | financeqa | n=10 | workers=5
+tavily_search:basic:   0%|          | 0/10 [00:00<?, ?it/s]tavily_search:basic:  10%|█         | 1/10 [00:04<00:40,  4.55s/it]tavily_search:basic:  20%|██        | 2/10 [00:04<00:15,  1.97s/it]tavily_search:basic:  30%|███       | 3/10 [00:05<00:09,  1.37s/it]tavily_search:basic:  40%|████      | 4/10 [00:05<00:05,  1.13it/s]tavily_search:basic:  50%|█████     | 5/10 [00:05<00:03,  1.39it/s]tavily_search:basic:  60%|██████    | 6/10 [00:08<00:06,  1.51s/it]tavily_search:basic:  70%|███████   | 7/10 [00:09<00:03,  1.32s/it]tavily_search:basic:  90%|█████████ | 9/10 [00:10<00:00,  1.40it/s]tavily_search:basic: 100%|██████████| 10/10 [00:10<00:00,  1.78it/s]tavily_search:basic: 100%|██████████| 10/10 [00:10<00:00,  1.02s/it]
+
+Run 275 done (tavily_search/basic). Correct 0/10 (0.0%).

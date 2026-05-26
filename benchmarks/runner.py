@@ -12,6 +12,27 @@ from .config import RunConfig, load_env
 from .judge import Judge
 
 
+def _search_query(q: datasets.Question) -> str:
+    """Question text as sent to the provider, with `company` context
+    prepended when the question itself omits it.
+
+    `financeqa` rows ask things like "What is Gross Profit in the year
+    ending 2024?" — the company ("Costco") lives in a separate column.
+    A bare search engine has no way to resolve that, so we inject the
+    company name here. `financebench` rows already mention the company
+    in the prompt, so the substring check makes this a no-op for them.
+
+    The original `q.question` is preserved everywhere else (storage,
+    judge input) — only what we send to the provider gets augmented.
+    """
+    company = (q.extras or {}).get("company")
+    if not company:
+        return q.question
+    if str(company).lower() in q.question.lower():
+        return q.question
+    return f"{company}: {q.question}"
+
+
 def run(config: RunConfig) -> int:
     env = load_env()
 
@@ -55,7 +76,7 @@ def run(config: RunConfig) -> int:
     def process(q):
         try:
             res = provider.run(
-                question=q.question,
+                question=_search_query(q),
                 model=config.model,
                 citation_format=config.citation_format,
                 poll_interval=config.poll_interval_seconds,

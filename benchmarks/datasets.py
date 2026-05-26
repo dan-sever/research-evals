@@ -63,6 +63,23 @@ REGISTRY: dict[str, BenchmarkSpec] = {
         answer_col="answer",
         extra_cols=("problem_category", "answer_type"),
     ),
+    "financebench": BenchmarkSpec(
+        name="financebench",
+        parquet="financebench.parquet",
+        question_col="question",
+        answer_col="answer",
+        extra_cols=(
+            "company", "doc_name", "question_type", "question_reasoning",
+            "gics_sector", "doc_type", "doc_period",
+        ),
+    ),
+    "financeqa": BenchmarkSpec(
+        name="financeqa",
+        parquet="financeqa.parquet",
+        question_col="question",
+        answer_col="answer",
+        extra_cols=("company", "file_name", "question_type"),
+    ),
 }
 
 

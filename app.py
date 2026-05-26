@@ -14,6 +14,7 @@ from benchmarks import launcher, storage
 from ui.tabs import compare as compare_tab
 from ui.tabs import dashboard as dashboard_tab
 from ui.tabs import export as export_tab
+from ui.tabs import finance_search as finance_search_tab
 from ui.tabs import insights as insights_tab
 from ui.tabs import inspect as inspect_tab
 from ui.tabs import launch as launch_tab
@@ -34,14 +35,18 @@ if "_logs_pruned" not in st.session_state:
     st.session_state["_logs_pruned"] = True
 
 
-(tab_launch, tab_inspect, tab_compare, tab_tier, tab_dashboard,
- tab_insights, tab_export) = st.tabs(
-    ["Launch run", "Single run inspector", "Provider comparison",
-     "Tier analysis", "Dashboard", "Insights", "Export data"]
+(tab_launch, tab_finance, tab_inspect, tab_compare, tab_tier,
+ tab_dashboard, tab_insights, tab_export) = st.tabs(
+    ["Launch run", "Finance search", "Single run inspector",
+     "Provider comparison", "Tier analysis", "Dashboard", "Insights",
+     "Export data"]
 )
 
 with tab_launch:
     launch_tab.render()
+
+with tab_finance:
+    finance_search_tab.render()
 
 with tab_inspect:
     inspect_tab.render()

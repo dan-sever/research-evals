@@ -29,6 +29,11 @@ UI_PERSIST_PREFIXES = (
     "launch_chk_",
     "launch_tier_filter",
     "tier_",
+    "finsearch_bench",
+    "finsearch_seed",
+    "finsearch_count",
+    "finsearch_workers",
+    "finsearch_chk_",
 )
 
 

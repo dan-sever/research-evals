@@ -1,0 +1,5 @@
+$ '/Users/dansever/Tavily Projects/Benchmarks/.venv/bin/python' run.py --provider exa_search --benchmark financebench --model auto --workers 5 --judge-model claude-haiku-4-5 --q-indices 78,117,126,129,130,133,134,140,144,148 --comparison-set e26bd444-7ead-41c5-8bea-070ec02f0225
+Run 252: provider=exa_search model=auto | financebench | n=10 | workers=5
+exa_search:auto:   0%|          | 0/10 [00:00<?, ?it/s]exa_search:auto:  10%|█         | 1/10 [00:04<00:41,  4.66s/it]exa_search:auto:  20%|██        | 2/10 [00:05<00:19,  2.43s/it]exa_search:auto:  30%|███       | 3/10 [00:05<00:09,  1.37s/it]exa_search:auto:  50%|█████     | 5/10 [00:05<00:03,  1.51it/s]exa_search:auto:  60%|██████    | 6/10 [00:11<00:07,  1.96s/it]exa_search:auto:  70%|███████   | 7/10 [00:11<00:04,  1.43s/it]exa_search:auto:  90%|█████████ | 9/10 [00:11<00:00,  1.24it/s]exa_search:auto: 100%|██████████| 10/10 [00:12<00:00,  1.08it/s]exa_search:auto: 100%|██████████| 10/10 [00:12<00:00,  1.26s/it]
+
+Run 252 done (exa_search/auto). Correct 6/10 (60.0%).
